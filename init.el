@@ -30,6 +30,11 @@
     (setq user-emacs-directory
           (expand-file-name
            (file-name-directory (or load-file-name byte-compile-current-file))))))
+(global-hl-line-mode +1) ;; 現在行を強調
+(global-display-line-numbers-mode +1) ;; 左側に行番号を表示する
+(electric-pair-mode +1) ;; 括弧を補完する
+
+(global-git-gutter-mode +1)
 
 (eval-and-compile
   (customize-set-variable
