@@ -179,6 +179,16 @@
   :hook ((after-init-hook . global-diff-hl-mode)
          (after-init-hook . diff-hl-margin-mode)))
 
+;; Markdown mode
+(leaf markdown-mode :ensure t
+  :mode ("\\.md\\'" . gfm-mode)
+  :config
+  (setopt markdown-command '("pandoc" "--from=markdown" "--to=html5"))
+  (setopt markdown-fontify-code-blocks-natively t)
+  (setopt markdown-header-scaling t)
+  (setopt markdown-indent-on-enter 'indent-and-new-item))
+
+
 (provide 'init)
 
 ;; Local Variables:
