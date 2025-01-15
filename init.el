@@ -139,6 +139,12 @@
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
+;; diff-hl : Git 差分
+(leaf diff-hl
+  :ensure t
+  :hook ((after-init-hook . global-diff-hl-mode)
+         (after-init-hook . diff-hl-margin-mode)))
+
 (provide 'init)
 
 ;; Local Variables:
