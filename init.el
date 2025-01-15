@@ -99,8 +99,9 @@
 ;; dired-sidebar
 (leaf dired-sidebar
   :ensure t
-  :bind ("C-w" . dired-sidebar-toggle-sidebar)
+  :bind ("C-q" . dired-sidebar-toggle-sidebar)
   :custom ((dired-sidebar-theme . 'nerd)))
+
 ;; 名前をつけずに新規作成(https://qiita.com/tadsan/items/4ad2e5e3114fff172b6a)
 (defun my/new-untitled-buffer ()
   "Create and switch to untitled buffer."
