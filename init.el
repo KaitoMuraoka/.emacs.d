@@ -1,4 +1,4 @@
-;;; init.el --- My init.el  -*- lexical-binding: t; -*-
+;; init.el --- My init.el  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Naoya Yamashita
 
@@ -58,6 +58,13 @@
     (leaf-keywords-init)))
 
 ;; ここにいっぱい設定を書く
+
+;; カラーテーマを設定する
+(leaf modus-themes
+  :ensure t
+  :config
+  ;; ダークテーマを有効にする
+  (load-theme 'modus-vivendi t))
 
 ;; dired-sidebar
 (leaf dired-sidebar
