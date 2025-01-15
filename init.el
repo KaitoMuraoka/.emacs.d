@@ -58,6 +58,13 @@
     (leaf-keywords-init)))
 
 ;; ここにいっぱい設定を書く
+
+;; dired-sidebar
+(leaf dired-sidebar
+  :ensure t
+  :bind ("C-w" . dired-sidebar-toggle-sidebar)
+  :custom ((dired-sidebar-theme . 'nerd)))
+
   ;; バックアップファイルを作成しない
       (setq make-backup-files nil)
       (setq make-backup-files t)
