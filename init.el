@@ -34,6 +34,7 @@
 (global-display-line-numbers-mode +1) ;; 左側に行番号を表示する
 (electric-pair-mode +1) ;; 括弧を補完する
 (setq inhibit-startup-message t) ;; 起動時のWelcomeメッセージを非表示
+(set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
 
 (eval-and-compile
   (customize-set-variable
