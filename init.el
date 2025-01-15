@@ -1,4 +1,4 @@
-;;; init.el --- My init.el  -*- lexical-binding: t; -*-
+;; init.el --- My init.el  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Naoya Yamashita
 
@@ -34,6 +34,9 @@
 (global-display-line-numbers-mode +1) ;; 左側に行番号を表示する
 (electric-pair-mode +1) ;; 括弧を補完する
 (setq inhibit-startup-message t) ;; 起動時のWelcomeメッセージを非表示
+(set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
+(setq auto-save-default nil);; 自動保存を無効化する
+(setq make-backup-files nil);; バックアップファイルを作成しない
 
 (eval-and-compile
   (customize-set-variable
@@ -59,15 +62,46 @@
 
 ;; ここにいっぱい設定を書く
 
+;; カラーテーマを設定する
+(leaf modus-themes
+  :ensure t
+  :config
+  ;; ダークテーマを有効にする
+  (load-theme 'modus-vivendi t))
+
+;; magit: Emacs上でGitを操作する
+(leaf magit
+  :when (version<= "25.1" emacs-version)
+  :ensure t
+  :preface
+  (defun c/git-commit-a ()
+    "Commit after add anything."
+    (interactive)
+    (shell-command "git add .")
+    (magit-commit-create))
+  :bind (("M-=" . hydra-magit/body))
+  :hydra (hydra-magit
+          (:hint nil :exit t)
+          "
+^^         hydra-magit
+^^------------------------------
+ _s_   magit-status
+ _C_   magit-clone
+ _c_   magit-commit
+ _d_   magit-diff-working-tree
+ _M-=_ magit-commit-create"
+          ("s" magit-status)
+          ("C" magit-clone)
+          ("c" magit-commit)
+          ("d" magit-diff-working-tree)
+          ("M-=" c/git-commit-a)))
+
 ;; dired-sidebar
 (leaf dired-sidebar
   :ensure t
-  :bind ("C-w" . dired-sidebar-toggle-sidebar)
+  :bind ("C-q" . dired-sidebar-toggle-sidebar)
   :custom ((dired-sidebar-theme . 'nerd)))
 
-  ;; バックアップファイルを作成しない
-      (setq make-backup-files nil)
-      (setq make-backup-files t)
 ;; 名前をつけずに新規作成(https://qiita.com/tadsan/items/4ad2e5e3114fff172b6a)
 (defun my/new-untitled-buffer ()
   "Create and switch to untitled buffer."
@@ -138,6 +172,26 @@
   :defvar company-backends
   :config
   (add-to-list 'company-backends 'company-c-headers))
+
+;; diff-hl : Git 差分
+(leaf diff-hl
+  :ensure t
+  :hook ((after-init-hook . global-diff-hl-mode)
+         (after-init-hook . diff-hl-margin-mode)))
+
+;; magit
+(leaf magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
+
+;; Markdown mode
+(leaf markdown-mode :ensure t
+  :mode ("\\.md\\'" . gfm-mode)
+  :config
+  (setopt markdown-command '("pandoc" "--from=markdown" "--to=html5"))
+  (setopt markdown-fontify-code-blocks-natively t)
+  (setopt markdown-header-scaling t)
+  (setopt markdown-indent-on-enter 'indent-and-new-item))
 
 (provide 'init)
 
