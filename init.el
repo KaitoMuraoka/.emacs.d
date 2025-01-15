@@ -35,6 +35,8 @@
 (electric-pair-mode +1) ;; 括弧を補完する
 (setq inhibit-startup-message t) ;; 起動時のWelcomeメッセージを非表示
 (set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
+(setq auto-save-default nil);; 自動保存を無効化する
+(setq make-backup-files nil);; バックアップファイルを作成しない
 
 (eval-and-compile
   (customize-set-variable
@@ -99,10 +101,6 @@
   :ensure t
   :bind ("C-w" . dired-sidebar-toggle-sidebar)
   :custom ((dired-sidebar-theme . 'nerd)))
-
-  ;; バックアップファイルを作成しない
-      (setq make-backup-files nil)
-      (setq make-backup-files t)
 ;; 名前をつけずに新規作成(https://qiita.com/tadsan/items/4ad2e5e3114fff172b6a)
 (defun my/new-untitled-buffer ()
   "Create and switch to untitled buffer."
