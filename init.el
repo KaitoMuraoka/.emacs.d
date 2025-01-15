@@ -179,6 +179,11 @@
   :hook ((after-init-hook . global-diff-hl-mode)
          (after-init-hook . diff-hl-margin-mode)))
 
+;; magit
+(leaf magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
+
 ;; Markdown mode
 (leaf markdown-mode :ensure t
   :mode ("\\.md\\'" . gfm-mode)
@@ -187,7 +192,6 @@
   (setopt markdown-fontify-code-blocks-natively t)
   (setopt markdown-header-scaling t)
   (setopt markdown-indent-on-enter 'indent-and-new-item))
-
 
 (provide 'init)
 
