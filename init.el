@@ -67,6 +67,33 @@
   ;; ダークテーマを有効にする
   (load-theme 'modus-vivendi t))
 
+;; magit: Emacs上でGitを操作する
+(leaf magit
+  :when (version<= "25.1" emacs-version)
+  :ensure t
+  :preface
+  (defun c/git-commit-a ()
+    "Commit after add anything."
+    (interactive)
+    (shell-command "git add .")
+    (magit-commit-create))
+  :bind (("M-=" . hydra-magit/body))
+  :hydra (hydra-magit
+          (:hint nil :exit t)
+          "
+^^         hydra-magit
+^^------------------------------
+ _s_   magit-status
+ _C_   magit-clone
+ _c_   magit-commit
+ _d_   magit-diff-working-tree
+ _M-=_ magit-commit-create"
+          ("s" magit-status)
+          ("C" magit-clone)
+          ("c" magit-commit)
+          ("d" magit-diff-working-tree)
+          ("M-=" c/git-commit-a)))
+
 ;; dired-sidebar
 (leaf dired-sidebar
   :ensure t
