@@ -37,6 +37,7 @@
 (set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
 (setq auto-save-default nil);; 自動保存を無効化する
 (setq make-backup-files nil);; バックアップファイルを作成しない
+(tool-bar-mode -1) ;; ツールバーを非表示
 
 (eval-and-compile
   (customize-set-variable
@@ -196,6 +197,19 @@
 (leaf magit
   :ensure t
   :bind (("C-x g" . magit-status)))
+
+;; Powerline
+(use-package powerline
+  :ensure t
+  :config
+  (powerline-default-theme))
+
+;; Spaceline
+(use-package spaceline
+  :ensure t
+  :after powerline
+  :config
+  (spaceline-emacs-theme))
 
 ;; Markdown mode
 (leaf markdown-mode :ensure t
