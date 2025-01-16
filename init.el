@@ -62,6 +62,19 @@
 
 ;; ここにいっぱい設定を書く
 
+;;Emacs入門から始めるleaf.el入門より
+(leaf leaf
+  :config
+  (leaf leaf-convert :ensure t)
+  (leaf leaf-tree
+    :ensure t
+    :custom ((imenu-list-size . 30)
+             (imenu-list-position . 'left))))
+(leaf macrostep
+  :ensure t
+  :bind (("C-c e" . macrostep-expand)))
+
+
 ;; カラーテーマを設定する
 (leaf modus-themes
   :ensure t
