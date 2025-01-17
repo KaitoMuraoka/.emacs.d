@@ -244,32 +244,32 @@
       "/usr/local/bin/sourcekit-lsp"))
 
 ;; .editorconfig file support
-(leaf editorconfig
+(use-package editorconfig
     :ensure t
     :config (editorconfig-mode +1))
 
 ;; Swift editing support
-(leaf swift-mode
+(use-package swift-mode
     :ensure t
     :mode "\\.swift\\'"
     :interpreter "swift")
 ;; Rainbow delimiters makes nested delimiters easier to understand
-(leaf rainbow-delimiters
+(use-package rainbow-delimiters
     :ensure t
     :hook ((prog-mode . rainbow-delimiters-mode)))
 
 ;; Used to interface with swift-lsp.
-(leaf lsp-mode
+(use-package lsp-mode
     :ensure t
     :commands lsp
     :hook ((swift-mode . lsp)))
 
 ;; lsp-mode's UI modules
-(leaf lsp-ui
+(use-package lsp-ui
     :ensure t)
 
 ;; sourcekit-lsp support
-(leaf lsp-sourcekit
+(use-package lsp-sourcekit
     :ensure t
     :after lsp-mode
     :custom
