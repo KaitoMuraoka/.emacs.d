@@ -237,6 +237,44 @@
   (setopt markdown-header-scaling t)
   (setopt markdown-indent-on-enter 'indent-and-new-item))
 
+;; "find-sourcekit-lsp"という名前の関数を自前で定義する例
+(defun find-sourcekit-lsp ()
+  "sourcekit-lspが存在する場合はそのPathを返し、存在しない場合は fallbackする"
+  (or (executable-find "sourcekit-lsp")
+      "/usr/local/bin/sourcekit-lsp"))
+
+;; .editorconfig file support
+(leaf editorconfig
+    :ensure t
+    :config (editorconfig-mode +1))
+
+;; Swift editing support
+(leaf swift-mode
+    :ensure t
+    :mode "\\.swift\\'"
+    :interpreter "swift")
+;; Rainbow delimiters makes nested delimiters easier to understand
+(leaf rainbow-delimiters
+    :ensure t
+    :hook ((prog-mode . rainbow-delimiters-mode)))
+
+;; Used to interface with swift-lsp.
+(leaf lsp-mode
+    :ensure t
+    :commands lsp
+    :hook ((swift-mode . lsp)))
+
+;; lsp-mode's UI modules
+(leaf lsp-ui
+    :ensure t)
+
+;; sourcekit-lsp support
+(leaf lsp-sourcekit
+    :ensure t
+    :after lsp-mode
+    :custom
+    (lsp-sourcekit-executable (find-sourcekit-lsp) "Find sourcekit-lsp"))
+
 (provide 'init)
 
 ;; Local Variables:
