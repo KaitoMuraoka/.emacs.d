@@ -190,20 +190,7 @@
 ;; git-gutter : Git 差分
 (leaf git-gutter
   :ensure t
-  :init
-  ;; Git の差分を常に表示する
-  (global-git-gutter-mode +1)
-  :custom-face
-  ;; Emacs 既定のカスタムフェイス書式に合わせる
-  (git-gutter:modified
-   '((t (:background "#fcf002"
-                     :foreground "#000000"))))
-  (git-gutter:added
-   '((t (:background "#affc74"
-                     :foreground "#000000"))))
-  (git-gutter:deleted
-   '((t (:background "#ffaaaa"
-                     :foreground "#000000")))))
+  :global-minor-mode global-git-gutter-mode)
 
 ;; magit
 (leaf magit
@@ -211,13 +198,13 @@
   :bind (("C-x g" . magit-status)))
 
 ;; Powerline
-(use-package powerline
+(leaf powerline
   :ensure t
   :config
   (powerline-default-theme))
 
 ;; Spaceline
-(use-package spaceline
+(leaf spaceline
   :ensure t
   :after powerline
   :config
