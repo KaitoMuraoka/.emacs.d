@@ -187,11 +187,23 @@
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
-;; diff-hl : Git 差分
-(leaf diff-hl
+;; git-gutter : Git 差分
+(leaf git-gutter
   :ensure t
-  :hook ((after-init-hook . global-diff-hl-mode)
-         (after-init-hook . diff-hl-margin-mode)))
+  :init
+  ;; Git の差分を常に表示する
+  (global-git-gutter-mode +1)
+  :custom-face
+  ;; Emacs 既定のカスタムフェイス書式に合わせる
+  (git-gutter:modified
+   '((t (:background "#fcf002"
+                     :foreground "#000000"))))
+  (git-gutter:added
+   '((t (:background "#affc74"
+                     :foreground "#000000"))))
+  (git-gutter:deleted
+   '((t (:background "#ffaaaa"
+                     :foreground "#000000")))))
 
 ;; magit
 (leaf magit
@@ -210,6 +222,32 @@
   :after powerline
   :config
   (spaceline-emacs-theme))
+
+;; treesitter
+(leaf treesit
+  :config
+  (setopt treesit-font-lock-level 4)
+  (setopt treesit-language-source-alist
+        '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+          (css "https://github.com/tree-sitter/tree-sitter-css")
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (go "https://github.com/tree-sitter/tree-sitter-go")
+          (html "https://github.com/tree-sitter/tree-sitter-html")
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+          (json "https://github.com/tree-sitter/tree-sitter-json")
+          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+          (toml "https://github.com/tree-sitter/tree-sitter-toml")
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+)
+
+;; Typescript mode
+(leaf typescript-mode
+  :ensure t
+  :mode
+  (("\\.ts\\'" . typescript-mode)
+   ("\\.tsx\\'" . tsx-ts-mode)))
 
 ;; Markdown mode
 (leaf markdown-mode :ensure t
