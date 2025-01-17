@@ -37,7 +37,7 @@
 (set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
 (setq auto-save-default nil);; 自動保存を無効化する
 (setq make-backup-files nil);; バックアップファイルを作成しない
-(tool-bar-mode -1) ;; ツールバーを非表示
+;; (tool-bar-mode -1) ;; ツールバーを非表示
 
 (eval-and-compile
   (customize-set-variable
@@ -77,11 +77,11 @@
 
 
 ;; カラーテーマを設定する
-(leaf modus-themes
-  :ensure t
-  :config
-  ;; ダークテーマを有効にする
-  (load-theme 'modus-vivendi t))
+;; (leaf modus-themes
+;;   :ensure t
+;;   :config
+;;   ;; ダークテーマを有効にする
+;;   (load-theme 'modus-vivendi t))
 
 ;; magit: Emacs上でGitを操作する
 (leaf magit
