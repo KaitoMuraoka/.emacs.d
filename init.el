@@ -30,6 +30,10 @@
     (setq user-emacs-directory
           (expand-file-name
            (file-name-directory (or load-file-name byte-compile-current-file))))))
+;; 日本語設定
+(set-language-environment "Japanese")
+(prefer-coding-system 'utf-8)
+(set-default 'buffer-file-coding-system 'utf-8)
 (global-hl-line-mode +1) ;; 現在行を強調
 (global-display-line-numbers-mode +1) ;; 左側に行番号を表示する
 (electric-pair-mode +1) ;; 括弧を補完する
