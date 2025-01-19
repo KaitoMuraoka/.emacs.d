@@ -1418,7 +1418,7 @@
 		     (:url . "https://elpa.gnu.org/packages/elisp-benchmarks.html")
 		     (:commit . "1a3d97954957a95a179806e0d49ca6d178b097af"))])
  (ellama .
-	 [(0 13 1)
+	 [(0 13 2)
 	  ((emacs
 	    (28 1))
 	   (llm
@@ -1435,7 +1435,7 @@
 	   (:maintainer "Sergey Kostyaev" . "sskostyaev@gmail.com")
 	   (:authors
 	    ("Sergey Kostyaev" . "sskostyaev@gmail.com"))
-	   (:commit . "d208ec10cebbea5412e6dd333f741a2be7919f87"))])
+	   (:commit . "dddbd087a74ce2b74ca93811b5ba556952e7a102"))])
  (emacs-gc-stats .
 		 [(1 4 2)
 		  ((emacs
@@ -4831,20 +4831,20 @@
 	     ("Daniel Mendler" . "mail@daniel-mendler.de"))
 	    (:commit . "6ef99c9219b55b7618d111d352caf795ba07bc54"))])
  (vertico-posframe .
-		   [(0 7 8)
+		   [(0 8 0)
 		    ((emacs
 		      (26 0))
 		     (posframe
 		      (1 4 0))
 		     (vertico
-		      (1 1)))
+		      (1 10)))
 		    "Using posframe to show Vertico" tar
 		    ((:url . "https://github.com/tumashu/vertico-posframe")
 		     (:keywords "abbrev" "convenience" "matching" "vertico")
 		     (:maintainer "Feng Shu" . "tumashu@163.com")
 		     (:authors
 		      ("Feng Shu" . "tumashu@163.com"))
-		     (:commit . "b1bcba60550ac2cf7676ad00c3f735dc43489869"))])
+		     (:commit . "781ee08f8d92f640dff8a0d8838b67a13a391846"))])
  (vigenere .
 	   [(1 0)
 	    ((emacs
