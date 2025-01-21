@@ -202,6 +202,16 @@
   :ensure t
   :bind (("C-x g" . magit-status)))
 
+;; ================================
+;; Org-mode の設定
+;; ================================
+;; Org BabelでSwiftをサポート
+(add-to-list 'load-path "~/personalDevelop/emacs-plugin/ob-swift/");; ローカルパスをEmacsのload-pathに設定
+(require 'ob-swift) ;; `ob-swift`をロード
+(org-babel-do-load-languages
+ 'org-babel-do-load-languages
+ '((swift t)))
+
 ;; Powerline
 (leaf powerline
   :ensure t

@@ -2,4 +2,6 @@
  (magit-commit nil
 	       ("--reset-author"))
  (magit-dispatch nil)
- (magit-push nil))
+ (magit-push nil)
+ (magit-rebase
+  ("--autostash" "--interactive")))
