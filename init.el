@@ -208,9 +208,17 @@
 ;; Org BabelでSwiftをサポート
 (add-to-list 'load-path "~/personalDevelop/emacs-plugin/ob-swift/");; ローカルパスをEmacsのload-pathに設定
 (require 'ob-swift) ;; `ob-swift`をロード
+;; org babel
 (org-babel-do-load-languages
  'org-babel-do-load-languages
  '((swift t)))
+
+(use-package ob-swiftui
+  :ensure t
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((swiftui . t))))
 
 ;; Powerline
 (leaf powerline
