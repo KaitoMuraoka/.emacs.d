@@ -1,3 +1,4 @@
+
 ;; init.el --- My init.el  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Naoya Yamashita
@@ -219,6 +220,12 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((swiftui . t))))
+
+;; ox-qmd: Org-mode から Qiita 用 Markdown にエクスポート
+(use-package ox-qmd
+  :ensure t
+  :config
+  (add-to-list 'ox-qmd-language-keyword-alist '("shell-script" . "sh")))
 
 ;; Powerline
 (leaf powerline
