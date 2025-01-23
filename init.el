@@ -1,3 +1,4 @@
+
 ;; init.el --- My init.el  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Naoya Yamashita
@@ -201,6 +202,30 @@
 (leaf magit
   :ensure t
   :bind (("C-x g" . magit-status)))
+
+;; ================================
+;; Org-mode の設定
+;; ================================
+;; Org BabelでSwiftをサポート
+(add-to-list 'load-path "~/personalDevelop/emacs-plugin/ob-swift/");; ローカルパスをEmacsのload-pathに設定
+(require 'ob-swift) ;; `ob-swift`をロード
+;; org babel
+(org-babel-do-load-languages
+ 'org-babel-do-load-languages
+ '((swift t)))
+
+(use-package ob-swiftui
+  :ensure t
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((swiftui . t))))
+
+;; ox-qmd: Org-mode から Qiita 用 Markdown にエクスポート
+(use-package ox-qmd
+  :ensure t
+  :config
+  (add-to-list 'ox-qmd-language-keyword-alist '("shell-script" . "sh")))
 
 ;; Powerline
 (leaf powerline
