@@ -305,6 +305,13 @@
     :custom
     (lsp-sourcekit-executable (find-sourcekit-lsp) "Find sourcekit-lsp"))
 
+;; python : pyright
+(leaf lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred))))
+
 (provide 'init)
 
 ;; Local Variables:
