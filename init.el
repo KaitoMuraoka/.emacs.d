@@ -312,6 +312,19 @@
                          (require 'lsp-pyright)
                          (lsp-deferred))))
 
+;; lsp-javaの設定
+(use-package lsp-java
+  :ensure t
+  :after lsp-mode
+  :config
+  ;; Eclipse JDT Language Serverを自動インストール
+  (add-hook 'java-mode-hook #'lsp)
+  ;; 必要に応じてプロジェクト設定を指定
+  (setq lsp-java-server-install-dir "~/.emacs.d/eclipse.jdt.ls/server/")
+  (setq lsp-java-format-settings-url "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml")
+  (setq lsp-java-format-settings-profile "GoogleStyle"))
+
+
 (provide 'init)
 
 ;; Local Variables:
