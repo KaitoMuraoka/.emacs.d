@@ -292,7 +292,7 @@
 (use-package lsp-mode
     :ensure t
     :commands lsp
-    :hook ((swift-mode . lsp)))
+    :hook (swift-mode . lsp))
 
 ;; lsp-mode's UI modules
 (use-package lsp-ui
