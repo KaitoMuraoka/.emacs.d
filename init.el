@@ -206,6 +206,47 @@
 ;; ================================
 ;; Org-mode の設定
 ;; ================================
+(add-to-list 'exec-path "/opt/homebrew/bin/gpg") ;; 上記で確認したパスを設定
+(setq epg-gpg-program "/opt/homebrew/bin/gpg") ;; EmacsでGPGを指定
+
+;; org-roam
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (concat
+                       (s-trim-right (shell-command-to-string "ghq root"))
+                       "/note"))
+  (org-roam-completion-everywhere t)
+  (org-roam-database-connector 'sqlite-builtin)
+  (org-roam-db-gc-threshold (* 4 gc-cons-threshold))
+  :bind
+  (("C-c n f" . org-roam-node-find)
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n c" . org-roam-capture))
+  :config
+  ;; データベースの自動同期を有効化
+  (org-roam-db-autosync-enable)
+  ;; キャプチャテンプレートの設定
+  (setq org-roam-capture-templates
+        '(("f" "Fleeting(技術的なメモ)" plain "%?"
+           :target (file+head "org/fleeting/%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+           :unnarrowed t)
+          ("l" "Literature(文献)" plain "%?"
+           :target (file+head "org/literature/%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+           :unnarrowed t)
+          ("p" "Permanent(体裁を整えた技術記事)" plain "%?"
+           :target (file+head "org/permanent/%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+           :unnarrowed t)
+          ("d" "Diary(日記や非技術的なメモ)" plain "%?"
+           :target (file+head "org/diary/%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+           :unnarrowed t)
+          ("q" "Qiita" plain "%?"
+           :target (file+head "org/qiita/%<%Y%m%d%H%M%S>.org" "#+TITLE: ${title}\n")
+           :unnarrowed t)
+          ("m" "Private" plain "%?"
+           :target (file+head "org/private/%<%Y%m%d%H%M%S>.org.gpg" "#+TITLE: ${title}\n")
+           :unnarrowed t))))
+
 ;; Org BabelでSwiftをサポート
 (add-to-list 'load-path "~/personalDevelop/emacs-plugin/ob-swift/");; ローカルパスをEmacsのload-pathに設定
 (require 'ob-swift) ;; `ob-swift`をロード
