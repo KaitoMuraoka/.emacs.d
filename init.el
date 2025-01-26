@@ -83,11 +83,20 @@
 
 
 ;; カラーテーマを設定する
-;; (leaf modus-themes
-;;   :ensure t
-;;   :config
-;;   ;; ダークテーマを有効にする
-;;   (load-theme 'modus-vivendi t))
+(use-package circadian
+  :ensure t
+  :config
+  ;; 位置情報を設定 (緯度と経度)
+  (setq calendar-latitude 35.6895)  ;; 例: 東京の緯度
+  (setq calendar-longitude 139.6917) ;; 例: 東京の経度
+
+  ;; 時間帯ごとのテーマを設定
+  (setq circadian-themes '((:sunrise . modus-operandi)  ;; 朝テーマ
+                           (:sunset  . modus-vivendi))) ;; 夜テーマ
+
+  ;; circadian を起動
+  (circadian-setup))
+
 
 ;; magit: Emacs上でGitを操作する
 (leaf magit
