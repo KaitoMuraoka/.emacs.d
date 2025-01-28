@@ -267,19 +267,6 @@
   :config
   (add-to-list 'ox-qmd-language-keyword-alist '("shell-script" . "sh")))
 
-;; Powerline
-(leaf powerline
-  :ensure t
-  :config
-  (powerline-default-theme))
-
-;; Spaceline
-(leaf spaceline
-  :ensure t
-  :after powerline
-  :config
-  (spaceline-emacs-theme))
-
 ; treesitter
 (use-package treesit-auto
   :ensure t
