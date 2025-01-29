@@ -316,11 +316,6 @@
     :ensure t
     :config (editorconfig-mode +1))
 
-;; Swift editing support
-(use-package swift-mode
-    :ensure t
-    :mode "\\.swift\\'"
-    :interpreter "swift")
 ;; Rainbow delimiters makes nested delimiters easier to understand
 (use-package rainbow-delimiters
     :ensure t
@@ -338,10 +333,17 @@
 
 ;; sourcekit-lsp support
 (use-package lsp-sourcekit
-    :ensure t
-    :after lsp-mode
-    :custom
-    (lsp-sourcekit-executable (find-sourcekit-lsp) "Find sourcekit-lsp"))
+  :ensure t
+  :after lsp-mode
+  :config
+  (setq lsp-sourcekit-executable "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp"))
+
+;; Swift editing support
+(use-package swift-mode
+  :ensure t
+  :hook (swift-mode . (lambda () (lsp)))
+  :mode "\\.swift\\'"
+  :interpreter "swift")
 
 (provide 'init)
 
