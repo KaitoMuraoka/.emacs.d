@@ -192,6 +192,9 @@
   :config
   (add-to-list 'company-backends 'company-c-headers))
 
+;;; ===================
+;;; Git に関するプラグイン
+;;; ===================
 ;; git-gutter : Git 差分
 (leaf git-gutter
   :ensure t
