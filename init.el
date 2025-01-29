@@ -129,6 +129,13 @@
 ;; Alt+Shift+N に割り当てる
 (global-set-key (kbd "M-N") 'my/new-untitled-buffer)
 
+;; open-junk-file
+(use-package open-junk-file
+  :ensure t
+  :bind (("C-x j" . open-junk-file))
+  :config
+  (setq open-junk-file-format "~/junk/%Y_%m_%d_%H%M%S.")) ;; 作成したファイルの場所とファイル名を設置
+
 ;; autorevert
 (leaf autorevert
   :doc "revert buffers when files on disk change"
@@ -191,6 +198,7 @@
   :defvar company-backends
   :config
   (add-to-list 'company-backends 'company-c-headers))
+
 
 ;;; ===================
 ;;; Git に関するプラグイン
