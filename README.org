@@ -1,6 +1,14 @@
 * .emacs.d
 これは、私のEmacs の設定である。
 
+* Install
+私はmacOSを使っているので、 Emacs本体は[[https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file][Emacs plus]] から導入している。
+また、アイコンはmodern-pen-iconをしようしている。
+
+#+begin_src shell
+  brew install emacs-plus --with-modern-pen-icon
+#+end_src
+
 * 文芸的プログラミング
 - 通常、プログラミングでは、プログラムソースと関連するドキュメントは別々のファイルに記述する
   - Pythonとmarkdownみたいな
