@@ -219,6 +219,10 @@
 (add-to-list 'exec-path "/opt/homebrew/bin/gpg") ;; 上記で確認したパスを設定
 (setq epg-gpg-program "/opt/homebrew/bin/gpg") ;; EmacsでGPGを指定
 
+(use-package exec-path-from-shell
+  :ensure t
+  :config (exec-path-from-shell-initialize))
+
 ;; org-roam
 (use-package org-roam
   :ensure t
