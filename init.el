@@ -223,7 +223,9 @@
 (use-package org-roam
   :ensure t
   :custom
-  (setq org-roam-directory (file-truename "~/ghq/note/"))
+  (org-roam-directory (concat
+                       (s-trim-right (shell-command-to-string "ghq root"))
+                       "/note"))
   (org-roam-completion-everywhere t)
   (org-roam-database-connector 'sqlite-builtin)
   (org-roam-db-gc-threshold (* 4 gc-cons-threshold))
