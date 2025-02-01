@@ -329,7 +329,10 @@
 (use-package lsp-mode
     :ensure t
     :commands lsp
-    :hook (swift-mode . lsp))
+    :hook
+    (swift-mode . lsp)
+    (lua-mode . lsp)
+    )
 
 ;; lsp-mode's UI modules
 (use-package lsp-ui
@@ -348,6 +351,13 @@
   :hook (swift-mode . (lambda () (lsp)))
   :mode "\\.swift\\'"
   :interpreter "swift")
+
+;; lua
+(use-package lua-mode
+  :ensure t
+  :mode "\\.lua\\'"
+  :interpreter "lua"
+  )
 
 (provide 'init)
 
