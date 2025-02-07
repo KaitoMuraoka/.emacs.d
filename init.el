@@ -45,6 +45,8 @@
 (setq make-backup-files nil);; バックアップファイルを作成しない
 ;; (tool-bar-mode -1) ;; ツールバーを非表示
 
+(global-set-key (kbd "C-c C-b") 'byte-compile-file)
+
 (eval-and-compile
   (customize-set-variable
    'package-archives '(("gnu"   . "https://elpa.gnu.org/packages/")
