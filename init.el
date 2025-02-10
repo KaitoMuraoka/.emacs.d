@@ -38,6 +38,7 @@
 (setq org-startup-truncated nil);; org-modeの折り返しを有効
 (global-hl-line-mode +1) ;; 現在行を強調
 (global-display-line-numbers-mode +1) ;; 左側に行番号を表示する
+(setq display-line-numbers-type 'relative) ;; 現在の行の相対行
 (electric-pair-mode +1) ;; 括弧を補完する
 (setq inhibit-startup-message t) ;; 起動時のWelcomeメッセージを非表示
 (set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
@@ -348,6 +349,8 @@
     :hook
     (swift-mode . lsp)
     (lua-mode . lsp)
+    (sh-mode . lsp)
+    (yaml-mode . lsp)
     )
 
 ;; lsp-mode's UI modules
@@ -375,12 +378,32 @@
   :interpreter "lua"
   )
 
+(use-package yaml-mode
+  :ensure t
+  :after lsp-mode
+  :hook (yaml-mode . (lambda () (lsp)))
+  :mode "\\.yaml\\'"
+  :interpreter "swift")
+
 (use-package lsp-java)
 (add-hook 'java-mode-hook #'lsp)
 
 (provide 'init)
 
-;; Local Variables:
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(lsp-yaml markdown-mode typescript-mode git-gutter company-c-headers company flycheck dired-sidebar magit macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+ ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
 
