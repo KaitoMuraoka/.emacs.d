@@ -347,11 +347,23 @@
     :ensure t
     :commands lsp
     :hook
+    (prog-mode-hook . lsp)
     (swift-mode . lsp)
     (lua-mode . lsp)
     (sh-mode . lsp)
     (yaml-mode . lsp)
     )
+
+;; スニペットの有効化
+(setq lsp-enable-snippet t)
+
+;; yasnippetの設定
+(require 'yasnippet)
+(yas-global-mode 1)
+
+;; lsp-modeとyasnippetの連携
+(require 'lsp-mode)
+(setq lsp-prefer-capf t)
 
 ;; lsp-mode's UI modules
 (use-package lsp-ui
