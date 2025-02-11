@@ -38,13 +38,12 @@
 (setq org-startup-truncated nil);; org-modeの折り返しを有効
 (global-hl-line-mode +1) ;; 現在行を強調
 (global-display-line-numbers-mode +1) ;; 左側に行番号を表示する
-(setq display-line-numbers-type 'relative) ;; 現在の行の相対行
+;;(setq display-line-numbers-type 'relative) ;; 現在の行の相対行
 (electric-pair-mode +1) ;; 括弧を補完する
 (setq inhibit-startup-message t) ;; 起動時のWelcomeメッセージを非表示
 (set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
 (setq auto-save-default nil);; 自動保存を無効化する
 (setq make-backup-files nil);; バックアップファイルを作成しない
-;; (tool-bar-mode -1) ;; ツールバーを非表示
 
 (global-set-key (kbd "C-c C-b") 'byte-compile-file)
 
@@ -380,10 +379,10 @@
 
 (use-package yaml-mode
   :ensure t
-  :after lsp-mode
-  :hook (yaml-mode . (lambda () (lsp)))
   :mode "\\.yaml\\'"
-  :interpreter "swift")
+  :interpreter "yaml")
+
+(use-package xcode-mode :ensure t)
 
 (use-package lsp-java)
 (add-hook 'java-mode-hook #'lsp)
