@@ -44,6 +44,7 @@
 (set-face-attribute 'default nil :height 160) ;; フォントサイズを 14pt に設定
 (setq auto-save-default nil);; 自動保存を無効化する
 (setq make-backup-files nil);; バックアップファイルを作成しない
+(setq ring-bell-function 'ignore);; ピープ音とフラッシュをOFF
 
 (global-set-key (kbd "C-c C-b") 'byte-compile-file)
 
