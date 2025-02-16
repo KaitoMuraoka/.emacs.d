@@ -46,7 +46,7 @@
 (setq make-backup-files nil);; バックアップファイルを作成しない
 (setq ring-bell-function 'ignore);; ピープ音とフラッシュをOFF
 
-(keymap-global-unset "C-x C-c")
+(global-set-key (kbd "C-c C-b") 'byte-compile-file)
 
 (eval-and-compile
   (customize-set-variable
