@@ -341,7 +341,9 @@
   (setopt markdown-command '("pandoc" "--from=markdown" "--to=html5"))
   (setopt markdown-fontify-code-blocks-natively t)
   (setopt markdown-header-scaling t)
-  (setopt markdown-indent-on-enter 'indent-and-new-item))
+  (setopt markdown-indent-on-enter 'indent-and-new-item)
+  (define-key markdown-mode-map (kbd "C-c C-c") 'markdown-toggle-gfm-checkbox)
+  )
 
 ;; "find-sourcekit-lsp"という名前の関数を自前で定義する例
 (defun find-sourcekit-lsp ()
