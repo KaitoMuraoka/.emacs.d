@@ -407,10 +407,14 @@
   :interpreter "lua"
   )
 
-(use-package yaml-mode
-  :ensure t
-  :mode "\\.yaml\\'"
-  :interpreter "yaml")
+(add-hook 'yaml-ts-mode-hook #'lsp)
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration '(yaml-ts-mode . "yaml"))
+  (add-hook 'yaml-ts-mode-hook #'lsp))
+(require 'yaml-mode)
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
+
 
 (use-package xcode-mode :ensure t)
 
