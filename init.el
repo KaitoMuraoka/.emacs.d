@@ -370,6 +370,7 @@
     (swift-mode . lsp)
     (lua-mode . lsp)
     (sh-mode . lsp)
+    (ruby-mode . lsp)
     (yaml-mode . lsp)
     )
 
@@ -412,7 +413,11 @@
 (add-hook 'yaml-ts-mode-hook #'lsp)
 (with-eval-after-load 'lsp-mode
   (add-to-list 'lsp-language-id-configuration '(yaml-ts-mode . "yaml"))
-  (add-hook 'yaml-ts-mode-hook #'lsp))
+  (add-hook 'yaml-ts-mode-hook #'lsp)
+  (add-to-list 'lsp-language-id-configuration '(ruby-ts-mode . "ruby"))
+  (add-hook 'ruby-ts-mode-hook #'lsp)
+  )
+
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
