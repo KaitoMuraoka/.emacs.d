@@ -74,14 +74,13 @@
 (defun my/insert-date-at-point ()
   "Minibufferで日付を選択し、カーソル位置に `YYYY/MM/DD DOW` フォーマットで挿入する。"
   (interactive)
-  (let ((date (org-read-date nil nil nil "日付を選択してください:")))
+  (let* ((system-time-locale "ja_JP.utf8")
+         (date (org-read-date nil nil nil "日付を選択してください:")))
     (insert (format "%04d年%d月%d日(%s)"
                     (string-to-number (format-time-string "%Y" (org-time-string-to-time date)))
                     (string-to-number (format-time-string "%m" (org-time-string-to-time date)))
                     (string-to-number (format-time-string "%d" (org-time-string-to-time date)))
-                    (format-time-string "%a" (org-time-string-to-time date)))
-            )
-    )
+                    (format-time-string "%a" (org-time-string-to-time date)))))
   )
 
 ;; ここにいっぱい設定を書く
