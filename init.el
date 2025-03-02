@@ -98,10 +98,12 @@
   :bind (("C-c e" . macrostep-expand)))
 
 ;;evil
+(setq evil-want-C-u-scroll t)
 (use-package evil
   :ensure t
   :config
-  (evil-mode 1))
+  (evil-mode t)
+  )
 
 (dolist (mode '(org-mode markdown-mode text-mode))
   (add-to-list 'evil-emacs-state-modes mode))
