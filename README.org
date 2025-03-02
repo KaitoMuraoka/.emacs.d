@@ -1,3 +1,4 @@
+[[https://melpa.org/#/evil][file:https://melpa.org/packages/evil-badge.svg]]
 * .emacs.d
 これは、私のEmacs の設定である。
 
