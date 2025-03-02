@@ -99,6 +99,10 @@
   :bind (("C-c e" . macrostep-expand)))
 
 ;;evil
+(add-hook 'evil-mode-hook
+	  (lambda ()
+	    (setq display-line-numbers-type 'relative)
+	    ))
 (setq evil-want-C-u-scroll t)
 (use-package evil
   :ensure t
@@ -108,7 +112,6 @@
 
 (dolist (mode '(org-mode markdown-mode text-mode))
   (add-to-list 'evil-emacs-state-modes mode))
-
 
 ;; カラーテーマを設定する
 (use-package modus-themes
