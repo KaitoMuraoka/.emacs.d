@@ -99,6 +99,22 @@
   :bind (("C-c e" . macrostep-expand)))
 
 ;;evil
+(defun my-evil-line-numbers ()
+  "Evilモード時は相対行番号、Emacsモード時は絶対行番号に切り替える"
+  (setq display-line-numbers-type
+        (if (evil-emacs-state-p) 'absolute 'relative))
+  (display-line-numbers-mode t))
+
+;; Evilのモード切り替え時にフックを設定
+(add-hook 'evil-normal-state-entry-hook #'my-evil-line-numbers)
+(add-hook 'evil-visual-state-entry-hook #'my-evil-line-numbers)
+(add-hook 'evil-insert-state-entry-hook #'my-evil-line-numbers)
+(add-hook 'evil-replace-state-entry-hook #'my-evil-line-numbers)
+(add-hook 'evil-emacs-state-entry-hook #'my-evil-line-numbers)
+
+;; 最初にEvilが起動したときも適用
+(add-hook 'evil-mode-hook #'my-evil-line-numbers)
+
 (use-package evil
   :ensure t
   :custom
