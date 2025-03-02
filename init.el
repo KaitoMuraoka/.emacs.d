@@ -97,6 +97,15 @@
   :ensure t
   :bind (("C-c e" . macrostep-expand)))
 
+;;evil
+(use-package evil
+  :ensure t
+  :config
+  (evil-mode 1))
+
+(dolist (mode '(org-mode markdown-mode text-mode))
+  (add-to-list 'evil-emacs-state-modes mode))
+
 
 ;; カラーテーマを設定する
 (use-package modus-themes
@@ -430,7 +439,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(lsp-yaml markdown-mode typescript-mode git-gutter company-c-headers company flycheck dired-sidebar magit macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords)))
+   '(evil lsp-yaml markdown-mode typescript-mode git-gutter company-c-headers company flycheck dired-sidebar magit macrostep leaf-tree leaf-convert blackout el-get hydra leaf-keywords)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
