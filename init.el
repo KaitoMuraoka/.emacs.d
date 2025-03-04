@@ -119,6 +119,7 @@
   :ensure t
   :custom
   (evil-want-C-u-scroll t)
+  (evil-toggle-key "")
   (display-line-numbers-type 'relative)
   :config
   (evil-mode t)
@@ -126,16 +127,6 @@
 
 (dolist (mode '(org-mode markdown-mode text-mode))
   (add-to-list 'evil-emacs-state-modes mode))
-;; Evil モードで C-z のステート切り替えを無効化
-(define-key evil-motion-state-map (kbd "C-z") nil)
-(define-key evil-normal-state-map (kbd "C-z") nil)
-(define-key evil-insert-state-map (kbd "C-z") nil)
-(define-key evil-visual-state-map (kbd "C-z") nil)
-(define-key evil-replace-state-map (kbd "C-z") nil)
-(define-key evil-operator-state-map (kbd "C-z") nil)
-
-;; C-z をデフォルトの suspend-frame に戻す
-(global-set-key (kbd "C-z") 'suspend-frame)
 
 ;; カラーテーマを設定する
 (use-package modus-themes
