@@ -390,17 +390,18 @@
     :ensure t
     :hook ((prog-mode . rainbow-delimiters-mode)))
 
-;; Used to interface with swift-lsp.
+;; lsp
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration '(emacs-lisp-mode . "emacs-lisp")))
 (use-package lsp-mode
-    :ensure t
-    :commands lsp
-    :hook
+  :ensure t
+  :hook
     (prog-mode-hook . lsp)
     (swift-mode . lsp)
     (lua-mode . lsp)
     (sh-mode . lsp)
     (yaml-mode . lsp)
-    )
+  :commands lsp)
 
 ;; スニペットの有効化
 (setq lsp-enable-snippet t)
