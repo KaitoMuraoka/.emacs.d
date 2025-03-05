@@ -332,25 +332,25 @@
  'org-babel-do-load-languages
  '((swift t)))
 
-(use-package ob-swiftui
-  :ensure t
-  :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((swiftui . t))))
+;; (use-package ob-swiftui
+;;   :ensure t
+;;   :config
+;;   (org-babel-do-load-languages
+;;    'org-babel-load-languages
+;;    '((swiftui . t))))
 
 ;; ox-qmd: Org-mode から Qiita 用 Markdown にエクスポート
-(use-package ox-qmd
-  :ensure t
-  :config
-  (add-to-list 'ox-qmd-language-keyword-alist '("shell-script" . "sh")))
+;; (use-package ox-qmd
+;;   :ensure t
+;;   :config
+;;   (add-to-list 'ox-qmd-language-keyword-alist '("shell-script" . "sh")))
 
 ; treesitter
-(use-package treesit-auto
-  :ensure t
-  :config
-  (setq treesit-auto-install t)
-  (global-treesit-auto-mode))
+;; (use-package treesit-auto
+;;   :ensure t
+;;   :config
+;;   (setq treesit-auto-install t)
+;;   (global-treesit-auto-mode))
 
 (use-package treesit
   :config
