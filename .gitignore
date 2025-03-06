@@ -79,3 +79,5 @@ public/
 .devenv*
 .devenv.flake.nix
 .direnv/
+
+flycheck_init.el
