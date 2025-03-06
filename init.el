@@ -339,6 +339,7 @@
    'org-babel-load-languages
    '((swiftui . t))))
 
+;;; これを実行するとbytecomp でエラーが発生する
 ;; ox-qmd: Org-mode から Qiita 用 Markdown にエクスポート
 ;; (use-package ox-qmd
 ;;   :ensure t
