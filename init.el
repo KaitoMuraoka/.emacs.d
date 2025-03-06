@@ -45,7 +45,7 @@
 (setq auto-save-default nil);; 自動保存を無効化する
 (setq make-backup-files nil);; バックアップファイルを作成しない
 (setq ring-bell-function 'ignore);; ピープ音とフラッシュをOFF
-(setq initial-major-mode 'org-mode);; Eacs 起動時に scratch バッファをorg-modeにする
+;;(setq initial-major-mode 'org-mode) ;; Eacs 起動時に scratch バッファをorg-modeにする
 
 (global-set-key (kbd "C-c C-b") 'byte-compile-file)
 
@@ -332,12 +332,12 @@
  'org-babel-do-load-languages
  '((swift t)))
 
-;; (use-package ob-swiftui
-;;   :ensure t
-;;   :config
-;;   (org-babel-do-load-languages
-;;    'org-babel-load-languages
-;;    '((swiftui . t))))
+(use-package ob-swiftui
+  :ensure t
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((swiftui . t))))
 
 ;; ox-qmd: Org-mode から Qiita 用 Markdown にエクスポート
 ;; (use-package ox-qmd
@@ -346,11 +346,11 @@
 ;;   (add-to-list 'ox-qmd-language-keyword-alist '("shell-script" . "sh")))
 
 ; treesitter
-;; (use-package treesit-auto
-;;   :ensure t
-;;   :config
-;;   (setq treesit-auto-install t)
-;;   (global-treesit-auto-mode))
+(use-package treesit-auto
+  :ensure t
+  :config
+  (setq treesit-auto-install t)
+  (global-treesit-auto-mode))
 
 (use-package treesit
   :config
