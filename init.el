@@ -282,9 +282,23 @@
 (add-to-list 'exec-path "/opt/homebrew/bin/gpg") ;; 上記で確認したパスを設定
 (setq epg-gpg-program "/opt/homebrew/bin/gpg") ;; EmacsでGPGを指定
 
+(use-package ob-shell
+  :ensure nil
+  :config
+  (setq org-babel-sh-command "zsh")
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t))))
+
 (use-package exec-path-from-shell
   :ensure t
-  :config (exec-path-from-shell-initialize))
+  :config
+  (exec-path-from-shell-initialize)
+  (setq shell-file-name "zsh")
+  (setq explicit-shell-file-name "/bin/zsh")
+  )
+
+(setq org-babel-sh-command "zsh")
 
 ;; org-roam
 (use-package org-roam
@@ -324,13 +338,15 @@
            :target (file+head "org/private/%<%Y%m%d%H%M%S>.org.gpg" "#+TITLE: ${title}\n")
            :unnarrowed t))))
 
+
 ;; Org BabelでSwiftをサポート
 (add-to-list 'load-path "~/personalDevelop/emacs-plugin/ob-swift/");; ローカルパスをEmacsのload-pathに設定
 (require 'ob-swift) ;; `ob-swift`をロード
 ;; org babel
 (org-babel-do-load-languages
  'org-babel-do-load-languages
- '((swift t)))
+ '((swift t))
+ )
 
 (use-package ob-swiftui
   :ensure t
