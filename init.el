@@ -465,6 +465,10 @@
                       (add-hook 'before-save-hook #'lsp-organize-imports t t))))
   :bind (:map go-mode-map
          ("M-." . lsp-find-definition)))
+(with-eval-after-load "go-ts-mode"
+  (setq tab-width 4)
+  (setq go-ts-mode-indent-offset 4)
+  (setq indent-tabs-mode t))
 
 (use-package xcode-mode :ensure t)
 
