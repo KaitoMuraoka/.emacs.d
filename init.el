@@ -401,6 +401,7 @@
     (lua-mode . lsp)
     (sh-mode . lsp)
     (yaml-mode . lsp)
+    (go-mode . lsp)
   :commands lsp)
 
 ;; スニペットの有効化
@@ -455,6 +456,17 @@
         ("\\.yaml\\'" . yaml-mode)
   )
 
+;; Golang開発環境の設定
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'"
+  :hook ((go-mode . lsp-deferred)
+         (go-mode . (lambda ()
+                      ;; 保存前にコードをフォーマットし、インポートを整理する
+                      (add-hook 'before-save-hook #'lsp-format-buffer t t)
+                      (add-hook 'before-save-hook #'lsp-organize-imports t t))))
+  :bind (:map go-mode-map
+         ("M-." . lsp-find-definition)))
 
 (use-package xcode-mode :ensure t)
 
