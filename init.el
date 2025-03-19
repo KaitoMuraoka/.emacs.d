@@ -45,8 +45,7 @@
 (setq auto-save-default nil);; 自動保存を無効化する
 (setq make-backup-files nil);; バックアップファイルを作成しない
 (setq ring-bell-function 'ignore);; ピープ音とフラッシュをOFF
-;;(setq initial-major-mode 'org-mode) ;; Eacs 起動時に scratch バッファをorg-modeにする
-
+(setq initial-major-mode 'org-mode) ;; Eacs 起動時に scratch バッファをorg-modeにする
 (global-set-key (kbd "C-c C-b") 'byte-compile-file)
 
 (eval-and-compile
@@ -462,7 +461,6 @@
   :mode "\\.go\\'"
   :hook ((go-mode . lsp-deferred)
          (go-mode . (lambda ()
-                      ;; 保存前にコードをフォーマットし、インポートを整理する
                       (add-hook 'before-save-hook #'lsp-format-buffer t t)
                       (add-hook 'before-save-hook #'lsp-organize-imports t t))))
   :bind (:map go-mode-map
