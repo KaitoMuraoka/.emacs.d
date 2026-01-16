@@ -72,6 +72,26 @@
    (company-selection-wrap-around . t))
   :global-minor-mode global-company-mode)
 
+;; Magit: 最強のGitインターフェース
+(leaf magit
+  :ensure t
+  :bind (("C-x g" . magit-status)) ; C-x g で Git 操作画面を開く
+  :custom
+  ((magit-display-buffer-function . 'magit-display-buffer-same-window-except-diff-v1)))
+
+;; git-gutter: 変更行を左側に表示
+(leaf git-gutter
+  :ensure t
+  :global-minor-mode global-git-gutter-mode
+  :custom
+  ((git-gutter:modified-sign . "~") ; 変更箇所のマーク
+   (git-gutter:added-sign . "+")    ; 追加箇所のマーク
+   (git-gutter:deleted-sign . "-")) ; 削除箇所のマーク
+  :custom-face
+  ((git-gutter:modified . '((t (:foreground "yellow"))))
+   (git-gutter:added    . '((t (:foreground "green"))))
+   (git-gutter:deleted  . '((t (:foreground "red"))))))
+
 ;;; --- 5. Clojure/Lisp開発を快適にする追加設定 ---
 
 ;; rainbow-delimiters: 括弧を階層ごとに色分け
