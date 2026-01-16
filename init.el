@@ -105,6 +105,29 @@
   :doc "Display available keybindings in popup"
   :ensure t
   :global-minor-mode which-key-mode)
+
+;;; --- 6. Evil (Vim エミュレーション) ---
+
+;; evil: Vim キーバインドを Emacs に導入
+(leaf evil
+  :doc "Extensible vi layer for Emacs"
+  :ensure t
+  :custom
+  ((evil-want-integration . t)      ; 基本的な統合を有効化
+   (evil-want-keybinding . nil)     ; evil-collection 用に nil に設定
+   (evil-want-C-u-scroll . t)       ; C-u で半ページ上スクロール (Vim風)
+   (evil-want-C-i-jump . t)         ; C-i でジャンプリスト進む
+   (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
+  :config
+  (evil-mode 1))
+
+;; evil-collection: 各種モードに Evil キーバインドを追加
+(leaf evil-collection
+  :doc "A set of keybindings for evil-mode"
+  :ensure t
+  :after evil
+  :config
+  (evil-collection-init))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
