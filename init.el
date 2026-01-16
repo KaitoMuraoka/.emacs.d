@@ -7,6 +7,11 @@
 ;; OSに合わせて調整が必要ですが、最近は標準でも結構綺麗です。
 
 ;; --- 背景色の設定 ---
+;;(load-theme 'modus-vivendi t)
+
+;; ↑よりもっとくらい黒、真っ黒
+(setq modus-themes-vivendi-color-overrides
+      '((bg-main . "#000000"))) ; 背景を完全な黒にする設定
 (load-theme 'modus-vivendi t)
 
 ;; --- パッケージ管理の準備 ---
