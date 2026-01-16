@@ -123,7 +123,17 @@
    (evil-want-C-i-jump . t)         ; C-i でジャンプリスト進む
    (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  ;; 以下のモードでは Evil を無効化し、素の Emacs キーバインドを使用
+  (evil-set-initial-state 'text-mode 'emacs)           ; txt ファイル
+  (evil-set-initial-state 'markdown-mode 'emacs)       ; Markdown
+  (evil-set-initial-state 'gfm-mode 'emacs)            ; GitHub Flavored Markdown
+  (evil-set-initial-state 'html-mode 'emacs)           ; HTML
+  (evil-set-initial-state 'mhtml-mode 'emacs)          ; HTML (Emacs 25+)
+  (evil-set-initial-state 'nxml-mode 'emacs)           ; XML
+  (evil-set-initial-state 'sgml-mode 'emacs)           ; SGML/マークアップ全般
+  (evil-set-initial-state 'git-commit-mode 'emacs)     ; Git コミットメッセージ
+  (evil-set-initial-state 'git-rebase-mode 'emacs))    ; Git rebase
 
 ;; evil-collection: 各種モードに Evil キーバインドを追加
 (leaf evil-collection
