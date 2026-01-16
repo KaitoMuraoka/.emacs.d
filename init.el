@@ -157,6 +157,13 @@
   :after evil
   :config
   (evil-collection-init))
+
+;; git-commit-mode で確実に Emacs ステートにする（フックを使用）
+(leaf git-commit
+  :after (evil magit)
+  :hook
+  ((git-commit-mode-hook . evil-emacs-state)
+   (git-rebase-mode-hook . evil-emacs-state)))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
