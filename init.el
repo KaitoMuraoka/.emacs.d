@@ -20,7 +20,7 @@
    (tool-bar-mode . nil)                 ; ツールバー非表示
    (menu-bar-mode . nil)                 ; メニューバー非表示
    (scroll-bar-mode . nil)               ; スクロールバー非表示
-   (display-line-numbers-type . 'relative) ; 相対行番号 (Evil用)
+   (display-line-numbers-type . t)         ; デフォルトは絶対行番号
    ;; macOS: Option キーをメタキーとして使用
    (mac-option-modifier . 'meta)
    (mac-command-modifier . 'super))      ; Command は super に
@@ -124,6 +124,20 @@
    (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
   :config
   (evil-mode 1)
+
+  ;; Evil ステートに応じて行番号タイプを切り替え
+  (defun my/evil-relative-line-numbers ()
+    "Vi 操作時は相対行番号"
+    (setq-local display-line-numbers 'relative))
+  (defun my/evil-absolute-line-numbers ()
+    "Emacs 操作時は絶対行番号"
+    (setq-local display-line-numbers t))
+  (add-hook 'evil-normal-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-visual-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-motion-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-insert-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-emacs-state-entry-hook #'my/evil-absolute-line-numbers)
+
   ;; 以下のモードでは Evil を無効化し、素の Emacs キーバインドを使用
   (evil-set-initial-state 'text-mode 'emacs)           ; txt ファイル
   (evil-set-initial-state 'markdown-mode 'emacs)       ; Markdown
@@ -133,7 +147,8 @@
   (evil-set-initial-state 'nxml-mode 'emacs)           ; XML
   (evil-set-initial-state 'sgml-mode 'emacs)           ; SGML/マークアップ全般
   (evil-set-initial-state 'git-commit-mode 'emacs)     ; Git コミットメッセージ
-  (evil-set-initial-state 'git-rebase-mode 'emacs))    ; Git rebase
+  (evil-set-initial-state 'git-rebase-mode 'emacs)     ; Git rebase
+  (evil-set-initial-state 'lisp-interaction-mode 'emacs)) ; *scratch* バッファ
 
 ;; evil-collection: 各種モードに Evil キーバインドを追加
 (leaf evil-collection
