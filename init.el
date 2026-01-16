@@ -96,7 +96,34 @@
    (git-gutter:added    . '((t (:foreground "green"))))
    (git-gutter:deleted  . '((t (:foreground "red"))))))
 
-;;; --- 5. Clojure/Lisp開発を快適にする追加設定 ---
+;;; --- 5. ファイル操作 (Treemacs) ---
+
+;; Treemacs: サイドバーにディレクトリツリーを表示
+(leaf treemacs
+  :doc "A tree layout file explorer for Emacs"
+  :ensure t
+  :bind (("C-x t t" . treemacs)              ; ツリー表示のトグル
+         ("C-x t 1" . treemacs-select-window) ; Treemacs ウィンドウに移動
+         ("C-x t d" . treemacs-select-directory)) ; ディレクトリを選択して表示
+  :custom
+  ((treemacs-width . 30)                     ; サイドバーの幅
+   (treemacs-follow-mode . t)                ; カーソル位置に追従
+   (treemacs-filewatch-mode . t)             ; ファイル変更を監視
+   (treemacs-fringe-indicator-mode . t)))    ; 現在行にインジケーター表示
+
+;; Treemacs + Evil 連携
+(leaf treemacs-evil
+  :doc "Evil integration for Treemacs"
+  :ensure t
+  :after (treemacs evil))
+
+;; Treemacs + Magit 連携
+(leaf treemacs-magit
+  :doc "Magit integration for Treemacs"
+  :ensure t
+  :after (treemacs magit))
+
+;;; --- 6. Clojure/Lisp開発を快適にする追加設定 ---
 
 ;; rainbow-delimiters: 括弧を階層ごとに色分け
 (leaf rainbow-delimiters
@@ -110,7 +137,7 @@
   :ensure t
   :global-minor-mode which-key-mode)
 
-;;; --- 6. Evil (Vim エミュレーション) ---
+;;; --- 7. Evil (Vim エミュレーション) ---
 
 ;; evil: Vim キーバインドを Emacs に導入
 (leaf evil
