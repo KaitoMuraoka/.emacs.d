@@ -19,7 +19,11 @@
    (column-number-mode . t)              ; 列番号表示
    (tool-bar-mode . nil)                 ; ツールバー非表示
    (menu-bar-mode . nil)                 ; メニューバー非表示
-   (scroll-bar-mode . nil))              ; スクロールバー非表示
+   (scroll-bar-mode . nil)               ; スクロールバー非表示
+   (display-line-numbers-type . t)         ; デフォルトは絶対行番号
+   ;; macOS: Option キーをメタキーとして使用
+   (mac-option-modifier . 'meta)
+   (mac-command-modifier . 'super))      ; Command は super に
   :config
   (global-display-line-numbers-mode t))  ; 行番号表示
 
@@ -105,6 +109,47 @@
   :doc "Display available keybindings in popup"
   :ensure t
   :global-minor-mode which-key-mode)
+
+;;; --- 6. Evil (Vim エミュレーション) ---
+
+;; evil: Vim キーバインドを Emacs に導入
+(leaf evil
+  :doc "Extensible vi layer for Emacs"
+  :ensure t
+  :custom
+  ((evil-want-integration . t)      ; 基本的な統合を有効化
+   (evil-want-keybinding . t)       ; デフォルトのキーバインドを使用
+   (evil-want-C-u-scroll . t)       ; C-u で半ページ上スクロール (Vim風)
+   (evil-want-C-i-jump . t)         ; C-i でジャンプリスト進む
+   (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
+  :config
+  (evil-mode 1)
+
+  ;; Evil ステートに応じて行番号タイプを切り替え
+  (defun my/evil-relative-line-numbers ()
+    "Vi 操作時は相対行番号"
+    (setq-local display-line-numbers 'relative))
+  (defun my/evil-absolute-line-numbers ()
+    "Emacs 操作時は絶対行番号"
+    (setq-local display-line-numbers t))
+  (add-hook 'evil-normal-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-visual-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-motion-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-insert-state-entry-hook #'my/evil-relative-line-numbers)
+  (add-hook 'evil-emacs-state-entry-hook #'my/evil-absolute-line-numbers)
+
+  ;; 以下のモードでは Evil を無効化し、素の Emacs キーバインドを使用
+  (evil-set-initial-state 'text-mode 'emacs)           ; txt ファイル
+  (evil-set-initial-state 'markdown-mode 'emacs)       ; Markdown
+  (evil-set-initial-state 'gfm-mode 'emacs)            ; GitHub Flavored Markdown
+  (evil-set-initial-state 'html-mode 'emacs)           ; HTML
+  (evil-set-initial-state 'mhtml-mode 'emacs)          ; HTML (Emacs 25+)
+  (evil-set-initial-state 'nxml-mode 'emacs)           ; XML
+  (evil-set-initial-state 'sgml-mode 'emacs)           ; SGML/マークアップ全般
+  (evil-set-initial-state 'git-commit-mode 'emacs)     ; Git コミットメッセージ
+  (evil-set-initial-state 'git-rebase-mode 'emacs)     ; Git rebase
+  (evil-set-initial-state 'lisp-interaction-mode 'emacs)) ; *scratch* バッファ
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
