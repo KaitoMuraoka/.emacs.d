@@ -83,6 +83,12 @@
   :custom
   ((magit-display-buffer-function . 'magit-display-buffer-same-window-except-diff-v1)))
 
+;; Forge: GitHub/GitLab Issue・PR を Magit から操作
+(setq auth-sources '("~/.authinfo"))
+(leaf forge
+  :ensure t
+  :after magit)
+
 ;; git-gutter: 変更行を左側に表示
 (leaf git-gutter
   :ensure t
