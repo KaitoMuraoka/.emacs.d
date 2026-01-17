@@ -17,8 +17,6 @@
   :custom
   ((inhibit-startup-message . t)         ; スタートアップ画面非表示
    (column-number-mode . t)              ; 列番号表示
-   (tool-bar-mode . nil)                 ; ツールバー非表示
-   (menu-bar-mode . nil)                 ; メニューバー非表示
    (scroll-bar-mode . nil)               ; スクロールバー非表示
    (display-line-numbers-type . t)         ; デフォルトは絶対行番号
    ;; macOS: Option キーをメタキーとして使用
