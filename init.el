@@ -141,7 +141,40 @@
   :ensure t
   :global-minor-mode which-key-mode)
 
-;;; --- 7. Evil (Vim エミュレーション) ---
+;;; --- 7. Org-mode ---
+
+;; org: Emacs のアウトライナー・タスク管理ツール
+(leaf org
+  :doc "Outline-based notes management and organizer"
+  :tag "builtin"
+  :bind (("C-c a" . org-agenda)     ; アジェンダを開く
+         ("C-c c" . org-capture)    ; クイックキャプチャ
+         ("C-c l" . org-store-link)) ; リンクを保存
+  :custom
+  ((org-directory . "~/org")              ; org ファイルのルートディレクトリ
+   (org-agenda-files . '("~/org"))        ; アジェンダに含めるファイル/ディレクトリ
+   (org-default-notes-file . "~/org/notes.org") ; デフォルトのメモファイル
+   (org-startup-indented . t)             ; インデント表示を有効化
+   (org-startup-folded . 'content)        ; 起動時は見出しのみ表示
+   (org-hide-leading-stars . t)           ; 余分な * を非表示
+   (org-log-done . 'time)                 ; TODO 完了時にタイムスタンプを記録
+   (org-return-follows-link . t)          ; RET でリンクを開く
+   (org-todo-keywords . '((sequence "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
+  :config
+  ;; org ディレクトリが存在しない場合は作成
+  (unless (file-exists-p org-directory)
+    (make-directory org-directory t))
+
+  ;; Capture テンプレート
+  (setq org-capture-templates
+        '(("t" "Task" entry (file+headline "~/org/tasks.org" "Inbox")
+           "* TODO %?\n  %U\n  %a")
+          ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
+           "* %?\n  %U")
+          ("j" "Journal" entry (file+datetree "~/org/journal.org")
+           "* %?\n  %U"))))
+
+;;; --- 8. Evil (Vim エミュレーション) ---
 
 ;; evil: Vim キーバインドを Emacs に導入
 (leaf evil
@@ -183,7 +216,10 @@
   ;; Magit/Forge: 独自のキーバインドを持つため Evil を無効化
   (evil-set-initial-state 'magit-mode 'emacs)          ; Magit 全般
   (evil-set-initial-state 'forge-topic-mode 'emacs)    ; Forge トピック
-  (evil-set-initial-state 'forge-post-mode 'emacs))    ; Forge 投稿
+  (evil-set-initial-state 'forge-post-mode 'emacs)    ; Forge 投稿
+  ;; Org-mode: 標準キーバインドの方が使いやすい
+  (evil-set-initial-state 'org-mode 'emacs)           ; Org ファイル
+  (evil-set-initial-state 'org-agenda-mode 'emacs))   ; Org アジェンダ
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
