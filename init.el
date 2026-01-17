@@ -141,7 +141,27 @@
   :ensure t
   :global-minor-mode which-key-mode)
 
-;;; --- 7. Org-mode ---
+;;; --- 7. Swift 開発 ---
+
+;; swift-mode: Swift のシンタックスハイライトとインデント
+(leaf swift-mode
+  :doc "Major mode for Apple's Swift programming language"
+  :ensure t
+  :mode "\\.swift\\'"
+  :custom
+  ((swift-mode:basic-offset . 4)))  ; インデント幅
+
+;; eglot: LSP クライアント (Emacs 29+ でビルトイン)
+(leaf eglot
+  :doc "Emacs client for Language Server Protocol"
+  :tag "builtin"
+  :hook ((swift-mode-hook . eglot-ensure))  ; Swift ファイルで自動起動
+  :config
+  ;; sourcekit-lsp を Swift の LSP サーバーとして登録
+  (add-to-list 'eglot-server-programs
+               '(swift-mode . ("/usr/bin/sourcekit-lsp"))))
+
+;;; --- 8. Org-mode ---
 
 ;; org: Emacs のアウトライナー・タスク管理ツール
 (leaf org
@@ -176,9 +196,25 @@
           ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
            "* %?\n  %U")
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
-           "* %?\n  %U"))))
+           "* %?\n  %U")))
 
-;;; --- 8. Evil (Vim エミュレーション) ---
+  ;; org-babel: コードブロック実行の設定
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (shell . t)
+     (swift . t)))  ; Swift を有効化
+
+  ;; コードブロック実行時の確認を省略（任意）
+  (setq org-confirm-babel-evaluate nil))
+
+;; ob-swift: org-babel で Swift を実行するためのパッケージ
+(leaf ob-swift
+  :doc "Org-babel functions for Swift"
+  :ensure t
+  :after org)
+
+;;; --- 9. Evil (Vim エミュレーション) ---
 
 ;; evil: Vim キーバインドを Emacs に導入
 (leaf evil
