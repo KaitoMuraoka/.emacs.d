@@ -17,8 +17,6 @@
   :custom
   ((inhibit-startup-message . t)         ; スタートアップ画面非表示
    (column-number-mode . t)              ; 列番号表示
-   (tool-bar-mode . nil)                 ; ツールバー非表示
-   (menu-bar-mode . nil)                 ; メニューバー非表示
    (scroll-bar-mode . nil)               ; スクロールバー非表示
    (display-line-numbers-type . t)         ; デフォルトは絶対行番号
    ;; macOS: Option キーをメタキーとして使用
@@ -82,6 +80,12 @@
   :bind (("C-x g" . magit-status)) ; C-x g で Git 操作画面を開く
   :custom
   ((magit-display-buffer-function . 'magit-display-buffer-same-window-except-diff-v1)))
+
+;; Forge: GitHub/GitLab Issue・PR を Magit から操作
+(setq auth-sources '("~/.authinfo"))
+(leaf forge
+  :ensure t
+  :after magit)
 
 ;; git-gutter: 変更行を左側に表示
 (leaf git-gutter
@@ -175,7 +179,11 @@
   (evil-set-initial-state 'sgml-mode 'emacs)           ; SGML/マークアップ全般
   (evil-set-initial-state 'git-commit-mode 'emacs)     ; Git コミットメッセージ
   (evil-set-initial-state 'git-rebase-mode 'emacs)     ; Git rebase
-  (evil-set-initial-state 'lisp-interaction-mode 'emacs)) ; *scratch* バッファ
+  (evil-set-initial-state 'lisp-interaction-mode 'emacs) ; *scratch* バッファ
+  ;; Magit/Forge: 独自のキーバインドを持つため Evil を無効化
+  (evil-set-initial-state 'magit-mode 'emacs)          ; Magit 全般
+  (evil-set-initial-state 'forge-topic-mode 'emacs)    ; Forge トピック
+  (evil-set-initial-state 'forge-post-mode 'emacs))    ; Forge 投稿
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
