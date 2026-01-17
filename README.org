@@ -4,9 +4,49 @@
 
 * Install
 私はmacOSを使っているので、 Emacs本体は[[https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file][Emacs plus]] から導入している。
-また、アイコンはmodern-pen-iconをしようしている。
+また、アイコンはmodern-pen-iconを使用している。
 
 #+begin_src shell
   brew install emacs-plus --with-modern-pen-icon
 #+end_src
+
+* 設定概要
+
+** パッケージ管理
+- [[https://github.com/conao3/leaf.el][leaf]] - パッケージ設定を簡潔に記述
+
+** 外観
+- [[https://protesilaos.com/emacs/modus-themes][modus-vivendi]] - 高コントラストのダークテーマ（真っ黒な背景）
+- 行番号表示（Evil状態に応じて絶対/相対切り替え）
+- スタートアップ画面非表示
+
+** 編集
+- [[https://github.com/emacs-evil/evil][evil]] - Vimエミュレーション
+  - テキスト/マークアップ系モードではEmacs標準キーバインドを使用
+  - C-uでスクロール、undo-redo対応
+- [[https://company-mode.github.io/][company]] - 自動補完
+- [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]] - 括弧の階層ごとの色分け
+- paren - 対応する括弧の強調表示
+
+** Git連携
+- [[https://magit.vc/][magit]] - Gitインターフェース (~C-x g~)
+- [[https://github.com/magit/forge][forge]] - GitHub/GitLab Issue・PRをMagitから操作
+- [[https://github.com/emacsorphanage/git-gutter][git-gutter]] - 変更行の左側表示
+
+** ファイル操作
+- [[https://github.com/Alexander-Miller/treemacs][treemacs]] - サイドバーにディレクトリツリーを表示 (~C-x t t~)
+  - treemacs-evil, treemacs-magit との連携
+
+** その他
+- [[https://github.com/justbur/emacs-which-key][which-key]] - キー操作のヒント表示
+- server - emacsclient連携
+- バックアップ/オートセーブファイルの無効化
+
+* キーバインド
+| キー        | 機能                      |
+|-------------+---------------------------|
+| ~C-x g~     | Magit status              |
+| ~C-x t t~   | Treemacs トグル           |
+| ~C-x t 1~   | Treemacs ウィンドウに移動 |
+| ~C-x t d~   | ディレクトリを選択して表示|
 
