@@ -155,13 +155,38 @@
 (leaf eglot
   :doc "Emacs client for Language Server Protocol"
   :tag "builtin"
-  :hook ((swift-mode-hook . eglot-ensure))  ; Swift ファイルで自動起動
+  :hook ((swift-mode-hook . eglot-ensure)
+         (nix-mode-hook . eglot-ensure))    ; Nix ファイルで自動起動
   :config
   ;; sourcekit-lsp を Swift の LSP サーバーとして登録
   (add-to-list 'eglot-server-programs
-               '(swift-mode . ("/usr/bin/sourcekit-lsp"))))
+               '(swift-mode . ("/usr/bin/sourcekit-lsp")))
+  ;; nixd を Nix の LSP サーバーとして登録
+  (add-to-list 'eglot-server-programs
+               '(nix-mode . ("nixd"))))
 
-;;; --- 8. Org-mode ---
+;;; --- 8. Nix 開発 ---
+
+;; nix-mode: Nix のシンタックスハイライトとインデント
+(leaf nix-mode
+  :doc "Major mode for editing Nix expressions"
+  :ensure t
+  :mode "\\.nix\\'"
+  :custom
+  ((nix-indent-function . 'nix-indent-line))) ; 標準のインデント関数を使用
+
+;; envrc: direnv 統合 (nix-shell / nix develop の環境を自動読み込み)
+(leaf envrc
+  :doc "Support for direnv which operates buffer-locally"
+  :ensure t
+  :hook (after-init-hook . envrc-global-mode)
+  :bind (:envrc-mode-map
+         ("C-c e" . envrc-command-map))       ; C-c e でコマンドマップを開く
+  :config
+  ;; direnv の環境変更時にメッセージを表示
+  (setq envrc-show-summary-in-minibuffer t))
+
+;;; --- 9. Org-mode ---
 
 ;; org: Emacs のアウトライナー・タスク管理ツール
 (leaf org
@@ -183,7 +208,12 @@
    ;; LOGBOOK ドロワー設定（チャット風メモ）
    (org-log-into-drawer . t)              ; ノートを LOGBOOK ドロワーに格納
    (org-log-note-clock-out . nil)         ; クロックアウト時のノートは不要
-   (org-log-state-notes-insert-after-drawers . nil)) ; ドロワーの先頭にノートを追加
+   (org-log-state-notes-insert-after-drawers . nil) ; ドロワーの先頭にノートを追加
+   ;; ソースブロック設定
+   (org-src-fontify-natively . t)         ; コードブロック内でシンタックスハイライト
+   (org-src-tab-acts-natively . t)        ; コードブロック内でタブが言語に応じて動作
+   (org-src-preserve-indentation . t)     ; コードブロックのインデントを保持
+   (org-edit-src-content-indentation . 0)) ; C-c ' で編集時の追加インデントなし
   :config
   ;; org ディレクトリが存在しない場合は作成
   (unless (file-exists-p org-directory)
@@ -206,7 +236,17 @@
      (swift . t)))  ; Swift を有効化
 
   ;; コードブロック実行時の確認を省略（任意）
-  (setq org-confirm-babel-evaluate nil))
+  (setq org-confirm-babel-evaluate nil)
+
+  ;; org-tempo: コードブロックの簡単挿入 (<s TAB で #+begin_src など)
+  (require 'org-tempo)
+
+  ;; コードブロックテンプレートを追加
+  ;; <n TAB で nix ブロック, <sh TAB で shell ブロック
+  (add-to-list 'org-structure-template-alist '("n" . "src nix"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("ba" . "src bash"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
 
 ;; ob-swift: org-babel で Swift を実行するためのパッケージ
 (leaf ob-swift
@@ -214,7 +254,7 @@
   :ensure t
   :after org)
 
-;;; --- 9. Evil (Vim エミュレーション) ---
+;;; --- 10. Evil (Vim エミュレーション) ---
 
 ;; evil: Vim キーバインドを Emacs に導入
 (leaf evil
