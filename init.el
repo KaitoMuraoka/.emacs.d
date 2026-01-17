@@ -185,6 +185,87 @@
   (evil-set-initial-state 'forge-topic-mode 'emacs)    ; Forge トピック
   (evil-set-initial-state 'forge-post-mode 'emacs))    ; Forge 投稿
 
+;;; --- 8. Web開発環境 (HTML/CSS/TypeScript/JavaScript/React) ---
+
+;; web-mode: HTML, JSX, TSX の編集
+(leaf web-mode
+  :doc "Major mode for editing web templates"
+  :ensure t
+  :mode (("\\.html?\\'" . web-mode)
+         ("\\.css\\'" . web-mode)
+         ("\\.jsx\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode))
+  :custom
+  ((web-mode-markup-indent-offset . 2)       ; HTML インデント
+   (web-mode-css-indent-offset . 2)          ; CSS インデント
+   (web-mode-code-indent-offset . 2)         ; JS/TS インデント
+   (web-mode-enable-auto-pairing . t)        ; 自動ペアリング
+   (web-mode-enable-css-colorization . t)    ; CSS カラー表示
+   (web-mode-enable-current-element-highlight . t)) ; 現在要素ハイライト
+  :config
+  (setq web-mode-content-types-alist
+        '(("jsx" . "\\.jsx\\'")
+          ("tsx" . "\\.tsx\\'"))))
+
+;; typescript-mode: TypeScript ファイル
+(leaf typescript-mode
+  :doc "Major mode for TypeScript"
+  :ensure t
+  :mode (("\\.ts\\'" . typescript-mode))
+  :custom
+  ((typescript-indent-level . 2)))
+
+;; js2-mode: JavaScript ファイル
+(leaf js2-mode
+  :doc "Improved JavaScript editing mode"
+  :ensure t
+  :mode (("\\.js\\'" . js2-mode))
+  :custom
+  ((js2-basic-offset . 2)
+   (js-indent-level . 2)))
+
+;; emmet-mode: HTML/CSS の高速入力
+(leaf emmet-mode
+  :doc "Emmet support for Emacs"
+  :ensure t
+  :hook ((web-mode-hook . emmet-mode)
+         (css-mode-hook . emmet-mode))
+  :custom
+  ((emmet-move-cursor-between-quotes . t)))
+
+;; lsp-mode: Language Server Protocol サポート
+(leaf lsp-mode
+  :doc "Language Server Protocol client"
+  :ensure t
+  :commands (lsp lsp-deferred)
+  :hook ((typescript-mode-hook . lsp-deferred)
+         (js2-mode-hook . lsp-deferred)
+         (web-mode-hook . lsp-deferred))
+  :custom
+  ((lsp-auto-guess-root . t)
+   (lsp-enable-snippet . t)
+   (lsp-prefer-flymake . nil)              ; flycheck を使用
+   (lsp-headerline-breadcrumb-enable . t)) ; パンくずリスト表示
+  :config
+  (add-to-list 'lsp-language-id-configuration '(web-mode . "typescriptreact")))
+
+;; lsp-ui: LSP の UI 強化
+(leaf lsp-ui
+  :doc "UI modules for lsp-mode"
+  :ensure t
+  :after lsp-mode
+  :custom
+  ((lsp-ui-doc-enable . t)                 ; ドキュメント表示
+   (lsp-ui-doc-position . 'at-point)       ; カーソル位置に表示
+   (lsp-ui-sideline-enable . t)            ; サイドライン表示
+   (lsp-ui-sideline-show-diagnostics . t))) ; 診断情報表示
+
+;; flycheck: リアルタイムシンタックスチェック
+(leaf flycheck
+  :doc "On-the-fly syntax checking"
+  :ensure t
+  :global-minor-mode global-flycheck-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
