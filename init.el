@@ -141,7 +141,80 @@
   :ensure t
   :global-minor-mode which-key-mode)
 
-;;; --- 7. Evil (Vim エミュレーション) ---
+;;; --- 7. Swift 開発 ---
+
+;; swift-mode: Swift のシンタックスハイライトとインデント
+(leaf swift-mode
+  :doc "Major mode for Apple's Swift programming language"
+  :ensure t
+  :mode "\\.swift\\'"
+  :custom
+  ((swift-mode:basic-offset . 4)))  ; インデント幅
+
+;; eglot: LSP クライアント (Emacs 29+ でビルトイン)
+(leaf eglot
+  :doc "Emacs client for Language Server Protocol"
+  :tag "builtin"
+  :hook ((swift-mode-hook . eglot-ensure))  ; Swift ファイルで自動起動
+  :config
+  ;; sourcekit-lsp を Swift の LSP サーバーとして登録
+  (add-to-list 'eglot-server-programs
+               '(swift-mode . ("/usr/bin/sourcekit-lsp"))))
+
+;;; --- 8. Org-mode ---
+
+;; org: Emacs のアウトライナー・タスク管理ツール
+(leaf org
+  :doc "Outline-based notes management and organizer"
+  :tag "builtin"
+  :bind (("C-c a" . org-agenda)     ; アジェンダを開く
+         ("C-c c" . org-capture)    ; クイックキャプチャ
+         ("C-c l" . org-store-link)) ; リンクを保存
+  :custom
+  ((org-directory . "~/org")              ; org ファイルのルートディレクトリ
+   (org-agenda-files . '("~/org"))        ; アジェンダに含めるファイル/ディレクトリ
+   (org-default-notes-file . "~/org/notes.org") ; デフォルトのメモファイル
+   (org-startup-indented . t)             ; インデント表示を有効化
+   (org-startup-folded . 'content)        ; 起動時は見出しのみ表示
+   (org-hide-leading-stars . t)           ; 余分な * を非表示
+   (org-log-done . 'time)                 ; TODO 完了時にタイムスタンプを記録
+   (org-return-follows-link . t)          ; RET でリンクを開く
+   (org-todo-keywords . '((sequence "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+   ;; LOGBOOK ドロワー設定（チャット風メモ）
+   (org-log-into-drawer . t)              ; ノートを LOGBOOK ドロワーに格納
+   (org-log-note-clock-out . nil)         ; クロックアウト時のノートは不要
+   (org-log-state-notes-insert-after-drawers . nil)) ; ドロワーの先頭にノートを追加
+  :config
+  ;; org ディレクトリが存在しない場合は作成
+  (unless (file-exists-p org-directory)
+    (make-directory org-directory t))
+
+  ;; Capture テンプレート
+  (setq org-capture-templates
+        '(("t" "Task" entry (file+headline "~/org/tasks.org" "Inbox")
+           "* TODO %?\n  %U\n  %a")
+          ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
+           "* %?\n  %U")
+          ("j" "Journal" entry (file+datetree "~/org/journal.org")
+           "* %?\n  %U")))
+
+  ;; org-babel: コードブロック実行の設定
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (shell . t)
+     (swift . t)))  ; Swift を有効化
+
+  ;; コードブロック実行時の確認を省略（任意）
+  (setq org-confirm-babel-evaluate nil))
+
+;; ob-swift: org-babel で Swift を実行するためのパッケージ
+(leaf ob-swift
+  :doc "Org-babel functions for Swift"
+  :ensure t
+  :after org)
+
+;;; --- 9. Evil (Vim エミュレーション) ---
 
 ;; evil: Vim キーバインドを Emacs に導入
 (leaf evil
@@ -150,6 +223,7 @@
   :custom
   ((evil-want-integration . t)      ; 基本的な統合を有効化
    (evil-want-keybinding . t)       ; デフォルトのキーバインドを使用
+   (evil-want-minibuffer . nil)     ; minibuffer では Evil を無効化
    (evil-want-C-u-scroll . t)       ; C-u で半ページ上スクロール (Vim風)
    (evil-want-C-i-jump . t)         ; C-i でジャンプリスト進む
    (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
@@ -183,7 +257,12 @@
   ;; Magit/Forge: 独自のキーバインドを持つため Evil を無効化
   (evil-set-initial-state 'magit-mode 'emacs)          ; Magit 全般
   (evil-set-initial-state 'forge-topic-mode 'emacs)    ; Forge トピック
-  (evil-set-initial-state 'forge-post-mode 'emacs))    ; Forge 投稿
+  (evil-set-initial-state 'forge-post-mode 'emacs)    ; Forge 投稿
+  ;; Org-mode: 標準キーバインドの方が使いやすい
+  (evil-set-initial-state 'org-mode 'emacs)           ; Org ファイル
+  (evil-set-initial-state 'org-agenda-mode 'emacs)    ; Org アジェンダ
+  ;; Dired: ファイル操作は Emacs キーバインドの方が使いやすい
+  (evil-set-initial-state 'dired-mode 'emacs))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

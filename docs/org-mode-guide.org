@@ -1,0 +1,283 @@
+#+TITLE: Org-mode 基本ガイド
+#+AUTHOR:
+#+STARTUP: content
+
+* はじめに
+
+このドキュメントはOrg-modeの基本的な使い方をまとめたものです。
+
+* ファイルの作成
+
+=.org= 拡張子のファイルを開くと自動でorg-modeになります。
+
+#+BEGIN_EXAMPLE
+C-x C-f ~/org/test.org RET
+#+END_EXAMPLE
+
+* 見出し（アウトライン）
+
+=*= の数で階層を表します。
+
+#+BEGIN_EXAMPLE
+* 大見出し
+** 中見出し
+*** 小見出し
+#+END_EXAMPLE
+
+** 見出しの操作
+
+| キー          | 動作                         |
+|---------------+------------------------------|
+| =TAB=         | 見出しを折りたたみ/展開      |
+| =Shift-TAB=   | 全体を折りたたみ/展開        |
+| =M-RET=       | 同じ階層の新しい見出しを作成 |
+| =M-←= / =M-→= | 見出しの階層を上げ下げ       |
+| =M-↑= / =M-↓= | 見出しを上下に移動           |
+
+* TODO管理
+
+見出しにTODOを付けてタスク管理ができます。
+
+#+BEGIN_EXAMPLE
+* TODO レポートを書く
+* DONE 買い物
+#+END_EXAMPLE
+
+** TODOの操作
+
+| キー                  | 動作                     |
+|-----------------------+--------------------------|
+| =C-c C-t=             | TODOステータスを切り替え |
+| =Shift-←= / =Shift-→= | ステータスを順番に変更   |
+
+** 設定されているステータス
+
+=TODO= → =IN-PROGRESS= → =WAITING= → =DONE= / =CANCELLED=
+
+* チェックリスト
+
+見出しの下にチェックリストを作成できます。
+
+#+BEGIN_EXAMPLE
+* TODO 旅行の準備
+  - [ ] パスポート確認
+  - [ ] ホテル予約
+  - [X] 航空券購入（完了済み）
+#+END_EXAMPLE
+
+** チェックリストの操作
+
+| キー          | 動作                             |
+|---------------+----------------------------------|
+| =C-c C-c=     | チェックボックスのON/OFF切り替え |
+| =M-Shift-RET= | 新しいチェックボックス項目を追加 |
+
+* チャット風メモ（LOGBOOK）
+
+見出しにタイムスタンプ付きのコメントを追加していく機能です。
+SlackやGitHub Issueのようにメモを蓄積できます。
+
+** 使い方
+
+1. メモを追加したい見出しにカーソルを置く
+2. =C-c C-z= を押す
+3. メモを入力
+4. =C-c C-c= で確定
+
+** 結果のイメージ
+
+#+BEGIN_EXAMPLE
+* プロジェクトA
+  :LOGBOOK:
+  - Note taken on [2026-01-17 Fri 17:30] \\
+    2回目のメモ
+  - Note taken on [2026-01-17 Fri 16:00] \\
+    最初のメモ
+  :END:
+#+END_EXAMPLE
+
+** LOGBOOKの特徴
+
+- メモは *同じファイルの同じ見出し* に蓄積される
+- =:LOGBOOK:= 〜 =:END:= の部分は =TAB= で折りたためる
+- 新しいメモは上に追加される
+- 見出しごとに独立したLOGBOOKを持てる
+
+見出し = Slackのチャンネル、LOGBOOKの各エントリ = メッセージ、というイメージです。
+
+* クイックキャプチャ
+
+どこからでも素早くメモを取れる機能です。
+
+#+BEGIN_EXAMPLE
+C-c c  →  テンプレート選択  →  入力  →  C-c C-c で保存
+#+END_EXAMPLE
+
+** テンプレート一覧
+
+| キー | テンプレート           |
+|------+------------------------|
+| =t=  | タスク追加（tasks.org） |
+| =n=  | メモ追加（notes.org）  |
+| =j=  | 日記追加（journal.org） |
+
+* アジェンダ（予定表）
+
+TODOやスケジュールを一覧表示できます。
+
+#+BEGIN_EXAMPLE
+C-c a  →  a（アジェンダ表示）または t（TODO一覧）
+#+END_EXAMPLE
+
+* リンク
+
+** リンクの書式
+
+#+BEGIN_EXAMPLE
+[[https://example.com][リンクテキスト]]
+[[file:~/org/other.org][別のorgファイル]]
+#+END_EXAMPLE
+
+** リンクの操作
+
+| キー                | 動作         |
+|---------------------+--------------|
+| =C-c C-l=           | リンクを挿入 |
+| =C-c C-o= または =RET= | リンクを開く |
+
+* コードブロック（org-babel）
+
+org-mode内でコードを実行し、結果を埋め込むことができます。
+
+** 基本的な書き方
+
+=#+BEGIN_SRC 言語名= と =#+END_SRC= で囲みます。
+
+#+BEGIN_EXAMPLE
+,#+BEGIN_SRC emacs-lisp
+(+ 1 2 3)
+,#+END_SRC
+#+END_EXAMPLE
+
+** コードブロックの操作
+
+| キー      | 動作                                   |
+|-----------+----------------------------------------|
+| =C-c C-c= | コードブロックを実行                   |
+| =C-c '=   | コードを別バッファで編集（専用モード） |
+
+** 実行結果
+
+=C-c C-c= で実行すると、結果が =#+RESULTS:= として下に表示されます。
+
+#+BEGIN_EXAMPLE
+,#+BEGIN_SRC emacs-lisp
+(+ 1 2 3)
+,#+END_SRC
+
+,#+RESULTS:
+: 6
+#+END_EXAMPLE
+
+* Swift コードの実行
+
+org-mode内でSwiftコードを実行できます。
+
+** 基本的な使い方
+
+#+BEGIN_EXAMPLE
+,#+BEGIN_SRC swift
+print("Hello, Swift!")
+let x = 10 + 20
+print(x)
+,#+END_SRC
+#+END_EXAMPLE
+
+=C-c C-c= で実行すると：
+
+#+BEGIN_EXAMPLE
+,#+RESULTS:
+: Hello, Swift!
+: 30
+#+END_EXAMPLE
+
+** 変数を使った例
+
+#+BEGIN_EXAMPLE
+,#+BEGIN_SRC swift
+let name = "World"
+let greeting = "Hello, \(name)!"
+print(greeting)
+,#+END_SRC
+#+END_EXAMPLE
+
+** 配列と繰り返し
+
+#+BEGIN_EXAMPLE
+,#+BEGIN_SRC swift
+let numbers = [1, 2, 3, 4, 5]
+for n in numbers {
+    print(n * 2)
+}
+,#+END_SRC
+#+END_EXAMPLE
+
+** コードを編集モードで書く
+
+=C-c '= を押すと、swift-mode の別バッファが開きます。
+LSP による補完やエラー表示を利用しながらコードを書けます。
+編集が終わったら再度 =C-c '= で元に戻ります。
+
+* Swift 開発（LSP）
+
+=.swift= ファイルを開くと、自動でLSP（sourcekit-lsp）が起動します。
+
+** LSP の機能
+
+- コード補完（自動で候補が表示される）
+- エラー・警告のリアルタイム表示
+- 定義へのジャンプ
+- リネーム
+
+** LSP のキーバインド
+
+| キー      | 動作             |
+|-----------+------------------|
+| =M-.=     | 定義へジャンプ   |
+| =M-,=     | 戻る             |
+| =C-c C-r= | シンボルをリネーム |
+| =M-x eglot-format= | コードをフォーマット |
+
+* まず試してみましょう
+
+1. =C-x C-f ~/org/test.org RET= でファイル作成
+2. =* TODO 最初のタスク= と入力
+3. =TAB= で折りたたみを試す
+4. =C-c C-t= でDONEに変更
+5. =C-c C-z= でメモを追加
+
+* キーバインド早見表
+
+** Org-mode 基本操作
+
+| キー        | 動作                             |
+|-------------+----------------------------------|
+| =TAB=       | 見出しを折りたたみ/展開          |
+| =Shift-TAB= | 全体を折りたたみ/展開            |
+| =M-RET=     | 同じ階層の新しい見出しを作成     |
+| =C-c C-t=   | TODOステータスを切り替え         |
+| =C-c C-c=   | チェックボックスのON/OFF / コード実行 |
+| =C-c C-z=   | LOGBOOKにメモを追加              |
+| =C-c a=     | アジェンダを開く                 |
+| =C-c c=     | クイックキャプチャ               |
+| =C-c C-l=   | リンクを挿入                     |
+| =C-c C-o=   | リンクを開く                     |
+| =C-c '=     | コードブロックを別バッファで編集 |
+
+** LSP（Swift開発）
+
+| キー      | 動作               |
+|-----------+--------------------|
+| =M-.=     | 定義へジャンプ     |
+| =M-,=     | 戻る               |
+| =C-c C-r= | シンボルをリネーム |
