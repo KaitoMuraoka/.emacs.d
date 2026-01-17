@@ -181,7 +181,11 @@
   (evil-set-initial-state 'sgml-mode 'emacs)           ; SGML/マークアップ全般
   (evil-set-initial-state 'git-commit-mode 'emacs)     ; Git コミットメッセージ
   (evil-set-initial-state 'git-rebase-mode 'emacs)     ; Git rebase
-  (evil-set-initial-state 'lisp-interaction-mode 'emacs)) ; *scratch* バッファ
+  (evil-set-initial-state 'lisp-interaction-mode 'emacs) ; *scratch* バッファ
+  ;; Magit/Forge: 独自のキーバインドを持つため Evil を無効化
+  (evil-set-initial-state 'magit-mode 'emacs)          ; Magit 全般
+  (evil-set-initial-state 'forge-topic-mode 'emacs)    ; Forge トピック
+  (evil-set-initial-state 'forge-post-mode 'emacs))    ; Forge 投稿
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
