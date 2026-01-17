@@ -159,7 +159,11 @@
    (org-hide-leading-stars . t)           ; 余分な * を非表示
    (org-log-done . 'time)                 ; TODO 完了時にタイムスタンプを記録
    (org-return-follows-link . t)          ; RET でリンクを開く
-   (org-todo-keywords . '((sequence "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
+   (org-todo-keywords . '((sequence "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
+   ;; LOGBOOK ドロワー設定（チャット風メモ）
+   (org-log-into-drawer . t)              ; ノートを LOGBOOK ドロワーに格納
+   (org-log-note-clock-out . nil)         ; クロックアウト時のノートは不要
+   (org-log-state-notes-insert-after-drawers . nil)) ; ドロワーの先頭にノートを追加
   :config
   ;; org ディレクトリが存在しない場合は作成
   (unless (file-exists-p org-directory)
