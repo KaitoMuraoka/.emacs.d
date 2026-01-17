@@ -141,7 +141,100 @@
   :ensure t
   :global-minor-mode which-key-mode)
 
-;;; --- 7. Evil (Vim エミュレーション) ---
+;;; --- 7. Ruby on Rails 開発環境 ---
+
+;; ruby-mode: Emacs 標準の Ruby サポート
+(leaf ruby-mode
+  :doc "Major mode for editing Ruby files"
+  :tag "builtin"
+  :mode ("\\.rb\\'" "Rakefile" "Gemfile" "\\.rake\\'")
+  :custom
+  ((ruby-insert-encoding-magic-comment . nil))) ; マジックコメントを挿入しない
+
+;; inf-ruby: IRB/Pry との連携
+(leaf inf-ruby
+  :doc "Run an inferior Ruby process in Emacs"
+  :ensure t
+  :hook (ruby-mode-hook . inf-ruby-minor-mode)
+  :bind (:ruby-mode-map
+         ("C-c C-s" . inf-ruby)         ; IRB を起動
+         ("C-c C-r" . ruby-send-region) ; 選択範囲を送信
+         ("C-c C-l" . ruby-load-file))) ; ファイルをロード
+
+;; robe: Ruby コード補完と定義ジャンプ
+(leaf robe
+  :doc "Code navigation, documentation lookup and completion for Ruby"
+  :ensure t
+  :hook (ruby-mode-hook . robe-mode)
+  :config
+  (eval-after-load 'company
+    '(push 'company-robe company-backends)))
+
+;; rubocop: Ruby リンター連携
+(leaf rubocop
+  :doc "RuboCop integration for Emacs"
+  :ensure t
+  :hook (ruby-mode-hook . rubocop-mode)
+  :bind (:ruby-mode-map
+         ("C-c C-e" . rubocop-check-current-file)   ; 現在のファイルをチェック
+         ("C-c C-a" . rubocop-autocorrect-current-file))) ; 自動修正
+
+;; projectile: プロジェクト管理 (Rails 用の前提)
+(leaf projectile
+  :doc "Project navigation and management library"
+  :ensure t
+  :require t
+  :global-minor-mode projectile-mode
+  :custom
+  ((projectile-completion-system . 'default))
+  :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+
+;; projectile-rails: Rails プロジェクト専用のナビゲーション
+(leaf projectile-rails
+  :doc "Minor mode for Rails projects based on projectile"
+  :ensure t
+  :hook (projectile-mode-hook . projectile-rails-global-mode)
+  :bind (:projectile-rails-mode-map
+         ("C-c r m" . projectile-rails-find-model)       ; モデルへ移動
+         ("C-c r c" . projectile-rails-find-controller)  ; コントローラへ移動
+         ("C-c r v" . projectile-rails-find-view)        ; ビューへ移動
+         ("C-c r h" . projectile-rails-find-helper)      ; ヘルパーへ移動
+         ("C-c r s" . projectile-rails-find-spec)        ; スペックへ移動
+         ("C-c r r" . projectile-rails-console)          ; Rails コンソール起動
+         ("C-c r g" . projectile-rails-goto-gemfile)))   ; Gemfile へ移動
+
+;; web-mode: ERB, HTML, CSS 等のテンプレート編集
+(leaf web-mode
+  :doc "Major mode for editing web templates"
+  :ensure t
+  :mode ("\\.erb\\'" "\\.html?\\'" "\\.css\\'" "\\.scss\\'")
+  :custom
+  ((web-mode-markup-indent-offset . 2)   ; HTML インデント
+   (web-mode-css-indent-offset . 2)      ; CSS インデント
+   (web-mode-code-indent-offset . 2)     ; Ruby/JS インデント
+   (web-mode-enable-auto-pairing . t)    ; 自動ペアリング
+   (web-mode-enable-css-colorization . t))) ; CSS カラー表示
+
+;; yaml-mode: YAML 設定ファイル編集
+(leaf yaml-mode
+  :doc "Major mode for editing YAML files"
+  :ensure t
+  :mode ("\\.ya?ml\\'"))
+
+;; rspec-mode: RSpec テスト実行
+(leaf rspec-mode
+  :doc "Minor mode for RSpec specifications"
+  :ensure t
+  :hook (ruby-mode-hook . rspec-mode)
+  :bind (:rspec-mode-map
+         ("C-c , v" . rspec-verify)              ; 現在のスペック実行
+         ("C-c , a" . rspec-verify-all)          ; 全スペック実行
+         ("C-c , s" . rspec-verify-single)       ; カーソル位置のテスト実行
+         ("C-c , r" . rspec-rerun)               ; 最後のテスト再実行
+         ("C-c , t" . rspec-toggle-spec-and-target))) ; テスト/実装を切り替え
+
+;;; --- 8. Evil (Vim エミュレーション) ---
 
 ;; evil: Vim キーバインドを Emacs に導入
 (leaf evil
