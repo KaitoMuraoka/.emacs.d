@@ -223,6 +223,7 @@
   :custom
   ((evil-want-integration . t)      ; 基本的な統合を有効化
    (evil-want-keybinding . t)       ; デフォルトのキーバインドを使用
+   (evil-want-minibuffer . nil)     ; minibuffer では Evil を無効化
    (evil-want-C-u-scroll . t)       ; C-u で半ページ上スクロール (Vim風)
    (evil-want-C-i-jump . t)         ; C-i でジャンプリスト進む
    (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
@@ -259,7 +260,9 @@
   (evil-set-initial-state 'forge-post-mode 'emacs)    ; Forge 投稿
   ;; Org-mode: 標準キーバインドの方が使いやすい
   (evil-set-initial-state 'org-mode 'emacs)           ; Org ファイル
-  (evil-set-initial-state 'org-agenda-mode 'emacs))   ; Org アジェンダ
+  (evil-set-initial-state 'org-agenda-mode 'emacs)    ; Org アジェンダ
+  ;; Dired: ファイル操作は Emacs キーバインドの方が使いやすい
+  (evil-set-initial-state 'dired-mode 'emacs))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
