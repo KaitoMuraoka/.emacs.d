@@ -26,7 +26,7 @@
   (global-display-line-numbers-mode t))  ; 行番号表示
 
 (leaf files
-  :doc "Disable backup and auto-save files"
+  :doc "Disable backup and auto-save file"
   :tag "builtin"
   :custom
   ((make-backup-files . nil)    ; init.el~ を作らない
@@ -113,13 +113,11 @@
   ((treemacs-width . 30)                     ; サイドバーの幅
    (treemacs-follow-mode . t)                ; カーソル位置に追従
    (treemacs-filewatch-mode . t)             ; ファイル変更を監視
-   (treemacs-fringe-indicator-mode . t)))    ; 現在行にインジケーター表示
-
-;; Treemacs + Evil 連携
-(leaf treemacs-evil
-  :doc "Evil integration for Treemacs"
-  :ensure t
-  :after (treemacs evil))
+   (treemacs-fringe-indicator-mode . t))     ; 現在行にインジケーター表示
+  :config
+  ;; TreemacsでEvilを無効にし、Emacsキーバインドを使用
+  (with-eval-after-load 'evil
+    (evil-set-initial-state 'treemacs-mode 'emacs)))
 
 ;; Treemacs + Magit 連携
 (leaf treemacs-magit
