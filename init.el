@@ -1,7 +1,7 @@
 ;; ~/.emacs.d/init.el
 
 ;;; ============================================================
-;;; パッケージマネージャーの設定
+;; パッケージマネージャーの設定
 ;;; ============================================================
 
 ;; package.el は Emacs 組み込みのパッケージ管理システム
@@ -106,6 +106,15 @@
   :init
   (vertico-mode))
 
+;; completion-ignore-case: ファイル名補完での大文字小文字無視
+(setq completion-ignore-case t)
+
+;; read-buffer-completion-ignore-case: バッファ名補完での無視
+(setq read-buffer-completion-ignore-case t)
+
+;; read-file-name-completion-ignore-case: ファイル名読み込み時の無視
+(setq read-file-name-completion-ignore-case t)
+
 ;; Orderless: スペース区切りで複数キーワード検索できる補完スタイル
 ;; 例: "find file" → "file find" でも補完される
 (use-package orderless
@@ -125,6 +134,18 @@
   :init
   (global-corfu-mode))
 
+;; 閉じカッコの自動挿入
+(electric-pair-mode 1)
+
+;; yasnippet: スニペット（コードテンプレート）システム
+;; タブストップ $1, $2... にカーソルが順番に移動する
+(use-package yasnippet
+  :config
+  (yas-global-mode 1))
+
+;; yasnippet-snippets: 多数の言語の既製スニペット集
+;; Swift, TypeScript, ELisp など主要言語のスニペットが含まれる
+(use-package yasnippet-snippets)
 
 ;;; ============================================================
 ;;; LSP（Language Server Protocol）設定
@@ -165,7 +186,6 @@
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
 
 
-;;; ============================================================
 ;;; 言語モード
 ;;; ============================================================
 
