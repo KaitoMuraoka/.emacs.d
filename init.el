@@ -55,7 +55,8 @@
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
 
-;; 行番号を表示
+;; 行番号を表示（相対行番号）
+(setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
@@ -76,10 +77,6 @@
 
 ;; ダークテーマ
 (load-theme 'modus-vivendi t)
-
-;; 行番号(絶対行番号)
-(setq display-line-numbers-type t)
-(global-display-line-numbers-mode 1)
 
 
 ;;; ============================================================
