@@ -97,6 +97,32 @@
 
 
 ;;; ============================================================
+;;; Treemacs
+;;; ============================================================
+;; treemacs: VSCode のようなサイドバーのディレクトリツリー
+;; プロジェクト全体のファイル構造を左ペインで把握できる
+(use-package treemacs
+  :bind
+  ("C-c t t" . treemacs)                      ; ツリーの表示/非表示トグル
+  ("C-c t f" . treemacs-find-file)            ; 今開いているファイルをツリーで選択状態にする
+  ("C-c t p" . treemacs-add-and-display-current-project) ; 現在のプロジェクトを追加
+
+  :config
+  ;; ツリーの幅（文字数）
+  (setq treemacs-width 30)
+
+  ;; ファイル変更を自動で検知してツリーを更新する
+  (treemacs-filewatch-mode t)
+
+  ;; git の状態（変更済み・未追跡など）をツリー上にアイコン表示する
+  (treemacs-git-mode 'simple))
+
+;; treemacs-magit: treemacs と magit を連携させる
+;; magit でファイル操作した結果をツリーに即時反映する
+(use-package treemacs-magit
+  :after (treemacs magit))
+
+;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
 
@@ -208,8 +234,47 @@
 (use-package magit
   :bind ("C-c g" . magit-status))
 
+(use-package forge
+  :after magit)
+
+;; git-gutter: バッファ左端（ガター）に git の差分を記号で表示する
+;;
+;;   +  追加された行（git で言う +）
+;;   -  削除された行
+;;   ~  変更された行
+;;
+;; これにより「どこを編集したか」をコミット前に視覚的に把握できる
+(use-package git-gutter
+  :hook (prog-mode . git-gutter-mode) ; プログラム用モードでのみ有効化
+  :config
+  (setq git-gutter:update-interval 0.5) ; 0.5秒ごとに差分を更新
+
+  ;; 記号のカスタマイズ（デフォルトでも動くが視認性を上げる）
+  (setq git-gutter:added-sign    "+")
+  (setq git-gutter:deleted-sign  "-")
+  (setq git-gutter:modified-sign "~")
+
+  :bind
+  ("C-c v n" . git-gutter:next-hunk)     ; 次の変更箇所へ
+  ("C-c v p" . git-gutter:previous-hunk) ; 前の変更箇所へ
+  ("C-c v r" . git-gutter:revert-hunk)   ; この変更を git で元に戻す
+  ("C-c v s" . git-gutter:stage-hunk))   ; この変更だけをステージング
 
 ;;; ============================================================
+;;; which-key
+;;; ============================================================
+(use-package which-key
+  :config
+  (setq which-key-idle-delay 0.8)
+
+  ;; 'bottom は廃止。side-window を使い、表示位置を bottom に指定する
+  (setq which-key-popup-type 'side-window)
+  (setq which-key-side-window-location 'bottom) ; 'top 'left 'right も選べる
+
+  (which-key-mode))
+
+
+ ;;; ============================================================
 ;;; プロジェクト管理
 ;;; ============================================================
 
@@ -234,7 +299,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(corfu forge git-gutter magit marginalia orderless swift-mode
+           treesit-auto typescript-mode vertico yasnippet-snippets)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
