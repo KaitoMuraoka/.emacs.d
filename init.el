@@ -1,313 +1,304 @@
-;;; --- 1. インフラ設定 (leaf のセットアップ) ---
-(eval-and-compile
-  (setq package-archives '(("org"   . "https://orgmode.org/elpa/")
-                           ("melpa" . "https://melpa.org/packages/")
-                           ("gnu"   . "https://elpa.gnu.org/packages/")))
-  (package-initialize)
-  (unless (package-installed-p 'leaf)
-    (package-refresh-contents)
-    (package-install 'leaf))
+;; ~/.emacs.d/init.el
 
-  (leaf leaf-keywords
-    :ensure t
-    :init (leaf-keywords-init)))
+;;; ============================================================
+;; パッケージマネージャーの設定
+;;; ============================================================
 
-;;; --- 2. 基本的な振る舞いと見た目 ---
-(leaf emacs
-  :custom
-  ((inhibit-startup-message . t)         ; スタートアップ画面非表示
-   (column-number-mode . t)              ; 列番号表示
-   (scroll-bar-mode . nil)               ; スクロールバー非表示
-   (display-line-numbers-type . t)         ; デフォルトは絶対行番号
-   ;; macOS: Option キーをメタキーとして使用
-   (mac-option-modifier . 'meta)
-   (mac-command-modifier . 'super))      ; Command は super に
+;; package.el は Emacs 組み込みのパッケージ管理システム
+(require 'package)
+
+;; パッケージリポジトリを追加
+;; MELPA は最大のサードパーティパッケージリポジトリ
+(setq package-archives
+      '(("gnu"   . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")))
+
+(package-initialize)
+
+;; パッケージリスト未取得なら取得する
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; use-package をインストール
+;; use-package はパッケージの設定を宣言的・整理しやすく書けるマクロ
+;; 「このパッケージがなければインストールする」を自動でやってくれる
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+
+;; use-package で指定したパッケージを自動インストールする
+(setq use-package-always-ensure t)
+
+
+;;; ============================================================
+;;; 基本的な Emacs の設定
+;;; ============================================================
+
+;; スタートアップ画面を表示しない
+(setq inhibit-startup-screen t)
+
+;; エラー音を無効化（視覚的なフラッシュも無効）
+(setq ring-bell-function 'ignore)
+
+;; バックアップファイル（file.txt~）を作らない
+;; 作業ディレクトリが汚れるのを防ぐ
+(setq make-backup-files nil)
+
+;; 自動保存ファイル（#file.txt#）も作らない
+(setq auto-save-default nil)
+
+;; yes/no を y/n で答えられるようにする
+(setq use-short-answers t)
+
+;; 現在行をハイライト
+;; カーソル位置を視覚的に把握しやすくする
+(global-hl-line-mode 1)
+
+;; 行番号を表示（相対行番号）
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode 1)
+
+;; 対応する括弧をハイライト
+(show-paren-mode 1)
+
+;; タブではなくスペースを使う（多くの言語でのベストプラクティス）
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+
+;; 列数を表示
+(column-number-mode 1)
+
+;; ファイル末尾に改行を自動挿入
+(setq require-final-newline t)
+
+;; クリップボードをOSと共有する
+(setq select-enable-clipboard t)
+
+;; ダークテーマ
+(load-theme 'modus-vivendi t)
+
+
+;;; ============================================================
+;;; シンタックスハイライト
+;;; ============================================================
+
+;; tree-sitter はコードをASTとして解析するため
+;; 正規表現ベースのハイライトより高精度・高速
+;; Emacs 29以降は組み込み（treesit）で利用可能
+(use-package treesit-auto
   :config
-  (global-display-line-numbers-mode t))  ; 行番号表示
+  ;; 必要な tree-sitter グラマーを自動インストールする設定
+  (setq treesit-auto-install 'prompt)
+  (global-treesit-auto-mode))
 
-(leaf files
-  :doc "Disable backup and auto-save file"
-  :tag "builtin"
-  :custom
-  ((make-backup-files . nil)    ; init.el~ を作らない
-   (auto-save-default . nil)))  ; #init.el# を作らない
 
-;; --- 真っ黒な背景設定 ---
-(leaf modus-themes
-  :doc "High contrast themes with pure black background"
-  :ensure t
-  :custom
-  ((modus-themes-vivendi-color-overrides . '((bg-main . "#000000"))))
+;;; ============================================================
+;;; Treemacs
+;;; ============================================================
+;; treemacs: VSCode のようなサイドバーのディレクトリツリー
+;; プロジェクト全体のファイル構造を左ペインで把握できる
+(use-package treemacs
+  :bind
+  ("C-c t t" . treemacs)                      ; ツリーの表示/非表示トグル
+  ("C-c t f" . treemacs-find-file)            ; 今開いているファイルをツリーで選択状態にする
+  ("C-c t p" . treemacs-add-and-display-current-project) ; 現在のプロジェクトを追加
+
   :config
-  (load-theme 'modus-vivendi t))
+  ;; ツリーの幅（文字数）
+  (setq treemacs-width 30)
 
-;;; --- 3. サーバー設定 (emacsclient連携) ---
-(leaf server
-  :doc "Emacs server for emacsclient"
-  :tag "builtin"
-  :require server
-  :config
-  (unless (server-running-p)
-    (server-start)))
+  ;; ファイル変更を自動で検知してツリーを更新する
+  (treemacs-filewatch-mode t)
 
-;;; --- 4. ご要望の機能 (paren & company) ---
+  ;; git の状態（変更済み・未追跡など）をツリー上にアイコン表示する
+  (treemacs-git-mode 'simple))
 
-;; paren: 対応する括弧の強調表示
-(leaf paren
-  :doc "Highlight matching parentheses"
-  :tag "builtin"
-  :custom ((show-paren-delay . 0))
-  :global-minor-mode show-paren-mode)
-
-;; company: 高速な自動補完
-(leaf company
-  :doc "Modular text completion framework"
-  :ensure t
-  :leaf-defer nil
-  :bind ((:company-active-map
-          ("C-n" . company-select-next)
-          ("C-p" . company-select-previous)
-          ("<tab>" . company-complete-selection)))
-  :custom
-  ((company-idle-delay . 0)
-   (company-minimum-prefix-length . 1)
-   (company-selection-wrap-around . t))
-  :global-minor-mode global-company-mode)
-
-;; Magit: 最強のGitインターフェース
-(leaf magit
-  :ensure t
-  :bind (("C-x g" . magit-status)) ; C-x g で Git 操作画面を開く
-  :custom
-  ((magit-display-buffer-function . 'magit-display-buffer-same-window-except-diff-v1)))
-
-;; Forge: GitHub/GitLab Issue・PR を Magit から操作
-(setq auth-sources '("~/.authinfo"))
-(leaf forge
-  :ensure t
-  :after magit)
-
-;; git-gutter: 変更行を左側に表示
-(leaf git-gutter
-  :ensure t
-  :global-minor-mode global-git-gutter-mode
-  :custom
-  ((git-gutter:modified-sign . "~") ; 変更箇所のマーク
-   (git-gutter:added-sign . "+")    ; 追加箇所のマーク
-   (git-gutter:deleted-sign . "-")) ; 削除箇所のマーク
-  :custom-face
-  ((git-gutter:modified . '((t (:foreground "yellow"))))
-   (git-gutter:added    . '((t (:foreground "green"))))
-   (git-gutter:deleted  . '((t (:foreground "red"))))))
-
-;;; --- 5. ファイル操作 (Treemacs) ---
-
-;; Treemacs: サイドバーにディレクトリツリーを表示
-(leaf treemacs
-  :doc "A tree layout file explorer for Emacs"
-  :ensure t
-  :bind (("C-x t t" . treemacs)              ; ツリー表示のトグル
-         ("C-x t 1" . treemacs-select-window) ; Treemacs ウィンドウに移動
-         ("C-x t d" . treemacs-select-directory)) ; ディレクトリを選択して表示
-  :custom
-  ((treemacs-width . 30)                     ; サイドバーの幅
-   (treemacs-follow-mode . t)                ; カーソル位置に追従
-   (treemacs-filewatch-mode . t)             ; ファイル変更を監視
-   (treemacs-fringe-indicator-mode . t))     ; 現在行にインジケーター表示
-  :config
-  ;; TreemacsでEvilを無効にし、Emacsキーバインドを使用
-  (with-eval-after-load 'evil
-    (evil-set-initial-state 'treemacs-mode 'emacs)))
-
-;; Treemacs + Magit 連携
-(leaf treemacs-magit
-  :doc "Magit integration for Treemacs"
-  :ensure t
+;; treemacs-magit: treemacs と magit を連携させる
+;; magit でファイル操作した結果をツリーに即時反映する
+(use-package treemacs-magit
   :after (treemacs magit))
 
-;;; --- 6. Clojure/Lisp開発を快適にする追加設定 ---
+;;; ============================================================
+;;; 補完システム
+;;; ============================================================
 
-;; rainbow-delimiters: 括弧を階層ごとに色分け
-(leaf rainbow-delimiters
-  :doc "Colorize brackets according to their depth"
-  :ensure t
-  :hook (prog-mode-hook . rainbow-delimiters-mode))
+;; Vertico: ミニバッファの補完UI
+;; M-x や ファイル検索などの候補を縦リスト表示する
+(use-package vertico
+  :init
+  (vertico-mode))
 
-;; which-key: キー操作のヒントを表示
-(leaf which-key
-  :doc "Display available keybindings in popup"
-  :ensure t
-  :global-minor-mode which-key-mode)
+;; completion-ignore-case: ファイル名補完での大文字小文字無視
+(setq completion-ignore-case t)
 
-;;; --- 7. Swift 開発 ---
+;; read-buffer-completion-ignore-case: バッファ名補完での無視
+(setq read-buffer-completion-ignore-case t)
 
-;; swift-mode: Swift のシンタックスハイライトとインデント
-(leaf swift-mode
-  :doc "Major mode for Apple's Swift programming language"
-  :ensure t
-  :mode "\\.swift\\'"
+;; read-file-name-completion-ignore-case: ファイル名読み込み時の無視
+(setq read-file-name-completion-ignore-case t)
+
+;; Orderless: スペース区切りで複数キーワード検索できる補完スタイル
+;; 例: "find file" → "file find" でも補完される
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)))
+
+;; Marginalia: 補完候補の横に説明文を表示
+(use-package marginalia
+  :init
+  (marginalia-mode))
+
+;; Corfu: コード補完のポップアップUI（LSPの補完候補表示に使う）
+(use-package corfu
   :custom
-  ((swift-mode:basic-offset . 4)))  ; インデント幅
+  (corfu-auto t)          ; 自動で補完候補を表示
+  (corfu-auto-delay 0.3)  ; 0.3秒後に表示
+  :init
+  (global-corfu-mode))
 
-;; eglot: LSP クライアント (Emacs 29+ でビルトイン)
-(leaf eglot
-  :doc "Emacs client for Language Server Protocol"
-  :tag "builtin"
-  :hook ((swift-mode-hook . eglot-ensure)
-         (nix-mode-hook . eglot-ensure))    ; Nix ファイルで自動起動
+;; 閉じカッコの自動挿入
+(electric-pair-mode 1)
+
+;; yasnippet: スニペット（コードテンプレート）システム
+;; タブストップ $1, $2... にカーソルが順番に移動する
+(use-package yasnippet
   :config
-  ;; sourcekit-lsp を Swift の LSP サーバーとして登録
+  (yas-global-mode 1))
+
+;; yasnippet-snippets: 多数の言語の既製スニペット集
+;; Swift, TypeScript, ELisp など主要言語のスニペットが含まれる
+(use-package yasnippet-snippets)
+
+;;; ============================================================
+;;; LSP（Language Server Protocol）設定
+;;; ============================================================
+
+;; eglot は Emacs 29 組み込みの LSP クライアント
+;; LSP = エディタとは独立した言語解析サーバーと通信する仕組み
+;; これにより補完・定義ジャンプ・エラー表示が言語ごとに統一される
+(use-package eglot
+  :hook
+  ;; 各言語モード起動時に自動でLSPを開始する
+  ((swift-mode       . eglot-ensure)
+   (typescript-mode  . eglot-ensure)
+   (tsx-ts-mode      . eglot-ensure)
+   (emacs-lisp-mode  . eglot-ensure))
+
+  :config
+  ;; Swift: sourcekit-lsp を使用
+  ;; Xcode に含まれているので追加インストール不要
   (add-to-list 'eglot-server-programs
-               '(swift-mode . ("/usr/bin/sourcekit-lsp")))
-  ;; nixd を Nix の LSP サーバーとして登録
+               '(swift-mode . ("xcrun" "sourcekit-lsp")))
+
+  ;; TypeScript: typescript-language-server を使用
+  ;; インストール: npm install -g typescript-language-server typescript
   (add-to-list 'eglot-server-programs
-               '(nix-mode . ("nixd"))))
+               '((typescript-mode tsx-ts-mode) .
+                 ("typescript-language-server" "--stdio")))
 
-;;; --- 8. Nix 開発 ---
+  ;; ELisp: Emacs 自体が LSP 的な機能を持つため
+  ;; eglot-ensure を hook するだけで eldoc などが働く
+  ;; (追加のサーバー設定は不要)
 
-;; nix-mode: Nix のシンタックスハイライトとインデント
-(leaf nix-mode
-  :doc "Major mode for editing Nix expressions"
-  :ensure t
-  :mode "\\.nix\\'"
-  :custom
-  ((nix-indent-function . 'nix-indent-line))) ; 標準のインデント関数を使用
+  :bind (:map eglot-mode-map
+              ("C-c l r" . eglot-rename)           ; シンボルのリネーム
+              ("C-c l a" . eglot-code-actions)      ; コードアクション
+              ("C-c l f" . eglot-format-buffer)     ; フォーマット
+              ("M-."     . xref-find-definitions)   ; 定義へジャンプ
+              ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
 
-;; envrc: direnv 統合 (nix-shell / nix develop の環境を自動読み込み)
-(leaf envrc
-  :doc "Support for direnv which operates buffer-locally"
-  :ensure t
-  :hook (after-init-hook . envrc-global-mode)
-  :bind (:envrc-mode-map
-         ("C-c e" . envrc-command-map))       ; C-c e でコマンドマップを開く
+
+;;; 言語モード
+;;; ============================================================
+
+;; Swift サポート
+;; swift-mode は MELPA から提供
+(use-package swift-mode)
+
+;; TypeScript サポート
+(use-package typescript-mode
+  :mode ("\\.ts\\'" . typescript-mode)
+  :mode ("\\.tsx\\'" . tsx-ts-mode))
+
+
+;;; ============================================================
+;;; Git サポート
+;;; ============================================================
+
+;; Magit: Emacs 上で Git を操作できる強力なツール
+;; ターミナルを開かず Git の全操作が行える
+(use-package magit
+  :bind ("C-c g" . magit-status))
+
+(use-package forge
+  :after magit)
+
+;; git-gutter: バッファ左端（ガター）に git の差分を記号で表示する
+;;
+;;   +  追加された行（git で言う +）
+;;   -  削除された行
+;;   ~  変更された行
+;;
+;; これにより「どこを編集したか」をコミット前に視覚的に把握できる
+(use-package git-gutter
+  :hook (prog-mode . git-gutter-mode) ; プログラム用モードでのみ有効化
   :config
-  ;; direnv の環境変更時にメッセージを表示
-  (setq envrc-show-summary-in-minibuffer t))
+  (setq git-gutter:update-interval 0.5) ; 0.5秒ごとに差分を更新
 
-;;; --- 9. Org-mode ---
+  ;; 記号のカスタマイズ（デフォルトでも動くが視認性を上げる）
+  (setq git-gutter:added-sign    "+")
+  (setq git-gutter:deleted-sign  "-")
+  (setq git-gutter:modified-sign "~")
 
-;; org: Emacs のアウトライナー・タスク管理ツール
-(leaf org
-  :doc "Outline-based notes management and organizer"
-  :tag "builtin"
-  :bind (("C-c a" . org-agenda)     ; アジェンダを開く
-         ("C-c c" . org-capture)    ; クイックキャプチャ
-         ("C-c l" . org-store-link)) ; リンクを保存
-  :custom
-  ((org-directory . "~/org")              ; org ファイルのルートディレクトリ
-   (org-agenda-files . '("~/org"))        ; アジェンダに含めるファイル/ディレクトリ
-   (org-default-notes-file . "~/org/notes.org") ; デフォルトのメモファイル
-   (org-startup-indented . t)             ; インデント表示を有効化
-   (org-startup-folded . 'content)        ; 起動時は見出しのみ表示
-   (org-hide-leading-stars . t)           ; 余分な * を非表示
-   (org-log-done . 'time)                 ; TODO 完了時にタイムスタンプを記録
-   (org-return-follows-link . t)          ; RET でリンクを開く
-   (org-todo-keywords . '((sequence "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)")))
-   ;; LOGBOOK ドロワー設定（チャット風メモ）
-   (org-log-into-drawer . t)              ; ノートを LOGBOOK ドロワーに格納
-   (org-log-note-clock-out . nil)         ; クロックアウト時のノートは不要
-   (org-log-state-notes-insert-after-drawers . nil) ; ドロワーの先頭にノートを追加
-   ;; ソースブロック設定
-   (org-src-fontify-natively . t)         ; コードブロック内でシンタックスハイライト
-   (org-src-tab-acts-natively . t)        ; コードブロック内でタブが言語に応じて動作
-   (org-src-preserve-indentation . t)     ; コードブロックのインデントを保持
-   (org-edit-src-content-indentation . 0)) ; C-c ' で編集時の追加インデントなし
+  :bind
+  ("C-c v n" . git-gutter:next-hunk)     ; 次の変更箇所へ
+  ("C-c v p" . git-gutter:previous-hunk) ; 前の変更箇所へ
+  ("C-c v r" . git-gutter:revert-hunk)   ; この変更を git で元に戻す
+  ("C-c v s" . git-gutter:stage-hunk))   ; この変更だけをステージング
+
+;;; ============================================================
+;;; which-key
+;;; ============================================================
+(use-package which-key
   :config
-  ;; org ディレクトリが存在しない場合は作成
-  (unless (file-exists-p org-directory)
-    (make-directory org-directory t))
+  (setq which-key-idle-delay 0.8)
 
-  ;; Capture テンプレート
-  (setq org-capture-templates
-        '(("t" "Task" entry (file+headline "~/org/tasks.org" "Inbox")
-           "* TODO %?\n  %U\n  %a")
-          ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
-           "* %?\n  %U")
-          ("j" "Journal" entry (file+datetree "~/org/journal.org")
-           "* %?\n  %U")))
+  ;; 'bottom は廃止。side-window を使い、表示位置を bottom に指定する
+  (setq which-key-popup-type 'side-window)
+  (setq which-key-side-window-location 'bottom) ; 'top 'left 'right も選べる
 
-  ;; org-babel: コードブロック実行の設定
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (shell . t)
-     (swift . t)))  ; Swift を有効化
+  (which-key-mode))
 
-  ;; コードブロック実行時の確認を省略（任意）
-  (setq org-confirm-babel-evaluate nil)
 
-  ;; org-tempo: コードブロックの簡単挿入 (<s TAB で #+begin_src など)
-  (require 'org-tempo)
+ ;;; ============================================================
+;;; プロジェクト管理
+;;; ============================================================
 
-  ;; コードブロックテンプレートを追加
-  ;; <n TAB で nix ブロック, <sh TAB で shell ブロック
-  (add-to-list 'org-structure-template-alist '("n" . "src nix"))
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("ba" . "src bash"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
+;; project.el は Emacs 組み込み
+;; Git リポジトリをプロジェクトとして認識し
+;; プロジェクト内のファイル検索などができる
+(global-set-key (kbd "C-c p f") #'project-find-file)
+(global-set-key (kbd "C-c p b") #'project-switch-to-buffer)
 
-;; ob-swift: org-babel で Swift を実行するためのパッケージ
-(leaf ob-swift
-  :doc "Org-babel functions for Swift"
-  :ensure t
-  :after org)
 
-;;; --- 10. Evil (Vim エミュレーション) ---
+;;; ============================================================
+;;; よく使うキーバインド
+;;; ============================================================
 
-;; evil: Vim キーバインドを Emacs に導入
-(leaf evil
-  :doc "Extensible vi layer for Emacs"
-  :ensure t
-  :custom
-  ((evil-want-integration . t)      ; 基本的な統合を有効化
-   (evil-want-keybinding . t)       ; デフォルトのキーバインドを使用
-   (evil-want-minibuffer . nil)     ; minibuffer では Evil を無効化
-   (evil-want-C-u-scroll . t)       ; C-u で半ページ上スクロール (Vim風)
-   (evil-want-C-i-jump . t)         ; C-i でジャンプリスト進む
-   (evil-undo-system . 'undo-redo)) ; Emacs 28+ のネイティブ undo-redo を使用
-  :config
-  (evil-mode 1)
+;; バッファの切り替えを便利に
+(global-set-key (kbd "C-c b") #'switch-to-buffer)
 
-  ;; Evil ステートに応じて行番号タイプを切り替え
-  (defun my/evil-relative-line-numbers ()
-    "Vi 操作時は相対行番号"
-    (setq-local display-line-numbers 'relative))
-  (defun my/evil-absolute-line-numbers ()
-    "Emacs 操作時は絶対行番号"
-    (setq-local display-line-numbers t))
-  (add-hook 'evil-normal-state-entry-hook #'my/evil-relative-line-numbers)
-  (add-hook 'evil-visual-state-entry-hook #'my/evil-relative-line-numbers)
-  (add-hook 'evil-motion-state-entry-hook #'my/evil-relative-line-numbers)
-  (add-hook 'evil-insert-state-entry-hook #'my/evil-relative-line-numbers)
-  (add-hook 'evil-emacs-state-entry-hook #'my/evil-absolute-line-numbers)
-
-  ;; 以下のモードでは Evil を無効化し、素の Emacs キーバインドを使用
-  (evil-set-initial-state 'text-mode 'emacs)           ; txt ファイル
-  (evil-set-initial-state 'markdown-mode 'emacs)       ; Markdown
-  (evil-set-initial-state 'gfm-mode 'emacs)            ; GitHub Flavored Markdown
-  (evil-set-initial-state 'html-mode 'emacs)           ; HTML
-  (evil-set-initial-state 'mhtml-mode 'emacs)          ; HTML (Emacs 25+)
-  (evil-set-initial-state 'nxml-mode 'emacs)           ; XML
-  (evil-set-initial-state 'sgml-mode 'emacs)           ; SGML/マークアップ全般
-  (evil-set-initial-state 'git-commit-mode 'emacs)     ; Git コミットメッセージ
-  (evil-set-initial-state 'git-rebase-mode 'emacs)     ; Git rebase
-  (evil-set-initial-state 'lisp-interaction-mode 'emacs) ; *scratch* バッファ
-  ;; Magit/Forge: 独自のキーバインドを持つため Evil を無効化
-  (evil-set-initial-state 'magit-mode 'emacs)          ; Magit 全般
-  (evil-set-initial-state 'forge-topic-mode 'emacs)    ; Forge トピック
-  (evil-set-initial-state 'forge-post-mode 'emacs)    ; Forge 投稿
-  ;; Org-mode: 標準キーバインドの方が使いやすい
-  (evil-set-initial-state 'org-mode 'emacs)           ; Org ファイル
-  (evil-set-initial-state 'org-agenda-mode 'emacs)    ; Org アジェンダ
-  ;; Dired: ファイル操作は Emacs キーバインドの方が使いやすい
-  (evil-set-initial-state 'dired-mode 'emacs))
-
+;; ウィンドウ移動
+(global-set-key (kbd "M-o") #'other-window)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(corfu forge git-gutter magit marginalia orderless swift-mode
+           treesit-auto typescript-mode vertico yasnippet-snippets)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
