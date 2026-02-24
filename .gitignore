@@ -25,7 +25,7 @@ eclipse.jdt.ls/
 *.elc
 request/
 
-init.el
+# init.el
 auto-save-list
 el-clone/
 irony/
@@ -50,7 +50,7 @@ projectile.cache
 history
 .metals
 async-bytecomp.log
-early-init.el
+# early-init.el
 nov-places
 /var/
 /hacker-typer/
