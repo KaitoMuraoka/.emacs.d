@@ -270,6 +270,30 @@
 
   (which-key-mode))
 
+;;; ============================================================
+;;; vterm（ターミナルエミュレータ）
+;;; ============================================================
+
+(use-package vterm
+  :commands vterm ; vterm コマンドが呼ばれた時だけ読み込む（遅延読み込み）
+
+  :config
+  ;; シェルの設定
+  ;; Emacs は $SHELL 環境変数からシェルを自動検出するが
+  ;; 明示的に指定することで確実に希望のシェルが起動する
+  (setq vterm-shell (getenv "SHELL"))
+
+  ;; ターミナルの最大スクロール行数
+  ;; 大きくすると過去の出力を遡れるがメモリを使う
+  (setq vterm-max-scrollback 10000)
+
+  ;; vterm バッファを閉じた時、ウィンドウも一緒に閉じる
+  ;; ターミナルを exit した後に空のバッファが残らないようにする
+  (setq vterm-kill-buffer-on-exit t)
+
+  :bind
+  ("C-c v t" . vterm)              ; 新しい vterm を開く
+  ("C-c v o" . vterm-other-window)) ; 別ウィンドウで開く
 
  ;;; ============================================================
 ;;; プロジェクト管理
@@ -298,7 +322,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(corfu forge git-gutter magit marginalia orderless swift-mode
-           treesit-auto typescript-mode vertico yasnippet-snippets)))
+           treesit-auto typescript-mode vertico vterm
+           yasnippet-snippets)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
