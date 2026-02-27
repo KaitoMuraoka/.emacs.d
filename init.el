@@ -270,6 +270,51 @@
 
   (which-key-mode))
 
+;;; ============================================================
+;;; vterm（ターミナルエミュレータ）
+;;; ============================================================
+
+(use-package vterm
+  :commands vterm ; vterm コマンドが呼ばれた時だけ読み込む（遅延読み込み）
+
+  :config
+  ;; シェルの設定
+  ;; Emacs は $SHELL 環境変数からシェルを自動検出するが
+  ;; 明示的に指定することで確実に希望のシェルが起動する
+  (setq vterm-shell (getenv "SHELL"))
+
+  ;; ターミナルの最大スクロール行数
+  ;; 大きくすると過去の出力を遡れるがメモリを使う
+  (setq vterm-max-scrollback 10000)
+
+  ;; vterm バッファを閉じた時、ウィンドウも一緒に閉じる
+  ;; ターミナルを exit した後に空のバッファが残らないようにする
+  (setq vterm-kill-buffer-on-exit t)
+
+  :bind
+  ("C-c v t" . vterm)              ; 新しい vterm を開く
+  ("C-c v o" . vterm-other-window)) ; 別ウィンドウで開く
+
+;; vterm-toggle: vterm をトグル表示するパッケージ
+;; エディタ画面を保ちながら下部にターミナルを出し入れできる
+;; VSCode のターミナルパネルに近い感覚で使える
+(use-package vterm-toggle
+  :after vterm
+  :config
+  ;; ターミナルを画面下部に表示する
+  (setq vterm-toggle-fullscreen-p nil)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buf actions)
+                   (with-current-buffer buf (equal major-mode 'vterm-mode)))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (dedicated . t)
+                 (reusable-frames . visible)
+                 (window-height . 0.3))) ; 画面の30%の高さで表示
+
+  :bind
+  ("C-c v v" . vterm-toggle)             ; ターミナルの表示/非表示
+  ("C-c v n" . vterm-toggle-forward)     ; 次のターミナルへ
+  ("C-c v p" . vterm-toggle-backward))   ; 前のターミナルへ
 
  ;;; ============================================================
 ;;; プロジェクト管理
@@ -298,7 +343,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(corfu forge git-gutter magit marginalia orderless swift-mode
-           treesit-auto typescript-mode vertico yasnippet-snippets)))
+           treesit-auto typescript-mode vertico vterm vterm-toggle
+           yasnippet-snippets)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
