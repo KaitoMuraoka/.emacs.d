@@ -81,3 +81,5 @@ public/
 .direnv/
 
 flycheck_init.el
+
+.DS_Store
