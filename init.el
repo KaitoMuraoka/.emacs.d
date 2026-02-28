@@ -101,6 +101,11 @@
 ;; DONE : 完了
 (setq org-todo-keywords
       '((sequence "TODO" "DOING" "WAIT" "DONE")))
+(setq org-todo-keyword-faces
+      '(
+        ("DOING" . (:foreground "blue"))
+        ("WAIT" . (:foreground "gray"))
+        ))
 ;;; ============================================================
 ;;; シンタックスハイライト
 ;;; ============================================================
