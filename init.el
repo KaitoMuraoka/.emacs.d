@@ -30,6 +30,11 @@
 ;; use-package で指定したパッケージを自動インストールする
 (setq use-package-always-ensure t)
 
+;; emacs info Japanese
+(use-package info
+  :ensure nil
+  :config
+  (add-to-list 'Info-directory-list "~/.emacs.d/info/"))
 
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
