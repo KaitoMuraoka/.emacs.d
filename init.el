@@ -90,6 +90,9 @@
 ;; C-c a でorg-agendaを開く
 (global-set-key (kbd "C-c a") 'org-agenda)
 
+;; CLOSED タイムスタンプを自動記録する
+;; TODOをDONEにした時、完了時刻を自動記録する
+(setq org-log-done 'time)
 
 ;;; ============================================================
 ;;; シンタックスハイライト
