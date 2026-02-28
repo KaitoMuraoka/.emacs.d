@@ -126,6 +126,22 @@
 ;; 状態変化のたびに上の関数を呼び出す
 (add-hook 'org-after-todo-state-change-hook 'org-clock-on-state-change)
 
+;; ob-swift
+(use-package ob-swift :ensure t)
+;; ob-kotlin
+(use-package ob-kotlin :ensure t)
+;; ob-typescript
+(use-package ob-typescript :ensure t)
+
+;; Org-babelで使う言語を有効化する
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (shell . t)
+   (swift . t)
+   (kotlin . t)
+   (typescript . t)))
+
 ;;; ============================================================
 ;;; シンタックスハイライト
 ;;; ============================================================
@@ -389,10 +405,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files '("~/org/note.org"))
- '(package-selected-packages
-   '(corfu forge git-gutter magit marginalia orderless swift-mode
-           treesit-auto typescript-mode vertico vterm vterm-toggle
-           yasnippet-snippets)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
