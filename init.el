@@ -346,6 +346,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files '("~/org/note.org"))
  '(package-selected-packages
    '(corfu forge git-gutter magit marginalia orderless swift-mode
            treesit-auto typescript-mode vertico vterm vterm-toggle
