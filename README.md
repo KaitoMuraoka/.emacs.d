@@ -324,6 +324,56 @@ Personal Access Token は GitHub の `Settings → Developer settings → Person
 
 ---
 
+## Org-mode
+
+Org-mode は Emacs 組み込みのタスク管理・ノート作成・文書作成ツールです。
+
+### TODOキーワード
+
+カスタムキーワードと状態遷移を設定しています。
+
+| キーワード | 意味 | タイマー（org-clock）|
+|-----------|------|---------------------|
+| `TODO` | 未着手 | — |
+| `DOING` | 実行中 | 自動開始 |
+| `WAIT` | 停止中 | 自動停止 |
+| `DONE` | 完了 | 自動停止 |
+
+- `DONE` に変更すると完了時刻（`CLOSED:`）が自動記録されます
+- `DOING` に変更するとタイマーが自動で開始し、`WAIT` / `DONE` で自動停止します
+
+### アジェンダファイル
+
+`~/org/note.org` がアジェンダファイルとして登録されています。
+
+---
+
+## Org-babel
+
+Org-babel は Org-mode 内のコードブロックを直接実行できる機能です。ドキュメントとコードを一体化した「文芸的プログラミング」スタイルで作業できます。
+
+### サポート言語
+
+| 言語 | 提供元 |
+|------|--------|
+| Emacs Lisp | Emacs 組み込み |
+| Shell | Emacs 組み込み |
+| Swift | `ob-swift` パッケージ |
+| Kotlin | `ob-kotlin` パッケージ |
+| TypeScript | `ob-typescript` パッケージ |
+
+### コードブロックの書き方
+
+```
+#+begin_src swift
+  print("Hello, World!")
+#+end_src
+```
+
+`C-c C-c` でカーソル下のコードブロックを実行し、結果を直下に挿入します。
+
+---
+
 ## キーバインド一覧
 
 ### 基本操作
@@ -372,6 +422,30 @@ Personal Access Token は GitHub の `Settings → Developer settings → Person
 |------|------|
 | `C-c p f` | プロジェクト内のファイルを検索 |
 | `C-c p b` | プロジェクト内のバッファを切り替え |
+
+### Org-mode
+
+| キー | 動作 |
+|------|------|
+| `C-c a` | アジェンダを開く |
+| `C-c C-t` | TODO 状態を切り替える |
+| `C-c C-s` | スケジュールを設定 |
+| `C-c C-d` | 締切日（DEADLINE）を設定 |
+| `TAB` | 見出しの折りたたみ / 展開 |
+| `C-c C-n` | 次の見出しへ移動 |
+| `C-c C-p` | 前の見出しへ移動 |
+| `C-c C-x C-i` | タイマー開始（clock in） |
+| `C-c C-x C-o` | タイマー停止（clock out） |
+| `C-c C-x C-r` | クロックレポートを挿入 |
+
+### Org-babel
+
+| キー | 動作 |
+|------|------|
+| `C-c C-c` | コードブロックを実行 |
+| `C-c '` | コードブロックを専用バッファで編集 |
+| `C-c C-v t` | タングル（コードをファイルに書き出す） |
+| `C-c C-v b` | バッファ内の全コードブロックを実行 |
 
 ---
 
