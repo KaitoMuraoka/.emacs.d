@@ -106,6 +106,26 @@
         ("DOING" . (:foreground "blue"))
         ("WAIT" . (:foreground "gray"))
         ))
+
+;; 状態変化に連動してタイマーを制御する
+(defun org-clock-on-state-change()
+  (cond
+   ;; DOINGになったらタイマー開始
+   ((string= org-state "DOING")
+    (org-clock-in))
+   ;; WAITになったらタイマー停止
+   ((string= org-state "WAIT")
+    (when (org-clock-is-active)
+      (org-clock-out)))
+   ;; DONEになったらタイマー停止
+   ((string= org-state "DONE")
+    (when (org-clock-is-active)
+      (org-clock-out)))
+   ))
+
+;; 状態変化のたびに上の関数を呼び出す
+(add-hook 'org-after-todo-state-change-hook 'org-clock-on-state-change)
+
 ;;; ============================================================
 ;;; シンタックスハイライト
 ;;; ============================================================
