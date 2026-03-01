@@ -36,6 +36,10 @@
   :config
   (add-to-list 'Info-directory-list "~/.emacs.d/info/"))
 
+;; emacs cmake for vterm
+(setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
+(add-to-list 'exec-path "/opt/homebrew/bin")
+
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
 ;;; ============================================================
