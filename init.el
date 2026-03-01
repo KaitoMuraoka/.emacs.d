@@ -294,9 +294,6 @@
 (use-package magit
   :bind ("C-c g" . magit-status))
 
-(use-package forge
-  :after magit)
-
 ;; git-gutter: バッファ左端（ガター）に git の差分を記号で表示する
 ;;
 ;;   +  追加された行（git で言う +）
