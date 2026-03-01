@@ -83,6 +83,64 @@
 ;; ダークテーマ
 (load-theme 'modus-vivendi t)
 
+;;; ============================================================
+;;; org-mode
+;;; ============================================================
+
+;; C-c a でorg-agendaを開く
+(global-set-key (kbd "C-c a") 'org-agenda)
+
+;; CLOSED タイムスタンプを自動記録する
+;; TODOをDONEにした時、完了時刻を自動記録する
+(setq org-log-done 'time)
+
+;; TODOキーワードをカスタマイズする
+;; TODO : 未完了(自分ボール)
+;; DOING: 実行中(自分ボール)
+;; WAIT : 停止中
+;; DONE : 完了
+(setq org-todo-keywords
+      '((sequence "TODO" "DOING" "WAIT" "DONE")))
+(setq org-todo-keyword-faces
+      '(
+        ("DOING" . (:foreground "blue"))
+        ("WAIT" . (:foreground "gray"))
+        ))
+
+;; 状態変化に連動してタイマーを制御する
+(defun org-clock-on-state-change()
+  (cond
+   ;; DOINGになったらタイマー開始
+   ((string= org-state "DOING")
+    (org-clock-in))
+   ;; WAITになったらタイマー停止
+   ((string= org-state "WAIT")
+    (when (org-clock-is-active)
+      (org-clock-out)))
+   ;; DONEになったらタイマー停止
+   ((string= org-state "DONE")
+    (when (org-clock-is-active)
+      (org-clock-out)))
+   ))
+
+;; 状態変化のたびに上の関数を呼び出す
+(add-hook 'org-after-todo-state-change-hook 'org-clock-on-state-change)
+
+;; ob-swift
+(use-package ob-swift :ensure t)
+;; ob-kotlin
+(use-package ob-kotlin :ensure t)
+;; ob-typescript
+(use-package ob-typescript :ensure t)
+
+;; Org-babelで使う言語を有効化する
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (shell . t)
+   (swift . t)
+   (kotlin . t)
+   (typescript . t)))
 
 ;;; ============================================================
 ;;; シンタックスハイライト
@@ -346,10 +404,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(corfu forge git-gutter magit marginalia orderless swift-mode
-           treesit-auto typescript-mode vertico vterm vterm-toggle
-           yasnippet-snippets)))
+ '(org-agenda-files '("~/org/note.org"))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
