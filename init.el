@@ -36,6 +36,10 @@
   :config
   (add-to-list 'Info-directory-list "~/.emacs.d/info/"))
 
+;; emacs cmake for vterm
+(setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
+(add-to-list 'exec-path "/opt/homebrew/bin")
+
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
 ;;; ============================================================
@@ -376,7 +380,43 @@
   ("C-c v n" . vterm-toggle-forward)     ; 次のターミナルへ
   ("C-c v p" . vterm-toggle-backward))   ; 前のターミナルへ
 
- ;;; ============================================================
+;;; ============================================================
+;;; Claude Code Setup
+;;; ============================================================
+;; 1. popper.el の設定
+(use-package popper
+  :ensure t
+  :bind (("C-`"   . popper-toggle)           ;; ポップアップの表示/非表示
+         ("M-`"   . popper-cycle)            ;; 複数のポップアップを切り替え
+         ("C-M-`" . popper-toggle-type))     ;; バッファのポップアップ属性を切り替え
+  :init
+  (setq popper-reference-buffers
+        '("\\*vterm\\*"                      ; vterm をポップアップ対象にする
+          "\\*claude-code\\*"                ; 名前を指定する場合
+          help-mode
+          compilation-mode))
+  (setq popper-window-height (floor (frame-width) 3)) ;; 画面の1/3の高さ
+  (popper-mode +1)
+  (popper-echo-mode +1))
+
+;; 2. Claude Code 専用の起動関数
+(defun my/claude-code-popup ()
+  "Claude Codeを専用のvtermバッファで起動し、ポップアップとして表示する"
+  (interactive)
+  (let* ((buf-name "*claude-code*")
+         (buf (get-buffer buf-name)))
+    (if (and buf (buffer-live-p buf))
+        ;; すでに起動済みなら表示だけする（二重起動を防ぐ）
+        (display-buffer buf)
+      ;; 初回のみ vterm を作成して claude を起動
+      (let ((vterm-buffer (vterm buf-name)))
+        (with-current-buffer vterm-buffer
+          (vterm-send-string "claude\n"))))))
+
+;; 3. キーバインド
+(global-set-key (kbd "C-c c") #'my/claude-code-popup)
+
+;;; ============================================================
 ;;; プロジェクト管理
 ;;; ============================================================
 
@@ -402,7 +442,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files '("~/org/note.org"))
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(corfu forge git-gutter marginalia ob-kotlin ob-swift ob-typescript
+           orderless popper swift-mode treemacs-magit treesit-auto
+           typescript-mode vertico vterm-toggle yasnippet-snippets)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
