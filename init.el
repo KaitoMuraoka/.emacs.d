@@ -61,7 +61,7 @@
 (global-hl-line-mode 1)
 
 ;; 行番号を表示（相対行番号）
-(setq display-line-numbers-type 'relative)
+(setq display-line-numbers-type t)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
