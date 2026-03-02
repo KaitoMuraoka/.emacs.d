@@ -1,35 +1,34 @@
 ;; ~/.emacs.d/init.el
 
 ;;; ============================================================
-;; パッケージマネージャーの設定
+;; straight.el ブートストラップ
 ;;; ============================================================
 
-;; package.el は Emacs 組み込みのパッケージ管理システム
-(require 'package)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        user-emacs-directory))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-;; パッケージリポジトリを追加
-;; MELPA は最大のサードパーティパッケージリポジトリ
-(setq package-archives
-      '(("gnu"   . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")))
+;; straight.el に use-package を管理させる
+(straight-use-package 'use-package)
 
-(package-initialize)
+;; 全 use-package を自動的に straight で管理する
+;; （既存の :ensure t と同じ感覚で使える）
+(setq straight-use-package-by-default t)
 
-;; パッケージリスト未取得なら取得する
-(unless package-archive-contents
-  (package-refresh-contents))
-
-;; use-package をインストール
-;; use-package はパッケージの設定を宣言的・整理しやすく書けるマクロ
-;; 「このパッケージがなければインストールする」を自動でやってくれる
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(require 'use-package)
-
-;; use-package で指定したパッケージを自動インストールする
-(setq use-package-always-ensure t)
-
+;;; ============================================================
+;; パッケージマネージャーの設定
+;;; ============================================================
 ;; emacs info Japanese
 (use-package info
   :ensure nil
