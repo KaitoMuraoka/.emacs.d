@@ -79,8 +79,35 @@
 ;; クリップボードをOSと共有する
 (setq select-enable-clipboard t)
 
-;; ダークテーマ
+;; ダークテーマ（高コントラスト設定で半透明背景でも読みやすくする）
+(setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
+(setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
 (load-theme 'modus-vivendi t)
+
+;;; ============================================================
+;;; 外観（透明化・ガラス効果）
+;;; ============================================================
+
+;; 起動時に現在のフレームへ透明化を適用する
+;; （early-init.el の設定は新規フレームにのみ自動適用されるため）
+(when (display-graphic-p)
+  (set-frame-parameter nil 'alpha '(92 . 80)))
+
+;; 透明度をトグルする関数
+;; C-c u t で透明/不透明を切り替えられる
+(defun toggle-background-opacity ()
+  "フレームの透明度をトグルする（88% ↔ 100%）."
+  (interactive)
+  (let ((current (car (frame-parameter nil 'alpha))))
+    (if (or (null current) (= current 100))
+        (progn
+          (set-frame-parameter nil 'alpha '(88 . 75))
+          (message "透明度: 88%%"))
+      (progn
+        (set-frame-parameter nil 'alpha '(100 . 100))
+        (message "透明度: 100%% (不透明)")))))
+
+(global-set-key (kbd "C-c u t") #'toggle-background-opacity)
 
 ;;; ============================================================
 ;;; claude-code-ide
