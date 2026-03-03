@@ -83,3 +83,4 @@ public/
 flycheck_init.el
 
 .DS_Store
+straight/
