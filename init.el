@@ -59,7 +59,7 @@
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
 
-;; 行番号を表示（相対行番号）
+;; 行番号を表示（絶対行番号）
 (setq display-line-numbers-type t)
 (global-display-line-numbers-mode 1)
 
@@ -79,8 +79,44 @@
 ;; クリップボードをOSと共有する
 (setq select-enable-clipboard t)
 
-;; ダークテーマ
+;; ダークテーマ（高コントラスト設定で半透明背景でも読みやすくする）
+(setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
+(setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
 (load-theme 'modus-vivendi t)
+
+;; フレームの透明度設定
+;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
+(add-to-list 'default-frame-alist '(alpha . (85 . 75)))
+
+;; Vibrancy（ブラー）を有効化;; 'active = アクティブウィンドウのみブラー
+(add-to-list 'default-frame-alist '(ns-use-thin-smoothing . t))
+(set-frame-parameter nil 'ns-transparent-titlebar t)
+(set-frame-parameter nil 'ns-appearance 'dark)
+
+;;; ============================================================
+;;; 外観（透明化・ガラス効果）
+;;; ============================================================
+
+;; 起動時に現在のフレームへ透明化を適用する
+;; （early-init.el の設定は新規フレームにのみ自動適用されるため）
+(when (display-graphic-p)
+  (set-frame-parameter nil 'alpha '(92 . 80)))
+
+;; 透明度をトグルする関数
+;; C-c u t で透明/不透明を切り替えられる
+(defun toggle-background-opacity ()
+  "フレームの透明度をトグルする（88% ↔ 100%）."
+  (interactive)
+  (let ((current (car (frame-parameter nil 'alpha))))
+    (if (or (null current) (= current 100))
+        (progn
+          (set-frame-parameter nil 'alpha '(88 . 75))
+          (message "透明度: 88%%"))
+      (progn
+        (set-frame-parameter nil 'alpha '(100 . 100))
+        (message "透明度: 100%% (不透明)")))))
+
+(global-set-key (kbd "C-c u t") #'toggle-background-opacity)
 
 ;;; ============================================================
 ;;; claude-code-ide
