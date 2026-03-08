@@ -119,16 +119,41 @@
 (global-set-key (kbd "C-c u t") #'toggle-background-opacity)
 
 ;;; ============================================================
+;;; eat（Emulate A Terminal）
+;;; vterm より軽量な純 Emacs Lisp 製ターミナルエミュレータ
+;;; ============================================================
+
+(use-package eat
+  :straight (:type git :host codeberg :repo "akib/emacs-eat"
+             :files ("*.el" ("term" "term/*.ti") "integration"))
+
+  :custom
+  ;; ターミナル名（xterm-256color 互換）
+  (eat-term-name "xterm-256color")
+
+  :hook
+  ;; eshell 内で eat を使う場合のシェル統合
+  (eshell-load . eat-eshell-mode)
+
+  :config
+  ;; zsh のシェル統合を有効化（ディレクトリ追跡・コマンド認識）
+  ;; ~/.zshrc に以下を追加してください:
+  ;;   [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+  ;;     source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+  )
+
+;;; ============================================================
 ;;; claude-code-ide
 ;;; Claude Code CLI を Emacs と MCP/WebSocket で統合するパッケージ
 ;;; ============================================================
 
 (use-package claude-code-ide
   :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
+  :after eat
 
   :custom
-  ;; ターミナルバックエンド: vterm または eat を指定（デフォルト: vterm）
-  (claude-code-ide-terminal-backend 'vterm)
+  ;; ターミナルバックエンド: eat を使用
+  (claude-code-ide-terminal-backend 'eat)
   ;; Claude ウィンドウを右側に表示（'right / 'left / 'bottom / 'top）
   (claude-code-ide-window-side 'right)
   ;; ediff を使ったファイル差分表示を有効化
