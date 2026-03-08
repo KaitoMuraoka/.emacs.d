@@ -136,11 +136,20 @@
   (eshell-load . eat-eshell-mode)
 
   :config
-  ;; zsh のシェル統合を有効化（ディレクトリ追跡・コマンド認識）
-  ;; ~/.zshrc に以下を追加してください:
-  ;;   [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
-  ;;     source "$EAT_SHELL_INTEGRATION_DIR/zsh"
-  )
+  ;; global-display-line-numbers-mode の内部 turn-on 関数をアドバイス
+  ;; hook の実行順序に依存せず、eat バッファへの有効化を根本から阻止する
+  (with-eval-after-load 'display-line-numbers
+    (advice-add 'display-line-numbers--turn-on :around
+                (lambda (orig-fn)
+                  (unless (derived-mode-p 'eat-mode)
+                    (funcall orig-fn)))))
+
+  ;; eat バッファの表示をターミナルに近づける
+  (add-hook 'eat-mode-hook
+            (lambda ()
+              (display-line-numbers-mode -1) ; 行番号を無効化
+              (hl-line-mode -1)              ; カーソル行ハイライトを無効化
+              (setq-local cursor-in-non-selected-windows nil))))
 
 ;;; ============================================================
 ;;; claude-code-ide
@@ -149,10 +158,9 @@
 
 (use-package claude-code-ide
   :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
-  :after eat
 
   :custom
-  ;; ターミナルバックエンド: eat を使用
+  ;; ターミナルバックエンド: eat
   (claude-code-ide-terminal-backend 'eat)
   ;; Claude ウィンドウを右側に表示（'right / 'left / 'bottom / 'top）
   (claude-code-ide-window-side 'right)
@@ -445,6 +453,12 @@
   ;; vterm バッファを閉じた時、ウィンドウも一緒に閉じる
   ;; ターミナルを exit した後に空のバッファが残らないようにする
   (setq vterm-kill-buffer-on-exit t)
+
+  ;; vterm バッファでは行番号・hl-line を無効化する
+  ;; vterm-mode-hook は after-change-major-mode-hook より後に実行されるため確実
+  (add-hook 'vterm-mode-hook (lambda ()
+                               (display-line-numbers-mode -1)
+                               (hl-line-mode -1)))
 
   :bind
   ("C-c v t" . vterm)              ; 新しい vterm を開く
