@@ -84,6 +84,15 @@
 (setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
 (load-theme 'modus-vivendi t)
 
+;; フレームの透明度設定
+;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
+(add-to-list 'default-frame-alist '(alpha . (85 . 75)))
+
+;; Vibrancy（ブラー）を有効化;; 'active = アクティブウィンドウのみブラー
+(add-to-list 'default-frame-alist '(ns-use-thin-smoothing . t))
+(set-frame-parameter nil 'ns-transparent-titlebar t)
+(set-frame-parameter nil 'ns-appearance 'dark)
+
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
