@@ -119,13 +119,68 @@
 (global-set-key (kbd "C-c u t") #'toggle-background-opacity)
 
 ;;; ============================================================
+;;; eat（Emulate A Terminal）
+;;; vterm より軽量な純 Emacs Lisp 製ターミナルエミュレータ
+;;; ============================================================
+
+(use-package eat
+  :straight (:type git :host codeberg :repo "akib/emacs-eat"
+             :files ("*.el" ("term" "term/*.ti") "integration"))
+
+  :custom
+  ;; ターミナル名（xterm-256color 互換）
+  (eat-term-name "xterm-256color")
+
+  :hook
+  ;; eshell 内で eat を使う場合のシェル統合
+  (eshell-load . eat-eshell-mode)
+
+  :config
+  ;; global-display-line-numbers-mode の内部 turn-on 関数をアドバイス
+  ;; hook の実行順序に依存せず、eat バッファへの有効化を根本から阻止する
+  (with-eval-after-load 'display-line-numbers
+    (advice-add 'display-line-numbers--turn-on :around
+                (lambda (orig-fn)
+                  (unless (derived-mode-p 'eat-mode)
+                    (funcall orig-fn)))))
+
+  ;; eat バッファの表示をターミナルに近づける
+  (add-hook 'eat-mode-hook
+            (lambda ()
+              (display-line-numbers-mode -1) ; 行番号を無効化
+              (hl-line-mode -1)              ; カーソル行ハイライトを無効化
+              (setq-local cursor-in-non-selected-windows nil))))
+
+;;; ============================================================
 ;;; claude-code-ide
+;;; Claude Code CLI を Emacs と MCP/WebSocket で統合するパッケージ
 ;;; ============================================================
 
 (use-package claude-code-ide
   :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
-  :bind ("C-c C-'" . claude-code-ide-menu)
+
+  :custom
+  ;; ターミナルバックエンド: eat
+  (claude-code-ide-terminal-backend 'eat)
+  ;; Claude ウィンドウを右側に表示（'right / 'left / 'bottom / 'top）
+  (claude-code-ide-window-side 'right)
+  ;; ediff を使ったファイル差分表示を有効化
+  (claude-code-ide-use-ide-diff t)
+
+  :bind
+  ;; C-c C-' : コマンドメニューを開く（transient）
+  ("C-c C-'" . claude-code-ide-menu)
+  ;; C-c A s : 現在のプロジェクトで Claude を起動
+  ("C-c A s" . claude-code-ide)
+  ;; C-c A c : 直近の会話を続ける
+  ("C-c A c" . claude-code-ide-continue)
+  ;; C-c A r : 過去の会話を選んで再開
+  ("C-c A r" . claude-code-ide-resume)
+  ;; C-c A b : Claude バッファへ切り替え
+  ("C-c A b" . claude-code-ide-switch-to-buffer)
+
   :config
+  ;; Emacs の xref・project などのツールを Claude から利用可能にする
   (claude-code-ide-emacs-tools-setup))
 
 ;;; ============================================================
@@ -398,6 +453,12 @@
   ;; vterm バッファを閉じた時、ウィンドウも一緒に閉じる
   ;; ターミナルを exit した後に空のバッファが残らないようにする
   (setq vterm-kill-buffer-on-exit t)
+
+  ;; vterm バッファでは行番号・hl-line を無効化する
+  ;; vterm-mode-hook は after-change-major-mode-hook より後に実行されるため確実
+  (add-hook 'vterm-mode-hook (lambda ()
+                               (display-line-numbers-mode -1)
+                               (hl-line-mode -1)))
 
   :bind
   ("C-c v t" . vterm)              ; 新しい vterm を開く
