@@ -444,56 +444,13 @@
   (which-key-mode))
 
 ;;; ============================================================
-;;; vterm（ターミナルエミュレータ）
+;;; eat ターミナル キーバインド
 ;;; ============================================================
 
-(use-package vterm
-  :commands vterm ; vterm コマンドが呼ばれた時だけ読み込む（遅延読み込み）
-
-  :config
-  ;; シェルの設定
-  ;; Emacs は $SHELL 環境変数からシェルを自動検出するが
-  ;; 明示的に指定することで確実に希望のシェルが起動する
-  (setq vterm-shell (getenv "SHELL"))
-
-  ;; ターミナルの最大スクロール行数
-  ;; 大きくすると過去の出力を遡れるがメモリを使う
-  (setq vterm-max-scrollback 10000)
-
-  ;; vterm バッファを閉じた時、ウィンドウも一緒に閉じる
-  ;; ターミナルを exit した後に空のバッファが残らないようにする
-  (setq vterm-kill-buffer-on-exit t)
-
-  ;; vterm バッファでは行番号・hl-line を無効化する
-  ;; vterm-mode-hook は after-change-major-mode-hook より後に実行されるため確実
-  (add-hook 'vterm-mode-hook (lambda ()
-                               (display-line-numbers-mode -1)
-                               (hl-line-mode -1)))
-
-  :bind
-  ("C-c v t" . vterm)              ; 新しい vterm を開く
-  ("C-c v o" . vterm-other-window)) ; 別ウィンドウで開く
-
-;; vterm-toggle: vterm をトグル表示するパッケージ
-;; エディタ画面を保ちながら下部にターミナルを出し入れできる
-;; VSCode のターミナルパネルに近い感覚で使える
-(use-package vterm-toggle
-  :after vterm
-  :config
-  ;; ターミナルを画面下部に表示する
-  (setq vterm-toggle-fullscreen-p nil)
-  (add-to-list 'display-buffer-alist
-               '((lambda (buf actions)
-                   (with-current-buffer buf (equal major-mode 'vterm-mode)))
-                 (display-buffer-reuse-window display-buffer-at-bottom)
-                 (dedicated . t)
-                 (reusable-frames . visible)
-                 (window-height . 0.3))) ; 画面の30%の高さで表示
-
-  :bind
-  ("C-c v v" . vterm-toggle)             ; ターミナルの表示/非表示
-  ("C-c v n" . vterm-toggle-forward)     ; 次のターミナルへ
-  ("C-c v p" . vterm-toggle-backward))   ; 前のターミナルへ
+;; C-c v t : 新しい eat ターミナルを開く
+(global-set-key (kbd "C-c v t") #'eat)
+;; C-c v o : 別ウィンドウで eat を開く
+(global-set-key (kbd "C-c v o") #'eat-other-window)
 
  ;;; ============================================================
 ;;; プロジェクト管理
