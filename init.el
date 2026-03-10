@@ -396,6 +396,11 @@
 ;; ターミナルを開かず Git の全操作が行える
 (use-package magit
   :bind ("C-c g" . magit-status))
+;;; バッファに依存せず、常にディレクトリを明示的に入力する
+(global-set-key (kbd "C-c g")
+  (lambda ()
+    (interactive)
+    (magit-status (read-directory-name "Repo: " "~/"))))
 
 ;; git-gutter: バッファ左端（ガター）に git の差分を記号で表示する
 ;;
