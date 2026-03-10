@@ -426,6 +426,66 @@
   ("C-c v s" . git-gutter:stage-hunk))   ; この変更だけをステージング
 
 ;;; ============================================================
+;;; Claude Code CLIでコミットメッセージを生成する
+;;; ============================================================
+(defun my/ai-commit--generate-message (&optional detail)
+  "Claude CLI を呼んでコミットメッセージを生成する。
+DETAIL が non-nil なら詳細形式（本文付き）、nil なら一行形式。
+戻り値: 生成されたコミットメッセージ文字列（trim済み）"
+  (let ((prompt
+         (if detail
+             ;; --detail モード: 一行要約 + 空行 + 箇条書き本文
+             "Generate a Git commit message in Japanese based strictly on the contents of `git diff --cached`. \
+Format it as follows: First line: a concise one-line summary. \
+Then a blank line. \
+Then a detailed bullet-point list explaining what was changed and why. \
+Output ONLY the commit message, no extra explanation."
+             ;; 通常モード: 一行のみ
+             "Generate ONLY a one-line Git commit message in Japanese. \
+The message should summarize what was changed and why, based strictly on the contents of `git diff --cached`. \
+DO NOT add an explanation or a body. Output ONLY the commit summary line.")))
+    ;; ユーザーに処理中であることを伝える（claude は数秒かかる）
+    (message "🤖 Generating AI commit message...")
+    (string-trim
+     (shell-command-to-string
+      (format "claude --no-session-persistence --print %s"
+              (shell-quote-argument prompt))))))
+
+
+(defun my/ai-commit ()
+  "一行形式のAIコミットメッセージを生成し、Magitのコミット編集バッファを開く。"
+  (interactive)
+  (let ((msg (my/ai-commit--generate-message nil)))
+    (if (string-empty-p msg)
+        (user-error "AI commit message generation failed (empty output)")
+      ;; magit-commit-create は内部で git commit を with-editor 経由で起動する。
+      ;; --message で初期メッセージを渡し、--edit でエディタを必ず開かせる。
+      (magit-commit-create (list (concat "--message=" msg) "--edit")))))
+
+
+(defun my/ai-commit-detail ()
+  "詳細形式（本文付き）のAIコミットメッセージを生成し、Magitのコミット編集バッファを開く。"
+  (interactive)
+  (let ((msg (my/ai-commit--generate-message t)))
+    (if (string-empty-p msg)
+        (user-error "AI commit message generation failed (empty output)")
+      (magit-commit-create (list (concat "--message=" msg) "--edit")))))
+
+
+;; ─────────────────────────────────────────────
+;; Magit の commit transient に追加
+;; ─────────────────────────────────────────────
+;; magit-commit を c で開いたときのメニューに A / D を追加する。
+;; transient-append-suffix の第2引数 "c" は「通常コミット」の直後に挿入することを意味する。
+
+(with-eval-after-load 'magit-commit
+  (transient-append-suffix 'magit-commit "c"
+    '("A" "AI commit (one-line)"  my/ai-commit))
+  (transient-append-suffix 'magit-commit "A"
+    '("D" "AI commit (detail)"    my/ai-commit-detail)))
+
+
+;;; ============================================================
 ;;; magit-gh
 ;;; ============================================================
 (use-package magit-gh
