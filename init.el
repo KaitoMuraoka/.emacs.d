@@ -52,6 +52,9 @@
 ;; 自動保存ファイル（#file.txt#）も作らない
 (setq auto-save-default nil)
 
+;; 確認なしで保存
+(setq magit-save-repository-buffers 'dontask)
+
 ;; yes/no を y/n で答えられるようにする
 (setq use-short-answers t)
 
@@ -60,7 +63,7 @@
 (global-hl-line-mode 1)
 
 ;; 行番号を表示（絶対行番号）
-(setq display-line-numbers-type t)
+(setq display-line-numbers-type 'visual)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
@@ -419,6 +422,13 @@
   ("C-c v p" . git-gutter:previous-hunk) ; 前の変更箇所へ
   ("C-c v r" . git-gutter:revert-hunk)   ; この変更を git で元に戻す
   ("C-c v s" . git-gutter:stage-hunk))   ; この変更だけをステージング
+
+;;; ============================================================
+;;; magit-gh
+;;; ============================================================
+(use-package magit-gh
+  :ensure t
+  :after magit)
 
 ;;; ============================================================
 ;;; which-key
