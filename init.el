@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; ~/.emacs.d/init.el
 
 ;;; ============================================================
@@ -428,55 +429,74 @@
 ;;; ============================================================
 ;;; Claude Code CLIでコミットメッセージを生成する
 ;;; ============================================================
-(defun my/ai-commit--generate-message (&optional detail)
-  "Claude CLI を呼んでコミットメッセージを生成する。
-DETAIL が non-nil なら詳細形式（本文付き）、nil なら一行形式。
-戻り値: 生成されたコミットメッセージ文字列（trim済み）"
-  (let ((prompt
-         (if detail
-             ;; --detail モード: 一行要約 + 空行 + 箇条書き本文
-             "Generate a Git commit message in Japanese based strictly on the contents of `git diff --cached`. \
+(defun my/ai-commit--generate-async (detail callback)
+  "Claude CLI を非同期で呼び出す。
+完了したら CALLBACK を (funcall callback message-string) で呼ぶ。
+DETAIL が non-nil なら詳細形式。"
+  (let* ((prompt
+          (if detail
+              "Generate a Git commit message in Japanese based strictly on the contents of `git diff --cached`. \
 Format it as follows: First line: a concise one-line summary. \
 Then a blank line. \
 Then a detailed bullet-point list explaining what was changed and why. \
 Output ONLY the commit message, no extra explanation."
-             ;; 通常モード: 一行のみ
-             "Generate ONLY a one-line Git commit message in Japanese. \
+              "Generate ONLY a one-line Git commit message in Japanese. \
 The message should summarize what was changed and why, based strictly on the contents of `git diff --cached`. \
-DO NOT add an explanation or a body. Output ONLY the commit summary line.")))
-    ;; ユーザーに処理中であることを伝える（claude は数秒かかる）
-    (message "🤖 Generating AI commit message...")
-    (string-trim
-     (shell-command-to-string
-      (format "claude --no-session-persistence --print %s"
-              (shell-quote-argument prompt))))))
+DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 
+         ;; プロセスの出力を受け取るための専用バッファ
+         ;; " " で始まる名前は Emacs の慣習で「内部用の隠しバッファ」を意味する
+         (output-buffer (generate-new-buffer " *ai-commit-output*"))
+
+         ;; sentinel = プロセスの状態が変わったときに呼ばれるコールバック関数
+         ;; proc: プロセスオブジェクト, event: "finished\n" / "exited abnormally..." 等の文字列
+         (sentinel
+          (lambda (proc event)
+            (cond
+             ;; 正常終了した場合のみ処理する
+             ((string-prefix-p "finished" event)
+              (let ((msg (with-current-buffer output-buffer
+                           (string-trim (buffer-string)))))
+                ;; 使い終わったバッファを解放
+                (kill-buffer output-buffer)
+                (if (string-empty-p msg)
+                    (user-error "AI commit: claude returned empty output")
+                  ;; ここで初めて magit を呼ぶ（非同期の「続き」）
+                  (funcall callback msg))))
+
+             ;; 異常終了した場合はエラーメッセージを表示
+             ((string-prefix-p "exited abnormally" event)
+              (kill-buffer output-buffer)
+              (user-error "AI commit: claude failed — %s" event))))))
+
+    (message "🤖 Generating AI commit message...")
+
+    ;; make-process: ノンブロッキングでサブプロセスを起動する
+    ;; start-process と違い、キーワード引数で読みやすく書ける
+    (make-process
+     :name    "ai-commit-claude"      ; プロセスの識別名（*process-list* に表示される）
+     :buffer  output-buffer           ; stdout をここに蓄積する
+     :command (list "claude"
+                    "--no-session-persistence"
+                    "--print"
+                    prompt)
+     :sentinel sentinel)))            ; 終了時に呼ぶ関数
 
 (defun my/ai-commit ()
-  "一行形式のAIコミットメッセージを生成し、Magitのコミット編集バッファを開く。"
+  "一行形式のAIコミットメッセージを非同期生成し、Magitのコミット編集バッファを開く。"
   (interactive)
-  (let ((msg (my/ai-commit--generate-message nil)))
-    (if (string-empty-p msg)
-        (user-error "AI commit message generation failed (empty output)")
-      ;; magit-commit-create は内部で git commit を with-editor 経由で起動する。
-      ;; --message で初期メッセージを渡し、--edit でエディタを必ず開かせる。
-      (magit-commit-create (list (concat "--message=" msg) "--edit")))))
-
+  (my/ai-commit--generate-async
+   nil  ; detail = false
+   (lambda (msg)
+     (magit-commit-create (list (concat "--message=" msg) "--edit")))))
 
 (defun my/ai-commit-detail ()
-  "詳細形式（本文付き）のAIコミットメッセージを生成し、Magitのコミット編集バッファを開く。"
+  "詳細形式のAIコミットメッセージを非同期生成し、Magitのコミット編集バッファを開く。"
   (interactive)
-  (let ((msg (my/ai-commit--generate-message t)))
-    (if (string-empty-p msg)
-        (user-error "AI commit message generation failed (empty output)")
-      (magit-commit-create (list (concat "--message=" msg) "--edit")))))
-
-
-;; ─────────────────────────────────────────────
-;; Magit の commit transient に追加
-;; ─────────────────────────────────────────────
-;; magit-commit を c で開いたときのメニューに A / D を追加する。
-;; transient-append-suffix の第2引数 "c" は「通常コミット」の直後に挿入することを意味する。
+  (my/ai-commit--generate-async
+   t    ; detail = true
+   (lambda (msg)
+     (magit-commit-create (list (concat "--message=" msg) "--edit")))))
 
 (with-eval-after-load 'magit-commit
   (transient-append-suffix 'magit-commit "c"
