@@ -52,6 +52,9 @@
 ;; 自動保存ファイル（#file.txt#）も作らない
 (setq auto-save-default nil)
 
+;; 確認なしで保存
+(setq magit-save-repository-buffers 'dontask)
+
 ;; yes/no を y/n で答えられるようにする
 (setq use-short-answers t)
 
