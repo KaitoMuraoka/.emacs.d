@@ -63,7 +63,7 @@
 (global-hl-line-mode 1)
 
 ;; 行番号を表示（絶対行番号）
-(setq display-line-numbers-type t)
+(setq display-line-numbers-type 'visual)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
