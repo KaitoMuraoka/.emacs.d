@@ -83,6 +83,24 @@
 ;; クリップボードをOSと共有する
 (setq select-enable-clipboard t)
 
+;;; ============================================================
+;;; フォント設定
+;;; ============================================================
+;; HackGen Console NF: Nerd Fonts 対応版（TUI アイコンも表示可能）
+;; インストール: brew install font-hackgen-nerd
+(when (display-graphic-p)
+  (let ((font (if (find-font (font-spec :name "HackGen Console NF"))
+                  "HackGen Console NF"
+                "HackGen Console")))
+    ;; 既定フォント（ASCII・Latin）
+    (set-face-attribute 'default nil :family font :height 140)
+    ;; 新規フレームにも同フォントを適用
+    (add-to-list 'default-frame-alist `(font . ,(concat font "-14")))
+    ;; 日本語（CJK）フォントも HackGen に統一
+    (set-fontset-font t 'japanese-jisx0208 (font-spec :family font))
+    (set-fontset-font t 'japanese-jisx0212 (font-spec :family font))
+    (set-fontset-font t 'katakana-jisx0201 (font-spec :family font))))
+
 ;; ダークテーマ（高コントラスト設定で半透明背景でも読みやすくする）
 (setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
 (setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
