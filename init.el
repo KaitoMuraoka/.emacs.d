@@ -38,7 +38,8 @@
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
 ;;; ============================================================
-
+(set-language-environment "Japanese")
+(prefer-coding-system 'utf-8)
 ;; スタートアップ画面を表示しない
 (setq inhibit-startup-screen t)
 
@@ -136,7 +137,16 @@
             (lambda ()
               (display-line-numbers-mode -1) ; 行番号を無効化
               (hl-line-mode -1)              ; カーソル行ハイライトを無効化
-              (setq-local cursor-in-non-selected-windows nil))))
+              (setq-local cursor-in-non-selected-windows nil)
+              ;; 日本語環境では曖昧幅文字が全角扱いになり TUI レイアウトが崩れるため
+              ;; 罫線・記号・Nerd Font の Private Use Area を半角幅に固定する
+              (dolist (range '((#x2500 . #x257F)   ; Box Drawing
+                               (#x2580 . #x259F)   ; Block Elements
+                               (#x25A0 . #x25FF)   ; Geometric Shapes
+                               (#x2600 . #x26FF)   ; Miscellaneous Symbols
+                               (#x2700 . #x27BF)   ; Dingbats
+                               (#xE000 . #xF8FF))) ; Private Use Area (Nerd Fonts)
+                (set-char-table-range char-width-table range 1)))))
 
 ;;; ============================================================
 ;;; claude-code-ide
