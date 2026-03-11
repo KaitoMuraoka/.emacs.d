@@ -356,7 +356,9 @@
   ((swift-mode       . eglot-ensure)
    (typescript-mode  . eglot-ensure)
    (tsx-ts-mode      . eglot-ensure)
-   (emacs-lisp-mode  . eglot-ensure))
+   (emacs-lisp-mode  . eglot-ensure)
+   (python-mode      . eglot-ensure)
+   (python-ts-mode   . eglot-ensure))
 
   :config
   ;; Swift: sourcekit-lsp を使用
@@ -370,6 +372,11 @@
                '((typescript-mode tsx-ts-mode) .
                  ("typescript-language-server" "--stdio")))
 
+  ;; Python: pyright を使用
+  ;; インストール: pip install pyright
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode) . ("pyright-langserver" "--stdio")))
+
   ;; ELisp: Emacs 自体が LSP 的な機能を持つため
   ;; eglot-ensure を hook するだけで eldoc などが働く
   ;; (追加のサーバー設定は不要)
@@ -382,35 +389,6 @@
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
 
 
-;;; ============================================================
-;;; Python 開発環境（lsp-mode + lsp-pyright）
-;;; ============================================================
-
-;; lsp-mode: Python 専用 LSP クライアント（他言語は eglot を使用）
-;; pyright のインストール: pip install pyright
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :custom
-  ;; キーマッププレフィックス
-  (lsp-keymap-prefix "C-c l")
-  ;; Corfu を補完 UI として使うため、lsp-mode 組み込みの補完を無効化
-  (lsp-completion-provider :none)
-  :config
-  (lsp-enable-which-key-integration t))
-
-;; lsp-pyright: Microsoft Pyright を LSP バックエンドとして使用
-;; 型チェック・補完・定義ジャンプが使える
-(use-package lsp-pyright
-  :after lsp-mode
-  :hook
-  ((python-mode    . (lambda () (require 'lsp-pyright) (lsp-deferred)))
-   (python-ts-mode . (lambda () (require 'lsp-pyright) (lsp-deferred))))
-  :bind (:map lsp-mode-map
-              ("C-c l r" . lsp-rename)              ; シンボルのリネーム
-              ("C-c l a" . lsp-execute-code-action)  ; コードアクション
-              ("C-c l f" . lsp-format-buffer)        ; フォーマット
-              ("M-."     . lsp-find-definition)      ; 定義へジャンプ
-              ("M-,"     . xref-pop-marker-stack)))  ; ジャンプ前に戻る
 
 ;;; 言語モード
 ;;; ============================================================
