@@ -108,7 +108,7 @@
 
 ;; フレームの透明度設定
 ;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
-(add-to-list 'default-frame-alist '(alpha . (85 . 75)))
+(add-to-list 'default-frame-alist '(alpha . (75 . 75)))
 
 ;; Vibrancy（ブラー）を有効化;; 'active = アクティブウィンドウのみブラー
 (add-to-list 'default-frame-alist '(ns-use-thin-smoothing . t))
@@ -118,11 +118,6 @@
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
-
-;; 起動時に現在のフレームへ透明化を適用する
-;; （early-init.el の設定は新規フレームにのみ自動適用されるため）
-(when (display-graphic-p)
-  (set-frame-parameter nil 'alpha '(75 . 75)))
 
 ;;; ============================================================
 ;;; eat（Emulate A Terminal）
@@ -555,6 +550,13 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 (global-set-key (kbd "C-c p f") #'project-find-file)
 (global-set-key (kbd "C-c p b") #'project-switch-to-buffer)
 
+
+;;; ============================================================
+;;; 行の折り返し
+;;; ============================================================
+
+;; 全バッファで行の折り返しを有効化
+(global-visual-line-mode 1)
 
 ;;; ============================================================
 ;;; よく使うキーバインド
