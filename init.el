@@ -38,7 +38,8 @@
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
 ;;; ============================================================
-
+(set-language-environment "Japanese")
+(prefer-coding-system 'utf-8)
 ;; スタートアップ画面を表示しない
 (setq inhibit-startup-screen t)
 
@@ -81,6 +82,24 @@
 
 ;; クリップボードをOSと共有する
 (setq select-enable-clipboard t)
+
+;;; ============================================================
+;;; フォント設定
+;;; ============================================================
+;; HackGen Console NF: Nerd Fonts 対応版（TUI アイコンも表示可能）
+;; インストール: brew install font-hackgen-nerd
+(when (display-graphic-p)
+  (let ((font (if (find-font (font-spec :name "HackGen Console NF"))
+                  "HackGen Console NF"
+                "HackGen Console")))
+    ;; 既定フォント（ASCII・Latin）
+    (set-face-attribute 'default nil :family font :height 140)
+    ;; 新規フレームにも同フォントを適用
+    (add-to-list 'default-frame-alist `(font . ,(concat font "-14")))
+    ;; 日本語（CJK）フォントも HackGen に統一
+    (set-fontset-font t 'japanese-jisx0208 (font-spec :family font))
+    (set-fontset-font t 'japanese-jisx0212 (font-spec :family font))
+    (set-fontset-font t 'katakana-jisx0201 (font-spec :family font))))
 
 ;; ダークテーマ（高コントラスト設定で半透明背景でも読みやすくする）
 (setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
@@ -136,7 +155,16 @@
             (lambda ()
               (display-line-numbers-mode -1) ; 行番号を無効化
               (hl-line-mode -1)              ; カーソル行ハイライトを無効化
-              (setq-local cursor-in-non-selected-windows nil))))
+              (setq-local cursor-in-non-selected-windows nil)
+              ;; 日本語環境では曖昧幅文字が全角扱いになり TUI レイアウトが崩れるため
+              ;; 罫線・記号・Nerd Font の Private Use Area を半角幅に固定する
+              (dolist (range '((#x2500 . #x257F)   ; Box Drawing
+                               (#x2580 . #x259F)   ; Block Elements
+                               (#x25A0 . #x25FF)   ; Geometric Shapes
+                               (#x2600 . #x26FF)   ; Miscellaneous Symbols
+                               (#x2700 . #x27BF)   ; Dingbats
+                               (#xE000 . #xF8FF))) ; Private Use Area (Nerd Fonts)
+                (set-char-table-range char-width-table range 1)))))
 
 ;;; ============================================================
 ;;; claude-code-ide
