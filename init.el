@@ -325,19 +325,47 @@
 ;; Corfu: コード補完のポップアップUI（LSPの補完候補表示に使う）
 (use-package corfu
   :custom
-  (corfu-auto t)          ; 自動で補完候補を表示
-  (corfu-auto-delay 0.3)  ; 0.3秒後に表示
+  (corfu-auto t)           ; 自動で補完候補を表示
+  (corfu-auto-delay 0.1)   ; 0.1秒後に表示（VSCode に近い速度）
+  (corfu-auto-prefix 1)    ; 1文字から補完候補を表示
+  (corfu-cycle t)          ; 候補リストの端で循環する
+  (corfu-preselect 'first) ; 最初の候補を自動選択
+  ;; ドキュメントポップアップの設定
+  (corfu-popupinfo-delay '(0.5 . 0.2)) ; (表示まで . 更新まで) 秒
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))  ; 補完候補の横にドキュメントを表示（VSCode 風）
+
+;; cape: 補完ソースを追加するライブラリ
+;; LSP 補完に加え、ファイルパス・バッファ内単語なども補完できる
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-file)    ; ファイルパス補完
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev) ; バッファ内単語補完
+  :config
+  ;; eglot と cape を組み合わせて補完ソースをマージする
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+
+;; nerd-icons-corfu: 補完候補に VSCode 風のアイコンを表示する
+;; HackGen Console NF（Nerd Fonts 対応）インストール済みのため利用可能
+(use-package nerd-icons-corfu
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 ;; 閉じカッコの自動挿入
 (electric-pair-mode 1)
 
 ;; yasnippet: スニペット（コードテンプレート）システム
 ;; タブストップ $1, $2... にカーソルが順番に移動する
+;; eglot が LSP の snippet 補完（関数名補完 → 引数位置に移動）にも使用する
 (use-package yasnippet
   :config
-  (yas-global-mode 1))
+  (yas-global-mode 1)
+  ;; TAB で次の引数フィールドへ移動
+  (define-key yas-keymap (kbd "TAB")   #'yas-next-field-or-maybe-expand)
+  (define-key yas-keymap (kbd "<tab>") #'yas-next-field-or-maybe-expand))
+
 
 ;; yasnippet-snippets: 多数の言語の既製スニペット集
 ;; Swift, TypeScript, ELisp など主要言語のスニペットが含まれる
@@ -381,6 +409,11 @@
   ;; eglot-ensure を hook するだけで eldoc などが働く
   ;; (追加のサーバー設定は不要)
 
+  ;; eglot が管理するバッファで yasnippet を確実に有効化する
+  ;; eglot は yas-minor-mode が t の場合のみ yas-expand-snippet を呼び出す
+  ;; これにより「関数名補完 → print(|) の形でカーソルが引数位置に入る」が動作する
+  (add-hook 'eglot-managed-mode-hook #'yas-minor-mode)
+
   :bind (:map eglot-mode-map
               ("C-c l r" . eglot-rename)           ; シンボルのリネーム
               ("C-c l a" . eglot-code-actions)      ; コードアクション
@@ -388,7 +421,11 @@
               ("M-."     . xref-find-definitions)   ; 定義へジャンプ
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
 
-
+;; eldoc-box: 関数シグネチャをフローティングボックスで表示（VSCode のパラメーターヒント風）
+;; 引数入力中に現在のパラメーターがハイライトされたポップアップを表示する
+(use-package eldoc-box
+  :hook
+  (eglot-managed-mode . eldoc-box-hover-mode))
 
 ;;; 言語モード
 ;;; ============================================================
