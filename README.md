@@ -4,7 +4,7 @@
 
 ## 動作環境
 
-- Emacs 29 以上
+- `emacs-mac@30exp`（xwidgets付き）または Emacs 29 以上
 - macOS（Xcodeインストール済み）
 - Node.js / npm（TypeScript LSP用）
 
@@ -374,6 +374,46 @@ Org-babel は Org-mode 内のコードブロックを直接実行できる機能
 
 ---
 
+## ブラウザ（xwidgets-webkit）
+
+macOS の WKWebView（Safari エンジン）を使って、Emacs バッファ内でウェブページを閲覧できます。
+
+### セットアップ
+
+xwidgets 付きの `emacs-mac@30exp` が必要です。
+
+```bash
+brew tap railwaycat/emacsmacport
+brew install railwaycat/emacsmacport/emacs-mac@30exp --with-xwidgets
+```
+
+インストール後、`/Applications/Emacs.app` を差し替えます。
+
+```bash
+sudo rm -rf /Applications/Emacs.app
+sudo cp -r /opt/homebrew/opt/emacs-mac@30exp/Emacs.app /Applications/Emacs.app
+```
+
+### 使い方
+
+| キー / コマンド | 動作 |
+|----------------|------|
+| `C-c w w` | URL を入力してブラウザを開く |
+| `M-x xwidget-webkit-browse-url` | 同上 |
+
+ブラウザバッファ内では以下のキーが使えます。
+
+| キー | 動作 |
+|------|------|
+| `g` | ページを再読み込み |
+| `+` / `-` | ズームイン / ズームアウト |
+| `C-s` | ページ内インクリメンタル検索 |
+| `M-x xwidget-webkit-back` | 前のページへ戻る |
+
+また、`browse-url-browser-function` が `xwidget-webkit-browse-url` に設定されているため、Emacs 内の各種リンク（Org-mode の URL、help バッファのリンクなど）も自動的にこのブラウザで開きます。
+
+---
+
 ## キーバインド一覧
 
 ### 基本操作
@@ -437,6 +477,12 @@ Org-babel は Org-mode 内のコードブロックを直接実行できる機能
 | `C-c C-x C-i` | タイマー開始（clock in） |
 | `C-c C-x C-o` | タイマー停止（clock out） |
 | `C-c C-x C-r` | クロックレポートを挿入 |
+
+### ブラウザ（xwidgets-webkit）
+
+| キー | 動作 |
+|------|------|
+| `C-c w w` | URL を入力してブラウザを開く |
 
 ### Org-babel
 
