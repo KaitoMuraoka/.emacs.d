@@ -568,6 +568,16 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   ;; デフォルトブラウザを xwidget-webkit に設定
   (setq browse-url-browser-function 'xwidget-webkit-browse-url)
 
+  ;; 認証・ログイン系の URL は外部ブラウザ（Safari）で開く
+  ;; Google など OAuth プロバイダは Embedded WebView からのログインをブロックするため
+  (setq browse-url-handlers
+        '(("accounts\\.google\\.com" . browse-url-default-macosx-browser)
+          ("appleid\\.apple\\.com"   . browse-url-default-macosx-browser)
+          ("login\\.microsoftonline" . browse-url-default-macosx-browser)
+          ("/oauth"                  . browse-url-default-macosx-browser)
+          ("/signin"                 . browse-url-default-macosx-browser)
+          ("/login"                  . browse-url-default-macosx-browser)))
+
   ;; C-c w w: URL を入力してブラウザを開く
   (global-set-key (kbd "C-c w w") #'xwidget-webkit-browse-url))
 
