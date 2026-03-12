@@ -567,6 +567,9 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 
 ;; ウィンドウ移動
 (global-set-key (kbd "M-o") #'other-window)
+
+;; macOS: Cmd+V でペースト
+(global-set-key (kbd "s-v") #'yank)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
