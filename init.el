@@ -597,6 +597,20 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   (global-set-key (kbd "C-c w s") #'my/xwidget-webkit-search))
 
 ;;; ============================================================
+;;; xwwp（xwidgets-webkit リンクヒンティング）
+;;; ページ上のリンクをキーボードで選択できる
+;;; ============================================================
+
+(use-package xwwp
+  :after xwidget
+  :custom
+  ;; vertico（completing-read）で補完する
+  (xwwp-follow-link-completion-system 'default)
+  :bind (:map xwidget-webkit-mode-map
+              ;; v: ページ上のリンクをヒント付きで選択して開く
+              ("v" . xwwp-follow-link)))
+
+;;; ============================================================
 ;;; よく使うキーバインド
 ;;; ============================================================
 
