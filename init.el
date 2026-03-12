@@ -115,6 +115,12 @@
 (set-frame-parameter nil 'ns-transparent-titlebar t)
 (set-frame-parameter nil 'ns-appearance 'dark)
 
+;; macOS キー設定（Emacs Mac Port 用）
+;; Option キーを Meta として使う
+(setq mac-option-modifier 'meta)
+;; Command キーを Super として使う（誤操作防止）
+(setq mac-command-modifier 'super)
+
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
