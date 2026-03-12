@@ -559,6 +559,19 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 (global-visual-line-mode 1)
 
 ;;; ============================================================
+;;; xwidgets-webkit（Emacs 内蔵ブラウザ）
+;;; macOS の WKWebView（Safari エンジン）を使って
+;;; Emacs バッファ内でウェブページを閲覧できる
+;;; ============================================================
+
+(when (featurep 'xwidget-internal)
+  ;; デフォルトブラウザを xwidget-webkit に設定
+  (setq browse-url-browser-function 'xwidget-webkit-browse-url)
+
+  ;; C-c w w: URL を入力してブラウザを開く
+  (global-set-key (kbd "C-c w w") #'xwidget-webkit-browse-url))
+
+;;; ============================================================
 ;;; よく使うキーバインド
 ;;; ============================================================
 
