@@ -579,7 +579,16 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
           ("/login"                  . browse-url-default-macosx-browser)))
 
   ;; C-c w w: URL を入力してブラウザを開く
-  (global-set-key (kbd "C-c w w") #'xwidget-webkit-browse-url))
+  (global-set-key (kbd "C-c w w") #'xwidget-webkit-browse-url)
+
+  ;; C-c w s: キーワードを入力して Google 検索する
+  (defun my/xwidget-webkit-search (query)
+    "QUERY を Google で検索して xwidget-webkit で開く。"
+    (interactive "sGoogle 検索: ")
+    (xwidget-webkit-browse-url
+     (concat "https://www.google.com/search?q="
+             (url-hexify-string query))))
+  (global-set-key (kbd "C-c w s") #'my/xwidget-webkit-search))
 
 ;;; ============================================================
 ;;; よく使うキーバインド
