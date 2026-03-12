@@ -22,11 +22,34 @@
 
 ## セットアップ手順
 
-### 1. 設定ファイルを配置する
+### 1. Emacs（emacs-mac）をインストールする
+
+macOS に最適化された `emacs-mac@30exp` を xwidgets 付きでインストールします。
+
+```bash
+brew tap railwaycat/emacsmacport
+brew install railwaycat/emacsmacport/emacs-mac@30exp --with-xwidgets
+```
+
+インストール後、Homebrew の CLI シンボリックリンクを更新し、`/Applications/Emacs.app` を差し替えます。
+
+```bash
+brew link --overwrite emacs-mac@30exp
+sudo rm -rf /Applications/Emacs.app
+sudo cp -r /opt/homebrew/opt/emacs-mac@30exp/Emacs.app /Applications/Emacs.app
+```
+
+`~/.zshrc` の `emacs` エイリアスも更新します。
+
+```bash
+alias emacs="/opt/homebrew/opt/emacs-mac@30exp/Emacs.app/Contents/MacOS/Emacs"
+```
+
+### 2. 設定ファイルを配置する
 
 下記の `early-init.el` と `init.el` を `~/.emacs.d/` に作成します。
 
-### 2. 外部ツールをインストールする
+### 3. 外部ツールをインストールする
 
 ```bash
 # TypeScript Language Server
@@ -35,11 +58,11 @@ npm install -g typescript-language-server typescript
 
 Swift LSP（sourcekit-lsp）はXcodeに同梱されているため、追加インストールは不要です。
 
-### 3. Emacsを起動する
+### 4. Emacsを起動する
 
 初回起動時に全パッケージが自動インストールされます。完了まで1〜2分かかります。
 
-### 4. GitHub連携（forge）の認証設定
+### 5. GitHub連携（forge）の認証設定
 
 `~/.authinfo` ファイルを作成して以下を記載します。
 
@@ -377,40 +400,47 @@ Org-babel は Org-mode 内のコードブロックを直接実行できる機能
 ## ブラウザ（xwidgets-webkit）
 
 macOS の WKWebView（Safari エンジン）を使って、Emacs バッファ内でウェブページを閲覧できます。
+セットアップ手順は「[1. Emacs をインストールする](#1-emacsemacs-macをインストールする)」を参照してください。
 
-### セットアップ
-
-xwidgets 付きの `emacs-mac@30exp` が必要です。
-
-```bash
-brew tap railwaycat/emacsmacport
-brew install railwaycat/emacsmacport/emacs-mac@30exp --with-xwidgets
-```
-
-インストール後、`/Applications/Emacs.app` を差し替えます。
-
-```bash
-sudo rm -rf /Applications/Emacs.app
-sudo cp -r /opt/homebrew/opt/emacs-mac@30exp/Emacs.app /Applications/Emacs.app
-```
-
-### 使い方
-
-| キー / コマンド | 動作 |
-|----------------|------|
-| `C-c w w` | URL を入力してブラウザを開く |
-| `M-x xwidget-webkit-browse-url` | 同上 |
-
-ブラウザバッファ内では以下のキーが使えます。
+### ブラウザを開く
 
 | キー | 動作 |
 |------|------|
-| `g` | ページを再読み込み |
+| `C-c w w` | URL を入力してブラウザを開く |
+| `C-c w s` | キーワードを入力して Google 検索する |
+
+Emacs 内の各種リンク（Org-mode の URL、help バッファのリンクなど）も自動的にこのブラウザで開きます。
+
+### ブラウザバッファ内の操作
+
+| キー | 動作 |
+|------|------|
+| `b` | 前のページへ戻る |
+| `f` | 次のページへ進む |
+| `r` | ページを再読み込み |
+| `g` | URL を入力して移動 |
+| `H` | 履歴を開く |
+| `SPC` | 下にスクロール（1ページ） |
+| `S-SPC` / `DEL` | 上にスクロール（1ページ） |
+| `C-n` / `C-p` | 1行下 / 上にスクロール |
+| `M-<` / `M->` | ページ最上部 / 最下部へ |
 | `+` / `-` | ズームイン / ズームアウト |
 | `C-s` | ページ内インクリメンタル検索 |
-| `M-x xwidget-webkit-back` | 前のページへ戻る |
+| `v` | リンクをキーボードで選択して開く（xwwp） |
 
-また、`browse-url-browser-function` が `xwidget-webkit-browse-url` に設定されているため、Emacs 内の各種リンク（Org-mode の URL、help バッファのリンクなど）も自動的にこのブラウザで開きます。
+### リンクをキーボードで開く（xwwp）
+
+`v` を押すとページ上の全リンクにヒント文字が表示され、vertico の補完で選択して開けます。
+
+### 認証・ログインについて
+
+Google などの OAuth プロバイダは埋め込みブラウザからのログインをブロックします。
+以下のドメインへのアクセスは自動的に Safari（外部ブラウザ）で開きます。
+
+- `accounts.google.com`
+- `appleid.apple.com`
+- `login.microsoftonline.com`
+- `/oauth`、`/signin`、`/login` を含む URL
 
 ---
 
@@ -483,6 +513,10 @@ sudo cp -r /opt/homebrew/opt/emacs-mac@30exp/Emacs.app /Applications/Emacs.app
 | キー | 動作 |
 |------|------|
 | `C-c w w` | URL を入力してブラウザを開く |
+| `C-c w s` | キーワードを入力して Google 検索する |
+| `b` / `f` | 前のページへ戻る / 進む |
+| `SPC` / `S-SPC` | 下 / 上にスクロール |
+| `v` | リンクをキーボードで選択（xwwp） |
 
 ### Org-babel
 
@@ -511,6 +545,19 @@ $0
 ```
 
 `gl<TAB>` と入力するとスニペットが展開され、`TAB` で `$1 → $2 → $3` の順にフォーカスが移動します。`$0` が最終カーソル位置です。
+
+---
+
+## macOS キー設定
+
+`emacs-mac` では以下のキー割り当てを設定しています。
+
+| macOS キー | Emacs での役割 |
+|-----------|--------------|
+| `Option`（⌥） | Meta（`M-`） |
+| `Command`（⌘） | Super（`s-`） |
+
+`Option` キーが Meta として機能するため、`M-x`（コマンド実行）や `M-.`（定義ジャンプ）などは `Option + x` / `Option + .` で操作できます。
 
 ---
 
