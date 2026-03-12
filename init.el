@@ -577,6 +577,7 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;; C-\   → Mark（set-mark-command）
 (global-set-key (kbd "C-SPC") #'toggle-input-method)
 (global-set-key (kbd "C-\\")  #'set-mark-command)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
