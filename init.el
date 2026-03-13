@@ -36,6 +36,17 @@
   (add-to-list 'Info-directory-list "~/.emacs.d/info/"))
 
 ;;; ============================================================
+;;; 環境変数（PATH）の引き継ぎ
+;;; ============================================================
+;; macOS の GUI Emacs はシェルの PATH を継承しないため
+;; exec-path-from-shell でシェル環境を読み込む
+;; gopls など go/bin に置かれるツールを認識させるために必要
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :config
+  (exec-path-from-shell-initialize))
+
+;;; ============================================================
 ;;; 基本的な Emacs の設定
 ;;; ============================================================
 (set-language-environment "Japanese")
@@ -376,6 +387,13 @@
   ;; インストール: go install golang.org/x/tools/gopls@latest
   (add-to-list 'eglot-server-programs
                '((go-mode go-ts-mode) . ("gopls")))
+
+  ;; orderless との相性問題を回避するため
+  ;; eglot の補完カテゴリでは orderless を優先して使用する
+  (add-to-list 'completion-category-overrides
+               '(eglot (styles orderless basic)))
+  (add-to-list 'completion-category-overrides
+               '(eglot-capf (styles orderless basic)))
 
   ;; ELisp: Emacs 自体が LSP 的な機能を持つため
   ;; eglot-ensure を hook するだけで eldoc などが働く
