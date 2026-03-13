@@ -131,16 +131,32 @@
   (set-frame-parameter nil 'ns-transparent-titlebar t)
   (set-frame-parameter nil 'ns-appearance 'dark))
 
-;; TUI起動時はターミナルの背景色を透過して継承する
-;; unspecified-bg: Emacs の背景色を指定せず、ターミナル側の背景をそのまま使う
-(unless (display-graphic-p)
-  (set-face-background 'default "unspecified-bg" (selected-frame)))
+;; TUI起動時はターミナル（WezTerm など）の透明度・ブラーを透過させる
+;; default だけでなく背景色を持つ全フェイスを unspecified-bg にすることで
+;; ターミナル側の透過・ブラー効果が Emacs 上でもそのまま表示される
+(defun my/tui-inherit-terminal-bg (frame)
+  "TUIフレームの全フェイス背景をターミナルに透過させる。"
+  (unless (display-graphic-p frame)
+    (dolist (face '(default
+                    fringe
+                    line-number
+                    line-number-current-line
+                    hl-line
+                    mode-line
+                    mode-line-inactive
+                    header-line
+                    vertical-border
+                    window-divider
+                    window-divider-first-pixel
+                    window-divider-last-pixel))
+      (set-face-background face "unspecified-bg" frame))))
 
-;; デーモン経由やサーバー経由で新規フレームを作る場合にも適用する
-(add-hook 'after-make-frame-functions
-          (lambda (frame)
-            (unless (display-graphic-p frame)
-              (set-face-background 'default "unspecified-bg" frame))))
+;; 通常起動時（非デーモン）に適用
+(unless (display-graphic-p)
+  (my/tui-inherit-terminal-bg (selected-frame)))
+
+;; デーモン経由・サーバー経由で新規フレームを作る場合にも適用
+(add-hook 'after-make-frame-functions #'my/tui-inherit-terminal-bg)
 
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
