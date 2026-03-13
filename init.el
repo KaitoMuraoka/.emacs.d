@@ -570,6 +570,13 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 
 ;; macOS: Cmd+V でペースト
 (global-set-key (kbd "s-v") #'yank)
+
+;; IME切り替えとMarkのキーバインドを入れ替える
+;; 理由: macOSのデフォルトIME切り替えが C-SPC のため、Emacsでも統一する
+;; C-SPC → IME切り替え（toggle-input-method）
+;; C-\   → Mark（set-mark-command）
+(global-set-key (kbd "C-SPC") #'toggle-input-method)
+(global-set-key (kbd "C-\\")  #'set-mark-command)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
