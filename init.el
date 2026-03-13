@@ -112,10 +112,15 @@
     (set-fontset-font t 'japanese-jisx0212 (font-spec :family font))
     (set-fontset-font t 'katakana-jisx0201 (font-spec :family font))))
 
-;; ダークテーマ（高コントラスト設定で半透明背景でも読みやすくする）
+;; テーマの条件分岐
+;; GUI: modus-vivendi（フル256色・半透明背景に最適化）
+;; TUI: tsdh-dark（ターミナルの16色ANSIパレットをそのまま使う組み込みテーマ）
+;;      ターミナル側のカラースキームが Emacs の見た目に直接反映される
 (setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
 (setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
-(load-theme 'modus-vivendi t)
+(if (display-graphic-p)
+    (load-theme 'modus-vivendi t)
+  (load-theme 'tsdh-dark t))
 
 ;; フレームの透明度設定（GUI専用）
 ;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
