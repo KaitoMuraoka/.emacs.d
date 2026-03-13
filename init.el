@@ -356,6 +356,8 @@
   ((swift-mode       . eglot-ensure)
    (typescript-mode  . eglot-ensure)
    (tsx-ts-mode      . eglot-ensure)
+   (go-mode          . eglot-ensure)
+   (go-ts-mode       . eglot-ensure)
    (emacs-lisp-mode  . eglot-ensure))
 
   :config
@@ -369,6 +371,11 @@
   (add-to-list 'eglot-server-programs
                '((typescript-mode tsx-ts-mode) .
                  ("typescript-language-server" "--stdio")))
+
+  ;; Go: gopls を使用
+  ;; インストール: go install golang.org/x/tools/gopls@latest
+  (add-to-list 'eglot-server-programs
+               '((go-mode go-ts-mode) . ("gopls")))
 
   ;; ELisp: Emacs 自体が LSP 的な機能を持つため
   ;; eglot-ensure を hook するだけで eldoc などが働く
@@ -393,6 +400,16 @@
 (use-package typescript-mode
   :mode ("\\.ts\\'" . typescript-mode)
   :mode ("\\.tsx\\'" . tsx-ts-mode))
+
+;; Go サポート
+;; treesit-auto により go-ts-mode に自動リマップされる
+;; 事前に必要: go install golang.org/x/tools/gopls@latest
+(use-package go-mode
+  :hook
+  ((go-mode    . (lambda ()
+                   (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+   (go-ts-mode . (lambda ()
+                   (add-hook 'before-save-hook #'eglot-format-buffer nil t)))))
 
 
 ;;; ============================================================
