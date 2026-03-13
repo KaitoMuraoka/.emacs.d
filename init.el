@@ -117,6 +117,25 @@
 (setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
 (load-theme 'modus-vivendi t)
 
+;; フレームの透明度設定（GUI専用）
+;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
+(when (display-graphic-p)
+  (add-to-list 'default-frame-alist '(alpha . (75 . 75)))
+  ;; Vibrancy（ブラー）を有効化: 'active = アクティブウィンドウのみブラー
+  (add-to-list 'default-frame-alist '(ns-use-thin-smoothing . t))
+  (set-frame-parameter nil 'ns-transparent-titlebar t)
+  (set-frame-parameter nil 'ns-appearance 'dark))
+
+;; TUI起動時はターミナルの背景色を透過して継承する
+;; unspecified-bg: Emacs の背景色を指定せず、ターミナル側の背景をそのまま使う
+(unless (display-graphic-p)
+  (set-face-background 'default "unspecified-bg" (selected-frame)))
+
+;; デーモン経由やサーバー経由で新規フレームを作る場合にも適用する
+(add-hook 'after-make-frame-functions
+          (lambda (frame)
+            (unless (display-graphic-p frame)
+              (set-face-background 'default "unspecified-bg" frame))))
 
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
