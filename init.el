@@ -423,6 +423,9 @@
 ;; treesit-auto により go-ts-mode に自動リマップされる
 ;; 事前に必要: go install golang.org/x/tools/gopls@latest
 (use-package go-mode
+  :custom
+  ;; go-ts-mode のデフォルトは 8 だが、tab-width 4 と合わせてタブ1個分にする
+  (go-ts-mode-indent-offset 4)
   :hook
   ((go-mode    . (lambda ()
                    (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
