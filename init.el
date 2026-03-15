@@ -612,39 +612,8 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;;; Claude Code を外部ターミナルで開く
 ;;; ============================================================
 
-(defun my/open-terminal-with-command (dir command)
-  "DIR をカレントディレクトリとして COMMAND を外部ターミナルで非同期実行する。
-優先順位: WezTerm → Ghostty → Terminal.app"
-  (let ((wezterm "/opt/homebrew/bin/wezterm"))
-    (cond
-     ;; WezTerm: CLI が利用可能
-     ((file-executable-p wezterm)
-      (start-process "claude-terminal" nil
-                     wezterm "start" "--cwd" dir "--" "bash" "-c" command)
-      (start-process "claude-terminal-focus" nil
-                     "osascript" "-e" "tell application \"WezTerm\" to activate"))
-     ;; Ghostty: osascript で新規ウィンドウを開いてコマンドを送る
-     ((file-directory-p "~/Applications/Ghostty.app")
-      (start-process "claude-terminal" nil
-                     "osascript" "-e"
-                     (format "tell application \"Ghostty\" to activate")))
-     ;; Terminal.app: フォールバック
-     (t
-      (start-process "claude-terminal" nil
-                     "osascript" "-e"
-                     (format "tell application \"Terminal\" to do script \"cd %s && %s\""
-                             (shell-quote-argument dir) command))
-      (start-process "claude-terminal-focus" nil
-                     "osascript" "-e" "tell application \"Terminal\" to activate")))))
-
-(defun open-claude-code ()
-  "現在のバッファのディレクトリで Claude Code を外部ターミナルで開く。"
-  (interactive)
-  (let ((dir (expand-file-name default-directory)))
-    (my/open-terminal-with-command dir "claude")
-    (message "Claude Code を起動しました: %s" dir)))
-
-(global-set-key (kbd "C-c A t") #'open-claude-code)
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(require 'open-terminal)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
