@@ -122,6 +122,14 @@
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
 
+;; コンソール時だけ背景を透明（ターミナルの背景をそのまま使う）
+(unless (display-graphic-p)
+  (set-face-background 'default "unspecified-bg"))
+;;メニューバーを非表示
+(menu-bar-mode -1)
+;; 行番号を透明にする
+(set-face-background 'line-number "unspecified-bg")
+
 ;;; ============================================================
 ;;; eat（Emulate A Terminal）
 ;;; vterm より軽量な純 Emacs Lisp 製ターミナルエミュレータ
