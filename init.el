@@ -64,6 +64,12 @@
 ;; 自動保存ファイル（#file.txt#）も作らない
 (setq auto-save-default nil)
 
+;; フォーカスが外れたら全ファイルバッファを保存する
+;; 理由: 他アプリに切り替えた瞬間に変更が保存され、データ損失を防ぐ
+(add-hook 'focus-out-hook
+          (lambda ()
+            (save-some-buffers t)))
+
 ;; 確認なしで保存
 (setq magit-save-repository-buffers 'dontask)
 
