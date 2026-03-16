@@ -164,7 +164,9 @@
 
 ;; コンソール時だけ背景を透明（ターミナルの背景をそのまま使う）
 (unless (display-graphic-p)
-  (set-face-background 'default "unspecified-bg"))
+  (set-face-background 'default "unspecified-bg")
+  ;; TUI時はターミナルのマウスイベントを受け取る
+  (xterm-mouse-mode 1))
 ;;メニューバーを非表示
 (menu-bar-mode -1)
 ;; 行番号を透明にする
