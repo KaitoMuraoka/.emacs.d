@@ -122,15 +122,6 @@
     (load-theme 'modus-vivendi t)
   (load-theme 'tsdh-dark t))
 
-;; フレームの透明度設定（GUI専用）
-;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
-(when (display-graphic-p)
-  (add-to-list 'default-frame-alist '(alpha . (75 . 75)))
-  ;; Vibrancy（ブラー）を有効化: 'active = アクティブウィンドウのみブラー
-  (add-to-list 'default-frame-alist '(ns-use-thin-smoothing . t))
-  (set-frame-parameter nil 'ns-transparent-titlebar t)
-  (set-frame-parameter nil 'ns-appearance 'dark))
-
 ;; TUI起動時はターミナル（WezTerm など）の透明度・ブラーを透過させる
 ;; default だけでなく背景色を持つ全フェイスを unspecified-bg にすることで
 ;; ターミナル側の透過・ブラー効果が Emacs 上でもそのまま表示される
