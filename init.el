@@ -112,11 +112,51 @@
     (set-fontset-font t 'japanese-jisx0212 (font-spec :family font))
     (set-fontset-font t 'katakana-jisx0201 (font-spec :family font))))
 
-;; ダークテーマ（高コントラスト設定で半透明背景でも読みやすくする）
+;; テーマの条件分岐
+;; GUI: modus-vivendi（フル256色・半透明背景に最適化）
+;; TUI: tsdh-dark（ターミナルの16色ANSIパレットをそのまま使う組み込みテーマ）
+;;      ターミナル側のカラースキームが Emacs の見た目に直接反映される
 (setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
 (setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
-(load-theme 'modus-vivendi t)
+(if (display-graphic-p)
+    (load-theme 'modus-vivendi t)
+  (load-theme 'tsdh-dark t))
 
+;; フレームの透明度設定（GUI専用）
+;; alpha の値: (アクティブ時 . 非アクティブ時) 0〜100
+(when (display-graphic-p)
+  (add-to-list 'default-frame-alist '(alpha . (75 . 75)))
+  ;; Vibrancy（ブラー）を有効化: 'active = アクティブウィンドウのみブラー
+  (add-to-list 'default-frame-alist '(ns-use-thin-smoothing . t))
+  (set-frame-parameter nil 'ns-transparent-titlebar t)
+  (set-frame-parameter nil 'ns-appearance 'dark))
+
+;; TUI起動時はターミナル（WezTerm など）の透明度・ブラーを透過させる
+;; default だけでなく背景色を持つ全フェイスを unspecified-bg にすることで
+;; ターミナル側の透過・ブラー効果が Emacs 上でもそのまま表示される
+(defun my/tui-inherit-terminal-bg (frame)
+  "TUIフレームの全フェイス背景をターミナルに透過させる。"
+  (unless (display-graphic-p frame)
+    (dolist (face '(default
+                    fringe
+                    line-number
+                    line-number-current-line
+                    hl-line
+                    mode-line
+                    mode-line-inactive
+                    header-line
+                    vertical-border
+                    window-divider
+                    window-divider-first-pixel
+                    window-divider-last-pixel))
+      (set-face-background face "unspecified-bg" frame))))
+
+;; 通常起動時（非デーモン）に適用
+(unless (display-graphic-p)
+  (my/tui-inherit-terminal-bg (selected-frame)))
+
+;; デーモン経由・サーバー経由で新規フレームを作る場合にも適用
+(add-hook 'after-make-frame-functions #'my/tui-inherit-terminal-bg)
 
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
