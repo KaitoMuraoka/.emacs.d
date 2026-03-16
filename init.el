@@ -649,6 +649,13 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 (global-set-key (kbd "C-SPC") #'toggle-input-method)
 (global-set-key (kbd "C-\\")  #'set-mark-command)
 
+;; C-h を削除キー（バックスペース相当）に変更する
+;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
+;;       直感的な操作に合わせる
+;; ヘルプは C-? で引き続き使用可能
+(global-set-key (kbd "C-h") 'delete-backward-char)
+(global-set-key (kbd "C-?") 'help-command)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
