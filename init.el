@@ -377,10 +377,39 @@
 ;; Corfu: コード補完のポップアップUI（LSPの補完候補表示に使う）
 (use-package corfu
   :custom
-  (corfu-auto t)          ; 自動で補完候補を表示
-  (corfu-auto-delay 0.3)  ; 0.3秒後に表示
+  (corfu-auto t)                ; 自動で補完候補を表示
+  (corfu-auto-delay 0.2)        ; 0.2秒後に表示
+  (corfu-auto-prefix 1)         ; 1文字から補完を開始
+  ;; nil にしないと「.」や「/」で補完が閉じてしまい、メソッド補完が途切れる
+  (corfu-quit-at-boundary nil)
+  (corfu-separator ?\s)         ; orderless との組み合わせでスペース区切り検索を許可
+  (corfu-quit-no-match 'separator)
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  :config
+  ;; ドキュメントポップアップを有効化（補完候補の横に型情報・説明を表示）
+  (corfu-popupinfo-mode 1)
+  (setq corfu-popupinfo-delay '(0.5 . 0.2)))
+
+;; corfu-terminal: TUI環境でcorfuの補完ポップアップを表示する
+;; GUI環境ではposframe等が使えるが、TUIでは描画方式を切り替える必要がある
+(use-package corfu-terminal
+  :unless (display-graphic-p)
+  :after corfu
+  :config
+  (corfu-terminal-mode 1))
+
+;; cape: 補完ソースを追加・合成するライブラリ
+;; eglot 単体だとファイルパスやキーワード補完が弱いため cape で補強する
+(use-package cape
+  :init
+  ;; completion-at-point-functions の先頭に追加
+  ;; eglot の capf と組み合わせて複数ソースを統合する
+  (add-hook 'completion-at-point-functions #'cape-file)
+  :config
+  ;; eglot の補完と cape を合成する
+  ;; eglot-managed-mode になったとき capf を super-capf でラップする
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 ;; 閉じカッコの自動挿入
 (electric-pair-mode 1)
@@ -410,6 +439,8 @@
    (tsx-ts-mode      . eglot-ensure)
    (go-mode          . eglot-ensure)
    (go-ts-mode       . eglot-ensure)
+   (python-mode      . eglot-ensure)
+   (python-ts-mode   . eglot-ensure)
    (emacs-lisp-mode  . eglot-ensure))
 
   :config
@@ -428,6 +459,11 @@
   ;; インストール: go install golang.org/x/tools/gopls@latest
   (add-to-list 'eglot-server-programs
                '((go-mode go-ts-mode) . ("gopls")))
+
+  ;; Python: pyright を使用
+  ;; インストール: pip install pyright  または  npm install -g pyright
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode) . ("pyright-langserver" "--stdio")))
 
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
@@ -450,6 +486,34 @@
 ;;; ============================================================
 ;;; 言語モード
 ;;; ============================================================
+
+;; Python サポート
+;; python.el は Emacs 組み込み。treesit-auto により python-ts-mode に自動リマップされる
+;; 事前に必要: pip install pyright ruff
+(use-package python
+  :ensure nil
+  :config
+  ;; インデント幅を4スペースに統一（PEP 8準拠）
+  (setq python-indent-offset 4))
+
+;; apheleia: 非同期フォーマッター（ruff を使ってバッファを整形する）
+;; pyright は formatting に非対応のため apheleia 経由で ruff を呼ぶ
+;; カーソル位置を保ったまま非同期でフォーマットするため編集体験を損なわない
+(use-package apheleia
+  :config
+  ;; ruff format を Python のフォーマッターとして登録
+  (setf (alist-get 'ruff-format apheleia-formatters)
+        '("ruff" "format" "--stdin-filename" filepath "-"))
+  (setf (alist-get 'python-mode    apheleia-mode-alist) '(ruff-format))
+  (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-format))
+  (apheleia-global-mode +1))
+
+;; pyvenv: Python 仮想環境（.venv）の自動検出・切り替え
+;; .venv が存在するディレクトリを開いたとき自動でアクティベートされる
+(use-package pyvenv
+  :config
+  ;; プロジェクトルートの .venv を自動検出して有効化する
+  (pyvenv-tracking-mode 1))
 
 ;; Swift サポート
 ;; swift-mode は MELPA から提供
