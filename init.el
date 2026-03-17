@@ -44,6 +44,8 @@
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns x))
   :config
+  ;; -i (インタラクティブ) を除外することで TTY なし環境でのエラーを回避
+  (setq exec-path-from-shell-arguments '("-l"))
   (exec-path-from-shell-initialize))
 
 ;;; ============================================================
