@@ -296,14 +296,27 @@
          (dow   (format-time-string "%A" time)))
     (format "%d/%d(%s)" month day dow)))
 
+;; org-capture 呼び出し前のバッファを記憶する変数
+;; 理由: キャプチャ先を「呼び出し時点のバッファ」にするために事前保存が必要
+(defvar my/org-capture-source-buffer nil)
+
+(advice-add 'org-capture :before
+            (lambda (&rest _)
+              (setq my/org-capture-source-buffer (current-buffer))))
+
+;; キャプチャ先を呼び出し時点のバッファの末尾に移動する
+(defun my/org-capture-to-source-buffer ()
+  (switch-to-buffer my/org-capture-source-buffer)
+  (goto-char (point-max)))
+
 ;; C-c c でorg-captureを呼び出す
 (global-set-key (kbd "C-c c") 'org-capture)
 
 ;; org-captureテンプレートの設定
-;; "d" を選択すると日次ログのテンプレートを ~/org/note.org に挿入する
+;; "d" を選択すると日次ログのテンプレートを現在のバッファ末尾に挿入する
 (setq org-capture-templates
       '(("d" "日次ログ" entry
-         (file "~/org/note.org")
+         (function my/org-capture-to-source-buffer)
          "* %(my/org-capture-date-heading)\n\n** TASK\n\n** TIL\n\n** 思いつき\n"
          :empty-lines 1)))
 
