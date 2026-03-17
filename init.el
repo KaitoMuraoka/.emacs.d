@@ -178,7 +178,7 @@
 
 (use-package eat
   :straight (:type git :host codeberg :repo "akib/emacs-eat"
-             :files ("*.el" ("term" "term/*.ti") "integration"))
+                   :files ("*.el" ("term" "term/*.ti") "integration"))
 
   :custom
   ;; ターミナル名（xterm-256color 互換）
@@ -417,6 +417,7 @@
 ;; yasnippet: スニペット（コードテンプレート）システム
 ;; タブストップ $1, $2... にカーソルが順番に移動する
 (use-package yasnippet
+  :demand t ; Emacs起動時に即座にロードする
   :config
   (yas-global-mode 1))
 
@@ -427,7 +428,23 @@
 ;;; ============================================================
 ;;; LSP（Language Server Protocol）設定
 ;;; ============================================================
-
+;; eglot の resolveSupport に insertText / insertTextFormat を追加する
+;; pyright は completeFunctionParens の括弧情報を completionItem/resolve で返すが、
+;; eglot のデフォルトではこれらのプロパティを受け取れないため追加が必要
+(with-eval-after-load 'eglot
+  (cl-defmethod eglot-client-capabilities :around (_server)
+    (let ((caps (cl-call-next-method)))
+      (when-let* ((completion (plist-get (plist-get caps :textDocument) :completion))
+                  (item (plist-get completion :completionItem))
+                  (rs (plist-get item :resolveSupport))
+                  (props (plist-get rs :properties)))
+        (let ((prop-list (append props nil)))
+          (unless (member "insertText" prop-list)
+            (push "insertText" prop-list))
+          (unless (member "insertTextFormat" prop-list)
+            (push "insertTextFormat" prop-list))
+          (plist-put rs :properties (vconcat prop-list))))
+      caps)))
 ;; eglot は Emacs 29 組み込みの LSP クライアント
 ;; LSP = エディタとは独立した言語解析サーバーと通信する仕組み
 ;; これにより補完・定義ジャンプ・エラー表示が言語ごとに統一される
@@ -444,6 +461,8 @@
    (emacs-lisp-mode  . eglot-ensure))
 
   :config
+  (setq-default eglot-workspace-configuration
+                '(:python.analysis (:completeFunctionParens t)))
   ;; Swift: sourcekit-lsp を使用
   ;; Xcode に含まれているので追加インストール不要
   (add-to-list 'eglot-server-programs
@@ -494,7 +513,11 @@
   :ensure nil
   :config
   ;; インデント幅を4スペースに統一（PEP 8準拠）
-  (setq python-indent-offset 4))
+  (setq python-indent-offset 4)
+  ;; treesit-auto で python-ts-mode にリマップされると yasnippet-snippets の
+  ;; python-mode 用スニペットが継承されないため、明示的に引き継ぐ
+  (add-hook 'python-ts-mode-hook
+            (lambda () (yas-activate-extra-mode 'python-mode))))
 
 ;; apheleia: 非同期フォーマッター（ruff を使ってバッファを整形する）
 ;; pyright は formatting に非対応のため apheleia 経由で ruff を呼ぶ
@@ -589,7 +612,7 @@ Format it as follows: First line: a concise one-line summary. \
 Then a blank line. \
 Then a detailed bullet-point list explaining what was changed and why. \
 Output ONLY the commit message, no extra explanation."
-              "Generate ONLY a one-line Git commit message in Japanese. \
+            "Generate ONLY a one-line Git commit message in Japanese. \
 The message should summarize what was changed and why, based strictly on the contents of `git diff --cached`. \
 DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 
