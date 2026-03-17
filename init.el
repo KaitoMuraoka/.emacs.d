@@ -286,6 +286,27 @@
 ;; 状態変化のたびに上の関数を呼び出す
 (add-hook 'org-after-todo-state-change-hook 'org-clock-on-state-change)
 
+;; カレンダーから日付を選択し M/D(曜日) 形式の見出し文字列を返す
+;; 理由: org-captureテンプレートの日付見出しをカスタム形式で挿入するため
+(defun my/org-capture-date-heading ()
+  (let* ((time (org-read-date nil t nil "日付を選択: "))
+         (decoded (decode-time time))
+         (month (nth 4 decoded))
+         (day   (nth 3 decoded))
+         (dow   (format-time-string "%A" time)))
+    (format "%d/%d(%s)" month day dow)))
+
+;; C-c c でorg-captureを呼び出す
+(global-set-key (kbd "C-c c") 'org-capture)
+
+;; org-captureテンプレートの設定
+;; "d" を選択すると日次ログのテンプレートを ~/org/note.org に挿入する
+(setq org-capture-templates
+      '(("d" "日次ログ" entry
+         (file "~/org/note.org")
+         "* %(my/org-capture-date-heading)\n\n** TASK\n\n** TIL\n\n** 思いつき\n"
+         :empty-lines 1)))
+
 ;; ob-swift
 (use-package ob-swift :ensure t)
 ;; ob-kotlin
