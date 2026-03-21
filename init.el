@@ -663,6 +663,13 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 (global-set-key (kbd "C-h") 'delete-backward-char)
 (global-set-key (kbd "C-?") 'help-command)
 
+;;; ============================================================
+;;; Claude Code を外部ターミナルで開く
+;;; ============================================================
+
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(require 'open-terminal)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
