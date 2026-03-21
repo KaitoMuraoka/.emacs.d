@@ -106,62 +106,22 @@
 (setq select-enable-clipboard t)
 
 ;;; ============================================================
-;;; フォント設定
-;;; ============================================================
-;; テーマの条件分岐
-;; GUI: modus-vivendi（フル256色・半透明背景に最適化）
-;; TUI: tsdh-dark（ターミナルの16色ANSIパレットをそのまま使う組み込みテーマ）
-;;      ターミナル側のカラースキームが Emacs の見た目に直接反映される
-(setq modus-themes-bold-constructs t)    ; 予約語・キーワードを太字に
-(setq modus-themes-italic-constructs t) ; コメント・ドキュメントをイタリックに
-(if (display-graphic-p)
-    (load-theme 'modus-vivendi t)
-  (load-theme 'tsdh-dark t))
-
-;; TUI起動時はターミナル（WezTerm など）の透明度・ブラーを透過させる
-;; default だけでなく背景色を持つ全フェイスを unspecified-bg にすることで
-;; ターミナル側の透過・ブラー効果が Emacs 上でもそのまま表示される
-(defun my/tui-inherit-terminal-bg (frame)
-  "TUIフレームの全フェイス背景をターミナルに透過させる。"
-  (unless (display-graphic-p frame)
-    (dolist (face '(default
-                    fringe
-                    line-number
-                    line-number-current-line
-                    hl-line
-                    mode-line
-                    mode-line-inactive
-                    header-line
-                    vertical-border
-                    window-divider
-                    window-divider-first-pixel
-                    window-divider-last-pixel))
-      (set-face-background face "unspecified-bg" frame))))
-
-;; 通常起動時（非デーモン）に適用
-(unless (display-graphic-p)
-  (my/tui-inherit-terminal-bg (selected-frame)))
-
-;; デーモン経由・サーバー経由で新規フレームを作る場合にも適用
-(add-hook 'after-make-frame-functions #'my/tui-inherit-terminal-bg)
-
-;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
+;; フォントサイズ
+(set-face-attribute 'default nil :height 140)
+
+;; GUI の外観
+(load-theme 'modus-vivendi t)
 
 ;; コンソール時だけ背景を透明（ターミナルの背景をそのまま使う）
 (unless (display-graphic-p)
   (set-face-background 'default "unspecified-bg")
   ;; TUI時はターミナルのマウスイベントを受け取る
   (xterm-mouse-mode 1))
-;;メニューバーを非表示
-(menu-bar-mode -1)
-;; 行番号を透明にする
-(set-face-background 'line-number "unspecified-bg")
 
 ;;; ============================================================
 ;;; eat（Emulate A Terminal）
-;;; vterm より軽量な純 Emacs Lisp 製ターミナルエミュレータ
 ;;; ============================================================
 
 (use-package eat
@@ -203,7 +163,6 @@
 
 ;;; ============================================================
 ;;; claude-code-ide
-;;; Claude Code CLI を Emacs と MCP/WebSocket で統合するパッケージ
 ;;; ============================================================
 
 (use-package claude-code-ide
