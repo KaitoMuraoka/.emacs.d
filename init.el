@@ -339,33 +339,6 @@
   (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))
 
-
-;;; ============================================================
-;;; Treemacs
-;;; ============================================================
-;; treemacs: VSCode のようなサイドバーのディレクトリツリー
-;; プロジェクト全体のファイル構造を左ペインで把握できる
-(use-package treemacs
-  :bind
-  ("C-c t t" . treemacs)                      ; ツリーの表示/非表示トグル
-  ("C-c t f" . treemacs-find-file)            ; 今開いているファイルをツリーで選択状態にする
-  ("C-c t p" . treemacs-add-and-display-current-project) ; 現在のプロジェクトを追加
-
-  :config
-  ;; ツリーの幅（文字数）
-  (setq treemacs-width 30)
-
-  ;; ファイル変更を自動で検知してツリーを更新する
-  (treemacs-filewatch-mode t)
-
-  ;; git の状態（変更済み・未追跡など）をツリー上にアイコン表示する
-  (treemacs-git-mode 'simple))
-
-;; treemacs-magit: treemacs と magit を連携させる
-;; magit でファイル操作した結果をツリーに即時反映する
-(use-package treemacs-magit
-  :after (treemacs magit))
-
 ;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
@@ -679,12 +652,9 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;; macOS: Cmd+V でペースト
 (global-set-key (kbd "s-v") #'yank)
 
-;; IME切り替えとMarkのキーバインドを入れ替える
-;; 理由: macOSのデフォルトIME切り替えが C-SPC のため、Emacsでも統一する
-;; C-SPC → IME切り替え（toggle-input-method）
-;; C-\   → Mark（set-mark-command）
-(global-set-key (kbd "C-SPC") #'toggle-input-method)
-(global-set-key (kbd "C-\\")  #'set-mark-command)
+;; IME切り替えとMarkのキーバインドをEmacsデフォルトに戻す
+(global-set-key (kbd "C-SPC")  #'toggle-input-method)
+(global-set-key (kbd "C-\\") #'set-mark-command)
 
 ;; C-h を削除キー（バックスペース相当）に変更する
 ;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
