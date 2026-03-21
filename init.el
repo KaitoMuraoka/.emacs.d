@@ -26,6 +26,11 @@
 ;; （既存の :ensure t と同じ感覚で使える）
 (setq straight-use-package-by-default t)
 
+;; org を組み込みとして扱う
+;; 理由: straight.el が org をソースからビルドする際に lisp/ ディレクトリが
+;;       存在しないケースがあり :pre-build エラーで init.el がアボートするため
+(straight-use-package '(org :type built-in))
+
 ;;; ============================================================
 ;; パッケージマネージャーの設定
 ;;; ============================================================
@@ -103,21 +108,6 @@
 ;;; ============================================================
 ;;; フォント設定
 ;;; ============================================================
-;; HackGen Console NF: Nerd Fonts 対応版（TUI アイコンも表示可能）
-;; インストール: brew install font-hackgen-nerd
-(when (display-graphic-p)
-  (let ((font (if (find-font (font-spec :name "HackGen Console NF"))
-                  "HackGen Console NF"
-                "HackGen Console")))
-    ;; 既定フォント（ASCII・Latin）
-    (set-face-attribute 'default nil :family font :height 140)
-    ;; 新規フレームにも同フォントを適用
-    (add-to-list 'default-frame-alist `(font . ,(concat font "-14")))
-    ;; 日本語（CJK）フォントも HackGen に統一
-    (set-fontset-font t 'japanese-jisx0208 (font-spec :family font))
-    (set-fontset-font t 'japanese-jisx0212 (font-spec :family font))
-    (set-fontset-font t 'katakana-jisx0201 (font-spec :family font))))
-
 ;; テーマの条件分岐
 ;; GUI: modus-vivendi（フル256色・半透明背景に最適化）
 ;; TUI: tsdh-dark（ターミナルの16色ANSIパレットをそのまま使う組み込みテーマ）
@@ -320,12 +310,12 @@
          "* %(my/org-capture-date-heading)\n\n** TASK\n\n** TIL\n\n** 思いつき\n"
          :empty-lines 1)))
 
-;; ob-swift
-(use-package ob-swift :ensure t)
-;; ob-kotlin
-(use-package ob-kotlin :ensure t)
-;; ob-typescript
-(use-package ob-typescript :ensure t)
+;; ob-swift / ob-kotlin / ob-typescript
+;; 理由: straight-use-package-by-default t の環境では :ensure t は不要かつ
+;;       package.el と straight.el が競合するため除去する
+(use-package ob-swift)
+(use-package ob-kotlin)
+(use-package ob-typescript)
 
 ;; Org-babelで使う言語を有効化する
 (org-babel-do-load-languages
@@ -442,6 +432,8 @@
    (tsx-ts-mode      . eglot-ensure)
    (go-mode          . eglot-ensure)
    (go-ts-mode       . eglot-ensure)
+   (python-mode      . eglot-ensure)
+   (python-ts-mode   . eglot-ensure)
    (emacs-lisp-mode  . eglot-ensure))
 
   :config
@@ -460,6 +452,11 @@
   ;; インストール: go install golang.org/x/tools/gopls@latest
   (add-to-list 'eglot-server-programs
                '((go-mode go-ts-mode) . ("gopls")))
+
+  ;; Python: jedi-language-server を使用
+  ;; インストール: pip install jedi-language-server
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode) . ("jedi-language-server")))
 
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
