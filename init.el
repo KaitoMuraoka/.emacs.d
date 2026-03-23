@@ -647,6 +647,18 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 (global-visual-line-mode 1)
 
 ;;; ============================================================
+;;; 自作関数
+;;; ============================================================
+
+(defun my/post-to-x (text)
+  "Intent URL を Emacs 内のWebKitブラウザで開く"
+  (interactive
+   (list (read-string "Xに投稿: ")))
+  (let* ((encoded (url-hexify-string text))
+         (url (concat "https://x.com/intent/tweet?text=" encoded)))
+    (browse-url url)))
+
+;;; ============================================================
 ;;; よく使うキーバインド
 ;;; ============================================================
 
