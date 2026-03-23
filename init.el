@@ -102,8 +102,28 @@
 ;; ファイル末尾に改行を自動挿入
 (setq require-final-newline t)
 
-;; クリップボードをOSと共有する
+;; クリップボードをOSと共有する（コピー・ペースト両方向）
 (setq select-enable-clipboard t)
+;; ペースト前にクリップボードの内容をkill-ringに保存する
+(setq save-interprogram-paste-before-kill t)
+
+;; TUIモード（ターミナルエミュレータ）でのクリップボード連携
+;; 理由: select-enable-clipboard はGUI専用のため、
+;;       TUI環境では pbcopy/pbpaste 経由でOSクリップボードと接続する
+;; call-process-region を使って同期実行することで、C-w / M-w 後に
+;; 確実にOSクリップボードへ反映される
+(unless (display-graphic-p)
+  (setq interprogram-cut-function
+        (lambda (text)
+          ;; kill/copy 時に pbcopy へテキストを同期送信する
+          (with-temp-buffer
+            (insert text)
+            (call-process-region (point-min) (point-max) "pbcopy"))))
+  (setq interprogram-paste-function
+        (lambda ()
+          ;; yank 時に pbpaste からテキストを受け取る
+          (let ((result (shell-command-to-string "pbpaste")))
+            (unless (string-empty-p result) result)))))
 
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
@@ -117,6 +137,10 @@
 ;; コンソール時だけ背景を透明（ターミナルの背景をそのまま使う）
 (unless (display-graphic-p)
   (set-face-background 'default "unspecified-bg")
+  ;; 行番号の背景をターミナル背景に合わせて透明にする
+  ;; 理由: TUIでは行番号エリアにテーマの背景色が残り浮いて見えるため
+  (set-face-background 'line-number "unspecified-bg")
+  (set-face-background 'line-number-current-line "unspecified-bg")
   ;; TUI時はターミナルのマウスイベントを受け取る
   (xterm-mouse-mode 1))
 
