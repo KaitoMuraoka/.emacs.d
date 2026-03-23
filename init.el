@@ -243,108 +243,64 @@
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
+(use-package org
+  :hook (org-mode . visual-line-mode) ; 長い行を折り返して見やすくする
+  :custom
+  ;; --- ファイルの場所 ---
+  (org-directory "~/org/")
 
-;; C-c a でorg-agendaを開く
-(global-set-key (kbd "C-c a") 'org-agenda)
+  ;; org-agendaが参照するファイル一覧
+  ;; ここに書いたファイルのTODOだけがアジェンダに集約される
+  (org-agenda-files '("~/org/todo.org" "~/org/diary.org"))
 
-;; CLOSED タイムスタンプを自動記録する
-;; TODOをDONEにした時、完了時刻を自動記録する
-(setq org-log-done 'time)
+  ;; --- TODOの状態遷移 ---
+  ;; TODO -> DOING -> DONE, or TODO -> CANCEL
+  (org-todo-keywords
+   '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCEL(c)")))
 
-;; TODOキーワードをカスタマイズする
-;; TODO : 未完了(自分ボール)
-;; DOING: 実行中(自分ボール)
-;; WAIT : 停止中
-;; DONE : 完了
-(setq org-todo-keywords
-      '((sequence "TODO" "DOING" "WAIT" "DONE")))
-(setq org-todo-keyword-faces
-      '(
-        ("DOING" . (:foreground "blue"))
-        ("WAIT" . (:foreground "gray"))
-        ))
+  ;; --- 見た目 ---
+  (org-startup-indented t)       ; 階層をインデントで視覚的に表現
+  (org-hide-leading-stars t)     ; 先頭の余分な*を隠す（見た目がすっきり）
+  (org-startup-folded 'content)  ; ファイルを開いたとき見出しだけ表示
 
-;; 状態変化に連動してタイマーを制御する
-(defun org-clock-on-state-change()
-  (cond
-   ;; DOINGになったらタイマー開始
-   ((string= org-state "DOING")
-    (org-clock-in))
-   ;; WAITになったらタイマー停止
-   ((string= org-state "WAIT")
-    (when (org-clock-is-active)
-      (org-clock-out)))
-   ;; DONEになったらタイマー停止
-   ((string= org-state "DONE")
-    (when (org-clock-is-active)
-      (org-clock-out)))
-   ))
+  ;; --- チェックボックス ---
+  ;; チェックボックスを全部チェックするとTODOが自動でDONEになる
+  (org-enforce-todo-checkbox-dependencies nil)
 
-;; 状態変化のたびに上の関数を呼び出す
-(add-hook 'org-after-todo-state-change-hook 'org-clock-on-state-change)
+  :bind
+  ;; グローバルキーバインド（どのバッファからでも使える）
+  (("C-c a" . org-agenda)    ; アジェンダ表示
+   ("C-c c" . org-capture))) ; クイックメモ
 
-;; カレンダーから日付を選択し M/D(曜日) 形式の見出し文字列を返す
-;; 理由: org-captureテンプレートの日付見出しをカスタム形式で挿入するため
-(defun my/org-capture-date-heading ()
-  (let* ((time (org-read-date nil t nil "日付を選択: "))
-         (decoded (decode-time time))
-         (month (nth 4 decoded))
-         (day   (nth 3 decoded))
-         (dow   (format-time-string "%A" time)))
-    (format "%d/%d(%s)" month day dow)))
 
-;; org-capture 呼び出し前のバッファを記憶する変数
-;; 理由: キャプチャ先を「呼び出し時点のバッファ」にするために事前保存が必要
-(defvar my/org-capture-source-buffer nil)
+;; org-capture テンプレート
+;; C-c c を押したときに選択肢が出る
+(use-package org-capture
+  :custom
+  (org-capture-templates
+   '(
+     ;; --- 今日の日記チャプターを作る ---
+     ;; C-c c d で起動
+     ;; %<%Y-%m-%d (%a)> のように今日の日付が自動挿入される
+     ("d" "今日の日記" entry
+      (file+olp+datetree "~/org/diary.org")
+      "* %<%H:%M> %?\n"
+      :empty-lines 1)
 
-(advice-add 'org-capture :before
-            (lambda (&rest _)
-              (setq my/org-capture-source-buffer (current-buffer))))
+     ;; --- TODOをサクッと追加 ---
+     ;; C-c c t で起動
+     ;; %iはコピーしていたテキストを自動挿入（ブラウザのURLなど）
+     ("t" "TODO追加" entry
+      (file+headline "~/org/todo.org" "TODO")
+      "** TODO %?\n  DEADLINE: %^{期限}t\n  %i\n"
+      :empty-lines 1)
 
-;; キャプチャ先を呼び出し時点のバッファの末尾に移動する
-(defun my/org-capture-to-source-buffer ()
-  (switch-to-buffer my/org-capture-source-buffer)
-  (goto-char (point-max)))
-
-;; C-c c でorg-captureを呼び出す
-(global-set-key (kbd "C-c c") 'org-capture)
-
-;; org-captureテンプレートの設定
-;; "d" を選択すると日次ログのテンプレートを現在のバッファ末尾に挿入する
-(setq org-capture-templates
-      '(("d" "日次ログ" entry
-         (function my/org-capture-to-source-buffer)
-         "* %(my/org-capture-date-heading)\n\n** TASK\n\n** TIL\n\n** 思いつき\n"
-         :empty-lines 1)))
-
-;; ob-swift / ob-kotlin / ob-typescript
-;; 理由: straight-use-package-by-default t の環境では :ensure t は不要かつ
-;;       package.el と straight.el が競合するため除去する
-(use-package ob-swift)
-(use-package ob-kotlin)
-(use-package ob-typescript)
-
-;; Org-babelで使う言語を有効化する
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (shell . t)
-   (swift . t)
-   (kotlin . t)
-   (typescript . t)))
-
-;;; ============================================================
-;;; シンタックスハイライト
-;;; ============================================================
-
-;; tree-sitter はコードをASTとして解析するため
-;; 正規表現ベースのハイライトより高精度・高速
-;; Emacs 29以降は組み込み（treesit）で利用可能
-(use-package treesit-auto
-  :config
-  ;; 必要な tree-sitter グラマーを自動インストールする設定
-  (setq treesit-auto-install 'prompt)
-  (global-treesit-auto-mode))
+     ;; --- ミーティングメモ ---
+     ;; C-c c m で起動
+     ("m" "ミーティングメモ" entry
+      (file+olp+datetree "~/org/diary.org")
+      "* MTG: %^{タイトル}\n** 参加者: %?\n** 内容:\n** アクション:\n"
+      :empty-lines 1))))
 
 ;;; ============================================================
 ;;; 補完システム
