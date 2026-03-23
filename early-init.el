@@ -7,4 +7,4 @@
 ;; 起動時のフレームパラメータを事前設定することで
 ;; UIのちらつきを防ぐ
 (setq default-frame-alist
-      '((menu-bar-lines . 1)))        ; メニューバー表示
+      '((menu-bar-lines . 0)))        ; メニューバー非表示
