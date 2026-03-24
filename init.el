@@ -244,64 +244,35 @@
 ;;; org-mode
 ;;; ============================================================
 (use-package org
-  :hook (org-mode . visual-line-mode) ; 長い行を折り返して見やすくする
+  :hook (org-mode . visual-line-mode)
   :custom
-  ;; --- ファイルの場所 ---
   (org-directory "~/org/")
-
-  ;; org-agendaが参照するファイル一覧
-  ;; ここに書いたファイルのTODOだけがアジェンダに集約される
   (org-agenda-files '("~/org/todo.org" "~/org/diary.org"))
-
-  ;; --- TODOの状態遷移 ---
-  ;; TODO -> DOING -> DONE, or TODO -> CANCEL
   (org-todo-keywords
    '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCEL(c)")))
-
-  ;; --- 見た目 ---
-  (org-startup-indented t)       ; 階層をインデントで視覚的に表現
-  (org-hide-leading-stars t)     ; 先頭の余分な*を隠す（見た目がすっきり）
-  (org-startup-folded 'content)  ; ファイルを開いたとき見出しだけ表示
-
-  ;; --- チェックボックス ---
-  ;; チェックボックスを全部チェックするとTODOが自動でDONEになる
+  (org-startup-indented t)
+  (org-hide-leading-stars t)
+  (org-startup-folded 'content)
   (org-enforce-todo-checkbox-dependencies nil)
 
-  :bind
-  ;; グローバルキーバインド（どのバッファからでも使える）
-  (("C-c a" . org-agenda)    ; アジェンダ表示
-   ("C-c c" . org-capture))) ; クイックメモ
-
-
-;; org-capture テンプレート
-;; C-c c を押したときに選択肢が出る
-(use-package org-capture
-  :custom
+  ;; org-capture テンプレートもここに移動
   (org-capture-templates
-   '(
-     ;; --- 今日の日記チャプターを作る ---
-     ;; C-c c d で起動
-     ;; %<%Y-%m-%d (%a)> のように今日の日付が自動挿入される
-     ("d" "今日の日記" entry
+   '(("d" "今日の日記" entry
       (file+olp+datetree "~/org/diary.org")
       "* %<%H:%M> %?\n"
       :empty-lines 1)
-
-     ;; --- TODOをサクッと追加 ---
-     ;; C-c c t で起動
-     ;; %iはコピーしていたテキストを自動挿入（ブラウザのURLなど）
      ("t" "TODO追加" entry
       (file+headline "~/org/todo.org" "TODO")
       "** TODO %?\n  DEADLINE: %^{期限}t\n  %i\n"
       :empty-lines 1)
-
-     ;; --- ミーティングメモ ---
-     ;; C-c c m で起動
      ("m" "ミーティングメモ" entry
       (file+olp+datetree "~/org/diary.org")
       "* MTG: %^{タイトル}\n** 参加者: %?\n** 内容:\n** アクション:\n"
-      :empty-lines 1))))
+      :empty-lines 1)))
 
+  :bind
+  (("C-c a" . org-agenda)
+   ("C-c c" . org-capture)))
 ;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
@@ -631,7 +602,6 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files '("~/org/note.org"))
  '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
