@@ -384,6 +384,14 @@
   :init
   (global-corfu-mode))
 
+;; corfu-terminal: ターミナル環境でCorfuの補完ポップアップを表示する
+;; 理由: Corfuはデフォルトでchild frameを使うため、ターミナル（TUI）では動作しない
+;;       corfu-terminalはオーバーレイで代替表示する
+(use-package corfu-terminal
+  :unless (display-graphic-p)
+  :config
+  (corfu-terminal-mode +1))
+
 ;; 閉じカッコの自動挿入
 (electric-pair-mode 1)
 
