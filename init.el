@@ -615,8 +615,8 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   ;; browse-url の既定ブラウザを xwidget-webkit に設定（GUIのみ）
   ;; 理由: TUI環境では xwidget は使えないため、:if ガードと組み合わせる
   (browse-url-browser-function #'xwidget-webkit-browse-url)
-  ;; リンク選択の補完システム: completing-read を使い vertico+orderless と連携する
-  (xwwp-follow-link-completion-system 'completing-read)
+  ;; リンク選択の補完システム: default = completing-read を使い vertico+orderless と連携する
+  (xwwp-follow-link-completion-system 'default)
 
   :bind (:map xwidget-webkit-mode-map
               ;; v : ページ内リンクを補完選択して開く（xwwp の主要機能）
