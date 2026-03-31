@@ -598,6 +598,10 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;;; https://github.com/canatella/xwwp
 ;;; ============================================================
 
+;; ctable: xwwp の依存パッケージ（テーブル描画ライブラリ）
+(use-package ctable
+  :straight (:type git :host github :repo "kiwanami/emacs-ctable"))
+
 (use-package xwwp
   :straight (:type git :host github :repo "kchanqvq/xwwp" :files ("*.el"))
   :if (and (display-graphic-p) (featurep 'xwidget-internal))
