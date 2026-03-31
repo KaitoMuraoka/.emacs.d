@@ -602,30 +602,29 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
     (my/browse-url url)))
 
 ;;; ============================================================
-;;; xwidget-webkit（WebKitブラウザ）設定
+;;; xwwp（xwidget-webkit 拡張）設定
 ;;; GUI Emacs かつ xwidget サポート付きでビルドされた場合のみ有効
+;;; https://github.com/canatella/xwwp
 ;;; ============================================================
 
-(use-package xwidget
-  :ensure nil
+(use-package xwwp
+  :straight (:type git :host github :repo "canatella/xwwp")
   :if (and (display-graphic-p) (featurep 'xwidget-internal))
 
   :custom
   ;; browse-url の既定ブラウザを xwidget-webkit に設定（GUIのみ）
   ;; 理由: TUI環境では xwidget は使えないため、:if ガードと組み合わせる
   (browse-url-browser-function #'xwidget-webkit-browse-url)
+  ;; リンク選択の補完システム: completing-read を使い vertico+orderless と連携する
+  (xwwp-follow-link-completion-system 'completing-read)
 
   :bind (:map xwidget-webkit-mode-map
-              ;; C-l : 新しい URL を入力して開く
-              ("C-l"       . xwidget-webkit-browse-url)
+              ;; v : ページ内リンクを補完選択して開く（xwwp の主要機能）
+              ("v"     . xwwp-follow-link)
+              ;; C-l : DWIM URL 入力（URL・検索ワードを受け付けるラッパー）
+              ("C-l"   . xwwp)
               ;; C-c C-l : 現在の URL をエコーエリアに表示
-              ("C-c C-l"   . xwidget-webkit-current-url)
-              ;; TAB / S-TAB / RET : WebKit ネイティブのキーを通過させる
-              ;; 理由: xwidget-webkit にはリンク移動の Emacs 関数が存在せず、
-              ;;       WebKit が TAB/RET によるリンク・フォーム移動を内部処理する
-              ("TAB"       . xwidget-webkit-pass-command-event)
-              ("<backtab>" . xwidget-webkit-pass-command-event)
-              ("RET"       . xwidget-webkit-pass-command-event)))
+              ("C-c C-l" . xwidget-webkit-current-url)))
 
 ;;; ============================================================
 ;;; よく使うキーバインド
