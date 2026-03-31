@@ -244,6 +244,7 @@
 ;;; org-mode
 ;;; ============================================================
 (use-package org
+  :straight nil   ; line 32 で built-in として登録済みのため straight 管理不要
   :hook (org-mode . visual-line-mode)
   :custom
   (org-directory "~/org/")
@@ -390,7 +391,6 @@
               ("C-c l f" . eglot-format-buffer)     ; フォーマット
               ("M-."     . xref-find-definitions)   ; 定義へジャンプ
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
-
 ;;; ============================================================
 ;;; 言語モード
 ;;; ============================================================
@@ -585,13 +585,47 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;;; 自作関数
 ;;; ============================================================
 
+(defun my/browse-url (url &rest args)
+  "URLを開く。GUIかつ xwidget が使える場合は xwidget-webkit を使い、
+そうでなければ browse-url-default-browser へフォールバックする。"
+  (if (and (display-graphic-p)
+           (featurep 'xwidget-internal))
+      (xwidget-webkit-browse-url url)
+    (apply #'browse-url-default-browser url args)))
+
 (defun my/post-to-x (text)
   "Intent URL を Emacs 内のWebKitブラウザで開く"
   (interactive
    (list (read-string "Xに投稿: ")))
   (let* ((encoded (url-hexify-string text))
          (url (concat "https://x.com/intent/tweet?text=" encoded)))
-    (browse-url url)))
+    (my/browse-url url)))
+
+;;; ============================================================
+;;; xwidget-webkit（WebKitブラウザ）設定
+;;; GUI Emacs かつ xwidget サポート付きでビルドされた場合のみ有効
+;;; ============================================================
+
+(use-package xwidget
+  :ensure nil
+  :if (and (display-graphic-p) (featurep 'xwidget-internal))
+
+  :custom
+  ;; browse-url の既定ブラウザを xwidget-webkit に設定（GUIのみ）
+  ;; 理由: TUI環境では xwidget は使えないため、:if ガードと組み合わせる
+  (browse-url-browser-function #'xwidget-webkit-browse-url)
+
+  :bind (:map xwidget-webkit-mode-map
+              ;; C-l : 新しい URL を入力して開く
+              ("C-l"       . xwidget-webkit-browse-url)
+              ;; C-c C-l : 現在の URL をエコーエリアに表示
+              ("C-c C-l"   . xwidget-webkit-current-url)
+              ;; TAB / S-TAB / RET : WebKit ネイティブのキーを通過させる
+              ;; 理由: xwidget-webkit にはリンク移動の Emacs 関数が存在せず、
+              ;;       WebKit が TAB/RET によるリンク・フォーム移動を内部処理する
+              ("TAB"       . xwidget-webkit-pass-command-event)
+              ("<backtab>" . xwidget-webkit-pass-command-event)
+              ("RET"       . xwidget-webkit-pass-command-event)))
 
 ;;; ============================================================
 ;;; よく使うキーバインド
