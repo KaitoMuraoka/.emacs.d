@@ -188,26 +188,17 @@
 ;;; ============================================================
 ;;; kuro（Rust バックエンドのターミナルエミュレータ）
 ;;; ============================================================
+;; MELPA 公開後に以下でインストール予定:
+;;   M-x package-install RET kuro RET
+;; 現在は straight でのインストール時にサブモジュールエラーが発生するため無効化中
 
-(use-package kuro
-  :straight (:type git :host github :repo "takeokunn/kuro"
-             :files ("emacs-lisp/*.el")
-             :pre-build (("make" "build") ("make" "install")))
-  ;; kuro-create の autoload は kuro-lifecycle.el のみをロードするが、
-  ;; kuro--ensure-module-loaded は kuro-module.el にあり kuro.el 経由でしか require されない。
-  ;; :demand t で起動時に kuro.el ごとロードして依存を解決する。
-  :demand t
-
-  :hook
-  ;; kuro バッファの表示をターミナルに近づける
-  ;; 理由: 行番号・ハイライトがあるとターミナル表示が崩れるため無効化
-  (kuro-mode . (lambda ()
-                 (display-line-numbers-mode -1)
-                 (hl-line-mode -1)))
-
-  :bind
-  ;; C-c v k : 新しい kuro ターミナルを開く
-  ("C-c v k" . kuro-create))
+;; (use-package kuro
+;;   :hook
+;;   (kuro-mode . (lambda ()
+;;                  (display-line-numbers-mode -1)
+;;                  (hl-line-mode -1)))
+;;   :bind
+;;   ("C-c v k" . kuro-create))
 
 ;;; ============================================================
 ;;; claude-code-ide
@@ -244,6 +235,7 @@
 ;;; org-mode
 ;;; ============================================================
 (use-package org
+  :straight nil   ; line 32 で built-in として登録済みのため straight 管理不要
   :hook (org-mode . visual-line-mode)
   :custom
   (org-directory "~/org/")
@@ -390,7 +382,6 @@
               ("C-c l f" . eglot-format-buffer)     ; フォーマット
               ("M-."     . xref-find-definitions)   ; 定義へジャンプ
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
-
 ;;; ============================================================
 ;;; 言語モード
 ;;; ============================================================
@@ -585,13 +576,57 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;;; 自作関数
 ;;; ============================================================
 
+(defun my/browse-url (url &rest args)
+  "URLを開く。GUIかつ xwidget が使える場合は xwidget-webkit を使い、
+そうでなければ browse-url-default-browser へフォールバックする。"
+  (if (and (display-graphic-p)
+           (featurep 'xwidget-internal))
+      (xwidget-webkit-browse-url url)
+    (apply #'browse-url-default-browser url args)))
+
 (defun my/post-to-x (text)
   "Intent URL を Emacs 内のWebKitブラウザで開く"
   (interactive
    (list (read-string "Xに投稿: ")))
   (let* ((encoded (url-hexify-string text))
          (url (concat "https://x.com/intent/tweet?text=" encoded)))
-    (browse-url url)))
+    (my/browse-url url)))
+
+;;; ============================================================
+;;; xwwp（xwidget-webkit 拡張）設定
+;;; GUI Emacs かつ xwidget サポート付きでビルドされた場合のみ有効
+;;; https://github.com/canatella/xwwp
+;;; ============================================================
+
+;; ctable: xwwp の依存パッケージ（テーブル描画ライブラリ）
+(use-package ctable
+  :straight (:type git :host github :repo "kiwanami/emacs-ctable"))
+
+(use-package xwwp
+  :straight (:type git :host github :repo "kchanqvq/xwwp" :files ("*.el"))
+  :if (and (display-graphic-p) (featurep 'xwidget-internal))
+
+  :custom
+  ;; browse-url の既定ブラウザを xwidget-webkit に設定（GUIのみ）
+  ;; 理由: TUI環境では xwidget は使えないため、:if ガードと組み合わせる
+  (browse-url-browser-function #'xwidget-webkit-browse-url)
+  ;; リンク選択の補完システム: default = completing-read を使い vertico+orderless と連携する
+  (xwwp-follow-link-completion-system 'default)
+
+  :config
+  ;; xwwp のサブモジュールは autoload されないため明示的に require する
+  (require 'xwwp-follow-link)
+  (require 'xwwp-ace)
+
+  :bind (:map xwidget-webkit-mode-map
+              ;; v : ページ内リンクを補完選択して開く（xwwp の主要機能）
+              ("v"     . xwwp-follow-link)
+              ;; f : ace-jump スタイルでページ内の要素にラベルを表示して選択
+              ("f"     . xwwp-ace-toggle)
+              ;; C-l : DWIM URL 入力（URL・検索ワードを受け付けるラッパー）
+              ("C-l"   . xwwp)
+              ;; C-c C-l : 現在の URL をエコーエリアに表示
+              ("C-c C-l" . xwidget-webkit-current-url)))
 
 ;;; ============================================================
 ;;; よく使うキーバインド
