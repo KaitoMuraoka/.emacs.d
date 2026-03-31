@@ -618,9 +618,16 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   ;; リンク選択の補完システム: default = completing-read を使い vertico+orderless と連携する
   (xwwp-follow-link-completion-system 'default)
 
+  :config
+  ;; xwwp-ace: ace-jump スタイルでページ内のインタラクティブ要素を選択する
+  ;; 理由: xwwp-ace は xwwp のサブモジュールのため明示的に require が必要
+  (require 'xwwp-ace)
+
   :bind (:map xwidget-webkit-mode-map
               ;; v : ページ内リンクを補完選択して開く（xwwp の主要機能）
               ("v"     . xwwp-follow-link)
+              ;; f : ace-jump スタイルでページ内の要素にラベルを表示して選択
+              ("f"     . xwwp-ace-toggle)
               ;; C-l : DWIM URL 入力（URL・検索ワードを受け付けるラッパー）
               ("C-l"   . xwwp)
               ;; C-c C-l : 現在の URL をエコーエリアに表示
