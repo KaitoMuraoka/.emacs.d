@@ -608,7 +608,7 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;;; ============================================================
 
 (use-package xwwp
-  :straight (:type git :host github :repo "canatella/xwwp")
+  :straight (:type git :host github :repo "kchanqvq/xwwp")
   :if (and (display-graphic-p) (featurep 'xwidget-internal))
 
   :custom
