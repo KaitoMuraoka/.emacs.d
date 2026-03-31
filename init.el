@@ -610,8 +610,8 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   (xwwp-follow-link-completion-system 'default)
 
   :config
-  ;; xwwp-ace: ace-jump スタイルでページ内のインタラクティブ要素を選択する
-  ;; 理由: xwwp-ace は xwwp のサブモジュールのため明示的に require が必要
+  ;; xwwp のサブモジュールは autoload されないため明示的に require する
+  (require 'xwwp-follow-link)
   (require 'xwwp-ace)
 
   :bind (:map xwidget-webkit-mode-map
