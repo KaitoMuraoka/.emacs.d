@@ -261,6 +261,18 @@
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
+
+;; todo.org の第1レベル見出し（プロジェクト）を選択、なければ末尾に作成
+(defun my/org-goto-or-create-project ()
+  (let* ((projects (with-current-buffer (find-file-noselect "~/org/todo.org")
+                     (org-map-entries #'org-get-heading "LEVEL=1")))
+         (project (completing-read "プロジェクト: " projects nil nil)))
+    (goto-char (point-min))
+    (unless (re-search-forward (format "^\\* %s$" (regexp-quote project)) nil t)
+      (goto-char (point-max))
+      (insert (format "\n* %s\n" project)))
+    (org-end-of-subtree t)))
+
 (use-package org
   :hook (org-mode . visual-line-mode)
   :custom
@@ -280,7 +292,7 @@
       "* %<%H:%M> %?\n"
       :empty-lines 1)
      ("t" "TODO追加" entry
-      (file+headline "~/org/todo.org" "TODO")
+      (file+function "~/org/todo.org" my/org-goto-or-create-project)
       "** TODO %?\n  DEADLINE: %^{期限}t\n  %i\n"
       :empty-lines 1)
      ("m" "ミーティングメモ" entry
