@@ -217,6 +217,8 @@
   (claude-code-ide-window-side 'right)
   ;; ediff を使ったファイル差分表示を有効化
   (claude-code-ide-use-ide-diff t)
+  ;; ターミナルのちらつき・表示崩れを防ぐ（CLAUDE_CODE_NO_FLICKER=1）
+  (claude-code-ide-no-flicker t)
 
   :bind
   ;; C-c C-' : コマンドメニューを開く（transient）
