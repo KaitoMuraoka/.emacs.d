@@ -204,30 +204,6 @@
                 (set-char-table-range char-width-table range 1)))))
 
 ;;; ============================================================
-;;; kuro（Rust バックエンドのターミナルエミュレータ）
-;;; ============================================================
-
-(use-package kuro
-  :straight (:type git :host github :repo "takeokunn/kuro"
-             :files ("emacs-lisp/*.el")
-             :pre-build (("make" "build") ("make" "install")))
-  ;; kuro-create の autoload は kuro-lifecycle.el のみをロードするが、
-  ;; kuro--ensure-module-loaded は kuro-module.el にあり kuro.el 経由でしか require されない。
-  ;; :demand t で起動時に kuro.el ごとロードして依存を解決する。
-  :demand t
-
-  :hook
-  ;; kuro バッファの表示をターミナルに近づける
-  ;; 理由: 行番号・ハイライトがあるとターミナル表示が崩れるため無効化
-  (kuro-mode . (lambda ()
-                 (display-line-numbers-mode -1)
-                 (hl-line-mode -1)))
-
-  :bind
-  ;; C-c v k : 新しい kuro ターミナルを開く
-  ("C-c v k" . kuro-create))
-
-;;; ============================================================
 ;;; claude-code-ide
 ;;; ============================================================
 
