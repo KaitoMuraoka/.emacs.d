@@ -413,6 +413,31 @@
 
 
 ;;; ============================================================
+;;; markdown-mode
+;;; ============================================================
+(use-package markdown-mode
+  :mode (("\\.md\\'"       . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)
+         ("README\\.md\\'" . gfm-mode))
+
+  :hook
+  ;; # や * などのマークアップ記号をデフォルトで非表示にする
+  (markdown-mode . markdown-toggle-markup-hiding)
+
+  :custom
+  ;; コードブロックの言語別フォントロックを有効化
+  (markdown-fontify-code-blocks-natively t)
+
+  :custom-face
+  ;; 見出しレベルごとのフォントサイズ・色（modus-vivendi 配色）
+  (markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.6 :weight bold :foreground "#79a8ff"))))
+  (markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.4 :weight bold :foreground "#f78fe7"))))
+  (markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.2 :weight bold :foreground "#00d3d0"))))
+  (markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.1 :weight bold :foreground "#fba849"))))
+  (markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.05 :weight bold :foreground "#b6a0ff"))))
+  (markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :weight bold :foreground "#9ac8e0")))))
+
+;;; ============================================================
 ;;; Git サポート
 ;;; ============================================================
 
