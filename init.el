@@ -235,6 +235,18 @@
   (claude-code-ide-emacs-tools-setup))
 
 ;;; ============================================================
+;;; agent-shell
+;;; ============================================================
+(use-package agent-shell
+  :ensure t
+  :ensure-system-package
+  ((claude . "brew install claude-code")
+   (claude-agent-acp . "npm install -g @zed-industries/claude-agent-acp"))
+  :config
+  (setq agent-shell-anthropic-authentication
+        (agent-shell-anthropic-make-authentication :login t)))
+
+;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
 (use-package org
