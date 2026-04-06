@@ -249,6 +249,30 @@
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
+
+;; DONE/CANCEL タスクの表示・非表示トグル
+(defvar-local my/org-hide-done-p nil)
+
+(defun my/org-toggle-hide-done ()
+  "DONE/CANCEL タスクの表示・非表示を切り替える"
+  (interactive)
+  (setq my/org-hide-done-p (not my/org-hide-done-p))
+  (if my/org-hide-done-p
+      (org-match-sparse-tree nil "TODO={TODO\\|DOING}")
+    (org-show-all))
+  (message "DONE タスク: %s" (if my/org-hide-done-p "非表示" "表示")))
+
+;; todo.org の第1レベル見出し（プロジェクト）を選択、なければ末尾に作成
+(defun my/org-goto-or-create-project ()
+  (let* ((projects (with-current-buffer (find-file-noselect "~/org/todo.org")
+                     (org-map-entries #'org-get-heading "LEVEL=1")))
+         (project (completing-read "プロジェクト: " projects nil nil)))
+    (goto-char (point-min))
+    (unless (re-search-forward (format "^\\* %s$" (regexp-quote project)) nil t)
+      (goto-char (point-max))
+      (insert (format "\n* %s\n" project)))
+    (org-end-of-subtree t)))
+
 (use-package org
   :hook (org-mode . visual-line-mode)
   :custom
@@ -268,7 +292,7 @@
       "* %<%H:%M> %?\n"
       :empty-lines 1)
      ("t" "TODO追加" entry
-      (file+headline "~/org/todo.org" "TODO")
+      (file+function "~/org/todo.org" my/org-goto-or-create-project)
       "** TODO %?\n  DEADLINE: %^{期限}t\n  %i\n"
       :empty-lines 1)
      ("m" "ミーティングメモ" entry
@@ -278,7 +302,9 @@
 
   :bind
   (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)))
+   ("C-c c" . org-capture)
+   :map org-mode-map
+   ("C-c h" . my/org-toggle-hide-done)))
 ;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
