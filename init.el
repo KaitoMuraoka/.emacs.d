@@ -250,35 +250,46 @@
 ;;; org-mode
 ;;; ============================================================
 (use-package org
+  :init
+  (setq org-directory "~/org"
+        org-daily-tasks-file (expand-file-name "tasks.org" org-directory))
+
   :hook (org-mode . visual-line-mode)
+
   :custom
-  (org-directory "~/org/")
-  (org-agenda-files '("~/org/todo.org" "~/org/diary.org"))
+  (org-agenda-files (list (expand-file-name "tasks.org" org-directory)))
   (org-todo-keywords
    '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCEL(c)")))
   (org-startup-indented t)
   (org-hide-leading-stars t)
-  (org-startup-folded 'content)
+  (org-startup-folded 'overview)
   (org-enforce-todo-checkbox-dependencies nil)
-
-  ;; org-capture テンプレートもここに移動
+  ;; clock の記録を Emacs セッションをまたいで永続化する
+  (org-clock-persist t)
   (org-capture-templates
-   '(("d" "今日の日記" entry
-      (file+olp+datetree "~/org/diary.org")
-      "* %<%H:%M> %?\n"
-      :empty-lines 1)
-     ("t" "TODO追加" entry
-      (file+headline "~/org/todo.org" "TODO")
-      "** TODO %?\n  DEADLINE: %^{期限}t\n  %i\n"
-      :empty-lines 1)
-     ("m" "ミーティングメモ" entry
-      (file+olp+datetree "~/org/diary.org")
-      "* MTG: %^{タイトル}\n** 参加者: %?\n** 内容:\n** アクション:\n"
-      :empty-lines 1)))
+   '(("d" "Weekdays TODO" entry
+      (file "~/org/tasks.org")
+      "%[~/.emacs.d/assets/org-templates/weekdays-todo.org]"
+      :prepend t)
+     ("w" "Weekends TODO" entry
+      (file "~/org/tasks.org")
+      "%[~/.emacs.d/assets/org-templates/weekends-todo.org]"
+      :prepend t)))
+
+  :config
+  ;; clock の永続化を有効化
+  (org-clock-persistence-insinuate)
 
   :bind
   (("C-c a" . org-agenda)
    ("C-c c" . org-capture)))
+
+(use-package org-modern
+  :custom
+  (org-modern-progress '("○" "◔" "◑" "◕" "✅"))
+  :hook
+  ((org-mode          . org-modern-mode)
+   (org-agenda-finalize . org-modern-agenda)))
 ;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
