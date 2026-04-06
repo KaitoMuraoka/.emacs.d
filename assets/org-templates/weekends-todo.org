@@ -1,0 +1,13 @@
+* TRY %(format-time-string "%Y/%m/%d (\\%a)" (org-read-date nil t "Sun")) - %(format-time-string "%Y/%m/%d (\\%a)" (org-read-date nil t "Sat"))
+
+* %(format-time-string "%Y/%m/%d (\\%a)" (org-read-date nil t "Sun")) [/]
+
+** TODO KPT
+
+** TODO
+
+* %<%Y/%m/%d (%a)> [/]
+
+** TODO 毎朝の家事を済ませる
+
+** TODO
