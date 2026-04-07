@@ -31,6 +31,23 @@
 ;;       存在しないケースがあり :pre-build エラーで init.el がアボートするため
 (straight-use-package '(org :type built-in))
 
+;; project を組み込みとして扱う
+;; 理由: 依存パッケージ経由で straight が外部版をビルドすると
+;;       "Feature 'project' is now provided by a different file" エラーが発生するため
+(straight-use-package '(project :type built-in))
+
+;; flymake を組み込みとして扱う
+;; 理由: 同上。外部版との競合で起動エラーになるため
+(straight-use-package '(flymake :type built-in))
+
+;; Emacs 29 以降で組み込みになったパッケージを built-in として宣言する
+;; 理由: 依存パッケージが外部版を引き込み、起動時に
+;;       "Feature 'X' is now provided by a different file" エラーが連鎖するため
+;; transient は agent-shell が新しい API（transient--set-layout 等）を使うため
+;; built-in ではなく straight で外部版を管理する
+(dolist (pkg '(xref eldoc seq eglot jsonrpc use-package))
+  (straight-use-package `(,pkg :type built-in)))
+
 ;;; ============================================================
 ;; パッケージマネージャーの設定
 ;;; ============================================================
