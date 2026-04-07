@@ -171,14 +171,8 @@
 ;; GUI の外観
 (load-theme 'modus-vivendi t)
 
-;; コンソール時だけ背景を透明（ターミナルの背景をそのまま使う）
+;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
-  (set-face-background 'default "unspecified-bg")
-  ;; 行番号の背景をターミナル背景に合わせて透明にする
-  ;; 理由: TUIでは行番号エリアにテーマの背景色が残り浮いて見えるため
-  (set-face-background 'line-number "unspecified-bg")
-  (set-face-background 'line-number-current-line "unspecified-bg")
-  ;; TUI時はターミナルのマウスイベントを受け取る
   (xterm-mouse-mode 1))
 
 ;;; ============================================================
