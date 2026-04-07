@@ -64,8 +64,10 @@
 ;; exec-path-from-shell でシェル環境を読み込む
 ;; gopls など go/bin に置かれるツールを認識させるために必要
 (use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
   :config
+  ;; GUI/TUI を問わず実行する
+  ;; 理由: macOS は /etc/zprofile 経由で PATH を組み立てるため、
+  ;;       起動方法によらずシェルから正しい PATH を取得する必要がある
   (exec-path-from-shell-initialize))
 
 ;;; ============================================================
@@ -190,6 +192,8 @@
   :custom
   ;; ターミナル名（xterm-256color 互換）
   (eat-term-name "xterm-256color")
+  ;; ログインシェルで起動する（vterm と同様の理由）
+  (eat-shell (concat shell-file-name " -l"))
 
   :hook
   ;; eshell 内で eat を使う場合のシェル統合
@@ -609,6 +613,10 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   (vterm-kill-buffer-on-exit t)
   ;; コピーモード時に C-c C-c でターミナルに戻る
   (vterm-copy-exclude-prompt t)
+  ;; ログインシェルで起動する
+  ;; 理由: Terminal.app と同様に ~/.zprofile を読み込み
+  ;;       Homebrew 等の PATH を引き継ぐため
+  (vterm-shell (concat shell-file-name " -l"))
 
   :config
   ;; vterm バッファでは行番号・hl-line を無効化
