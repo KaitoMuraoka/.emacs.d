@@ -94,7 +94,7 @@
 (set-language-environment "Japanese")
 (prefer-coding-system 'utf-8)
 ;; スタートアップ画面を表示しない
-(setq inhibit-startup-screen t)
+;;(setq inhibit-startup-screen t)
 
 ;; エラー音を無効化（視覚的なフラッシュも無効）
 (setq ring-bell-function 'ignore)
