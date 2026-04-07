@@ -741,7 +741,7 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
 ;;       直感的な操作に合わせる
 ;; ヘルプは C-? で引き続き使用可能
-(global-set-key (kbd "C-h") 'delete-backward-char)
+(global-set-key "\C-h" 'delete-backward-char)
 (global-set-key (kbd "C-?") 'help-command)
 
 (custom-set-variables
