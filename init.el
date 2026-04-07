@@ -31,6 +31,23 @@
 ;;       存在しないケースがあり :pre-build エラーで init.el がアボートするため
 (straight-use-package '(org :type built-in))
 
+;; project を組み込みとして扱う
+;; 理由: 依存パッケージ経由で straight が外部版をビルドすると
+;;       "Feature 'project' is now provided by a different file" エラーが発生するため
+(straight-use-package '(project :type built-in))
+
+;; flymake を組み込みとして扱う
+;; 理由: 同上。外部版との競合で起動エラーになるため
+(straight-use-package '(flymake :type built-in))
+
+;; Emacs 29 以降で組み込みになったパッケージを built-in として宣言する
+;; 理由: 依存パッケージが外部版を引き込み、起動時に
+;;       "Feature 'X' is now provided by a different file" エラーが連鎖するため
+;; transient は agent-shell が新しい API（transient--set-layout 等）を使うため
+;; built-in ではなく straight で外部版を管理する
+(dolist (pkg '(xref eldoc seq eglot jsonrpc use-package))
+  (straight-use-package `(,pkg :type built-in)))
+
 ;;; ============================================================
 ;; パッケージマネージャーの設定
 ;;; ============================================================
@@ -47,8 +64,10 @@
 ;; exec-path-from-shell でシェル環境を読み込む
 ;; gopls など go/bin に置かれるツールを認識させるために必要
 (use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
   :config
+  ;; GUI/TUI を問わず実行する
+  ;; 理由: macOS は /etc/zprofile 経由で PATH を組み立てるため、
+  ;;       起動方法によらずシェルから正しい PATH を取得する必要がある
   (exec-path-from-shell-initialize))
 
 ;;; ============================================================
@@ -173,6 +192,8 @@
   :custom
   ;; ターミナル名（xterm-256color 互換）
   (eat-term-name "xterm-256color")
+  ;; ログインシェルで起動する（vterm と同様の理由）
+  (eat-shell (concat shell-file-name " -l"))
 
   :hook
   ;; eshell 内で eat を使う場合のシェル統合
@@ -575,10 +596,61 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;;; eat ターミナル キーバインド
 ;;; ============================================================
 
-;; C-c v t : 新しい eat ターミナルを開く
-(global-set-key (kbd "C-c v t") #'eat)
+;; C-c v e : 新しい eat ターミナルを開く
+(global-set-key (kbd "C-c v e") #'eat)
 ;; C-c v o : 別ウィンドウで eat を開く
 (global-set-key (kbd "C-c v o") #'eat-other-window)
+
+;;; ============================================================
+;;; vterm
+;;; ============================================================
+
+(use-package vterm
+  :custom
+  ;; スクロールバッファの最大行数
+  (vterm-max-scrollback 10000)
+  ;; プロセス終了時にバッファを自動で閉じる
+  (vterm-kill-buffer-on-exit t)
+  ;; コピーモード時に C-c C-c でターミナルに戻る
+  (vterm-copy-exclude-prompt t)
+  ;; ログインシェルで起動する
+  ;; 理由: Terminal.app と同様に ~/.zprofile を読み込み
+  ;;       Homebrew 等の PATH を引き継ぐため
+  (vterm-shell (concat shell-file-name " -l"))
+
+  :config
+  ;; vterm バッファでは行番号・hl-line を無効化
+  (add-hook 'vterm-mode-hook
+            (lambda ()
+              (display-line-numbers-mode -1)
+              (hl-line-mode -1)))
+
+  :bind
+  ;; C-c v t : vterm を開く
+  ("C-c v t" . vterm))
+
+(use-package vterm-toggle
+  :after vterm
+  :custom
+  ;; vterm ウィンドウを下部に表示
+  (vterm-toggle-fullscreen-p nil)
+  (vterm-toggle-scope 'project)
+
+  :config
+  (add-to-list 'display-buffer-alist
+               '((lambda (buf _)
+                   (with-current-buffer buf (eq major-mode 'vterm-mode)))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (reusable-frames . visible)
+                 (window-height . 0.3)))
+
+  :bind
+  ;; C-c v v : vterm をトグル（下部に表示）
+  ("C-c v v" . vterm-toggle)
+  ;; C-c v f : 次の vterm バッファへ切り替え
+  ("C-c v f" . vterm-toggle-forward)
+  ;; C-c v b : 前の vterm バッファへ切り替え
+  ("C-c v b" . vterm-toggle-backward))
 
  ;;; ============================================================
 ;;; プロジェクト管理
