@@ -419,6 +419,8 @@
    (go-ts-mode       . eglot-ensure)
    (python-mode      . eglot-ensure)
    (python-ts-mode   . eglot-ensure)
+   (c++-mode         . eglot-ensure)
+   (c++-ts-mode      . eglot-ensure)
    (emacs-lisp-mode  . eglot-ensure))
 
   :config
@@ -442,6 +444,10 @@
   ;; インストール: pip install jedi-language-server
   (add-to-list 'eglot-server-programs
                '((python-mode python-ts-mode) . ("jedi-language-server")))
+
+  ;; C++: clangd を使用（Xcode Command Line Tools に同梱、追加インストール不要）
+  (add-to-list 'eglot-server-programs
+               '((c++-mode c++-ts-mode c-mode c-ts-mode) . ("clangd")))
 
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
@@ -473,6 +479,11 @@
 (use-package typescript-mode
   :mode ("\\.ts\\'" . typescript-mode)
   :mode ("\\.tsx\\'" . tsx-ts-mode))
+
+;; C++ サポート（競技プログラミング用）
+;; c++-mode は Emacs 組み込み、treesit-auto で c++-ts-mode にリマップされる
+;; clangd が補完・定義ジャンプ・エラー表示を提供
+;; 事前に必要: clangd（macOS は Xcode Command Line Tools に同梱）
 
 ;; Go サポート
 ;; treesit-auto により go-ts-mode に自動リマップされる
