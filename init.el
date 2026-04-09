@@ -327,6 +327,10 @@
      ("w" "Weekends TODO" entry
       (file "~/org/tasks.org")
       "%[~/.emacs.d/assets/org-templates/weekends-todo.org]"
+      :prepend t)
+     ("t" "TIL (Today I Learned)" entry
+      (file+olp+datetree "~/org/til.org")
+      "%[~/.emacs.d/assets/org-templates/til.org]"
       :prepend t)))
 
   :config
