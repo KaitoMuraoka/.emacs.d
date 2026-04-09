@@ -418,8 +418,7 @@
    (go-mode          . eglot-ensure)
    (go-ts-mode       . eglot-ensure)
    (python-mode      . eglot-ensure)
-   (python-ts-mode   . eglot-ensure)
-   (emacs-lisp-mode  . eglot-ensure))
+   (python-ts-mode   . eglot-ensure))
 
   :config
   ;; Swift: sourcekit-lsp を使用
@@ -449,10 +448,6 @@
                '(eglot (styles orderless basic)))
   (add-to-list 'completion-category-overrides
                '(eglot-capf (styles orderless basic)))
-
-  ;; ELisp: Emacs 自体が LSP 的な機能を持つため
-  ;; eglot-ensure を hook するだけで eldoc などが働く
-  ;; (追加のサーバー設定は不要)
 
   :bind (:map eglot-mode-map
               ("C-c l r" . eglot-rename)           ; シンボルのリネーム
@@ -537,7 +532,7 @@
 (use-package git-gutter
   :hook (prog-mode . git-gutter-mode) ; プログラム用モードでのみ有効化
   :config
-  (setq git-gutter:update-interval 0.5) ; 0.5秒ごとに差分を更新
+  (setq git-gutter:update-interval 2) ; 2秒ごとに差分を更新
 
   ;; 記号のカスタマイズ（デフォルトでも動くが視認性を上げる）
   (setq git-gutter:added-sign    "+")
