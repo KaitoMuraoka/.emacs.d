@@ -7,4 +7,5 @@
 ;; 起動時のフレームパラメータを事前設定することで
 ;; UIのちらつきを防ぐ
 (setq default-frame-alist
-      '((menu-bar-lines . 0)))        ; メニューバー非表示
+      '((menu-bar-lines . 0)          ; メニューバー非表示
+        (fullscreen . fullheight)))    ; 高さを画面いっぱいに
