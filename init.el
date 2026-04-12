@@ -169,7 +169,14 @@
 (set-face-attribute 'default nil :height 140)
 
 ;; GUI の外観
-(load-theme 'modus-vivendi t)
+;;(load-theme 'modus-vivendi t)
+(use-package ember-theme
+  :straight (:host github :repo "ember-theme/emacs")
+  :init
+  (add-to-list 'custom-theme-load-path
+               (expand-file-name "straight/repos/emacs" user-emacs-directory))
+  :config
+  (load-theme 'ember t))
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
