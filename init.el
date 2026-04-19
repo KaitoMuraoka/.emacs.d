@@ -48,6 +48,10 @@
 (dolist (pkg '(xref eldoc seq eglot jsonrpc use-package))
   (straight-use-package `(,pkg :type built-in)))
 
+
+(dolist (path (list
+               (expand-file-name "modules" user-emacs-directory)))
+  (add-to-list 'load-path path))
 ;;; ============================================================
 ;; パッケージマネージャーの設定
 ;;; ============================================================
@@ -175,130 +179,9 @@
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
 
-;;; ============================================================
-;;; eat（Emulate A Terminal）
-;;; ============================================================
 
-(use-package eat
-  :straight (:type git :host codeberg :repo "akib/emacs-eat"
-             :files ("*.el" ("term" "term/*.ti") "integration"))
-
-  :custom
-  ;; ターミナル名（xterm-256color 互換）
-  (eat-term-name "xterm-256color")
-  ;; ログインシェルで起動する（vterm と同様の理由）
-  (eat-shell (concat shell-file-name " -l"))
-
-  :hook
-  ;; eshell 内で eat を使う場合のシェル統合
-  (eshell-load . eat-eshell-mode)
-
-  :config
-  ;; global-display-line-numbers-mode の内部 turn-on 関数をアドバイス
-  ;; hook の実行順序に依存せず、eat バッファへの有効化を根本から阻止する
-  (with-eval-after-load 'display-line-numbers
-    (advice-add 'display-line-numbers--turn-on :around
-                (lambda (orig-fn)
-                  (unless (derived-mode-p 'eat-mode)
-                    (funcall orig-fn)))))
-
-  ;; eat バッファの表示をターミナルに近づける
-  (add-hook 'eat-mode-hook
-            (lambda ()
-              (display-line-numbers-mode -1) ; 行番号を無効化
-              (hl-line-mode -1)              ; カーソル行ハイライトを無効化
-              (setq-local cursor-in-non-selected-windows nil)
-              ;; 日本語環境では曖昧幅文字が全角扱いになり TUI レイアウトが崩れるため
-              ;; 罫線・記号・Nerd Font の Private Use Area を半角幅に固定する
-              (dolist (range '((#x2500 . #x257F)   ; Box Drawing
-                               (#x2580 . #x259F)   ; Block Elements
-                               (#x25A0 . #x25FF)   ; Geometric Shapes
-                               (#x2600 . #x26FF)   ; Miscellaneous Symbols
-                               (#x2700 . #x27BF)   ; Dingbats
-                               (#xE000 . #xF8FF))) ; Private Use Area (Nerd Fonts)
-                (set-char-table-range char-width-table range 1)))))
-
-;;; ============================================================
-;;; claude-code-ide
-;;; ============================================================
-
-(use-package claude-code-ide
-  :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
-
-  :custom
-  ;; ターミナルバックエンド: vterm
-  (claude-code-ide-terminal-backend 'vterm)
-  ;; Claude ウィンドウを右側に表示（'right / 'left / 'bottom / 'top）
-  (claude-code-ide-window-side 'right)
-  ;; ediff を使ったファイル差分表示を有効化
-  (claude-code-ide-use-ide-diff t)
-
-  :bind
-  ;; C-c C-' : コマンドメニューを開く（transient）
-  ("C-c C-'" . claude-code-ide-menu)
-  ;; C-c A s : 現在のプロジェクトで Claude を起動
-  ("C-c A s" . claude-code-ide)
-  ;; C-c A c : 直近の会話を続ける
-  ("C-c A c" . claude-code-ide-continue)
-  ;; C-c A r : 過去の会話を選んで再開
-  ("C-c A r" . claude-code-ide-resume)
-  ;; C-c A b : Claude バッファへ切り替え
-  ("C-c A b" . claude-code-ide-switch-to-buffer)
-
-  :config
-  ;; Emacs の xref・project などのツールを Claude から利用可能にする
-  (claude-code-ide-emacs-tools-setup))
-
-;;; ============================================================
-;;; agent-shell
-;;; ============================================================
-(use-package agent-shell
-  :ensure t
-  :ensure-system-package
-  ((claude . "brew install claude-code")
-   (claude-agent-acp . "npm install -g @zed-industries/claude-agent-acp"))
-  :config
-  (setq agent-shell-anthropic-authentication
-        (agent-shell-anthropic-make-authentication :login t))
-
-  ;; agent-shell--start が呼ばれた瞬間のバッファの dir を保存する
-  ;; 理由: start 内で default-directory が書き換わる前に正しいディレクトリを確保するため
-  (defvar my/agent-shell--invoked-dir nil)
-
-  (advice-add 'agent-shell--start :before
-              (lambda (&rest _)
-                (setq my/agent-shell--invoked-dir default-directory)))
-
-  ;; Claude Code と同じパスエンコード: / と . を - に変換
-  ;; 例: /Users/foo/.bar → -Users-foo--bar
-  (defun my/agent-shell--encode-path (path)
-    (replace-regexp-in-string "[/.]" "-" (directory-file-name path)))
-
-  ;; 正しいプロジェクトルートをキャプチャ済みの dir から解決する
-  (setq agent-shell-cwd-function
-        (lambda ()
-          (let* ((dir (or my/agent-shell--invoked-dir default-directory))
-                 (proj (let ((default-directory dir))
-                         (when-let ((p (project-current nil)))
-                           (project-root p)))))
-            (or proj dir))))
-
-  ;; 保存先を ~/.claude/projects/{encoded}/agent-shell/{subdir} に変更
-  ;; 理由: Claude Code と同じディレクトリ構造に合わせる
-  (setq agent-shell-dot-subdir-function
-        (lambda (subdir)
-          (let* ((dir (or my/agent-shell--invoked-dir default-directory))
-                 (proj (let ((default-directory dir))
-                         (when-let ((p (project-current nil)))
-                           (project-root p))))
-                 (base (or proj dir))
-                 (encoded (my/agent-shell--encode-path base))
-                 (dest (expand-file-name
-                        (file-name-concat "projects" encoded "agent-shell" subdir)
-                        "~/.claude")))
-            (make-directory dest t)
-            dest))))
-
+(require 'agent-shell)
+(require 'original-keybind.el)
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
@@ -627,14 +510,6 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   (transient-append-suffix 'magit-commit "A"
     '("D" "AI commit (detail)"    my/ai-commit-detail)))
 
-
-;;; ============================================================
-;;; magit-gh
-;;; ============================================================
-(use-package magit-gh
-  :ensure t
-  :after magit)
-
 ;;; ============================================================
 ;;; which-key
 ;;; ============================================================
@@ -647,66 +522,6 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
   (setq which-key-side-window-location 'bottom) ; 'top 'left 'right も選べる
 
   (which-key-mode))
-
-;;; ============================================================
-;;; eat ターミナル キーバインド
-;;; ============================================================
-
-;; C-c v e : 新しい eat ターミナルを開く
-(global-set-key (kbd "C-c v e") #'eat)
-;; C-c v o : 別ウィンドウで eat を開く
-(global-set-key (kbd "C-c v o") #'eat-other-window)
-
-;;; ============================================================
-;;; vterm
-;;; ============================================================
-
-(use-package vterm
-  :custom
-  ;; スクロールバッファの最大行数
-  (vterm-max-scrollback 10000)
-  ;; プロセス終了時にバッファを自動で閉じる
-  (vterm-kill-buffer-on-exit t)
-  ;; コピーモード時に C-c C-c でターミナルに戻る
-  (vterm-copy-exclude-prompt t)
-  ;; ログインシェルで起動する
-  ;; 理由: Terminal.app と同様に ~/.zprofile を読み込み
-  ;;       Homebrew 等の PATH を引き継ぐため
-  (vterm-shell (concat shell-file-name " -l"))
-
-  :config
-  ;; vterm バッファでは行番号・hl-line を無効化
-  (add-hook 'vterm-mode-hook
-            (lambda ()
-              (display-line-numbers-mode -1)
-              (hl-line-mode -1)))
-
-  :bind
-  ;; C-c v t : vterm を開く
-  ("C-c v t" . vterm))
-
-(use-package vterm-toggle
-  :after vterm
-  :custom
-  ;; vterm ウィンドウを下部に表示
-  (vterm-toggle-fullscreen-p nil)
-  (vterm-toggle-scope 'project)
-
-  :config
-  (add-to-list 'display-buffer-alist
-               '((lambda (buf _)
-                   (with-current-buffer buf (eq major-mode 'vterm-mode)))
-                 (display-buffer-reuse-window display-buffer-at-bottom)
-                 (reusable-frames . visible)
-                 (window-height . 0.3)))
-
-  :bind
-  ;; C-c v v : vterm をトグル（下部に表示）
-  ("C-c v v" . vterm-toggle)
-  ;; C-c v f : 次の vterm バッファへ切り替え
-  ("C-c v f" . vterm-toggle-forward)
-  ;; C-c v b : 前の vterm バッファへ切り替え
-  ("C-c v b" . vterm-toggle-backward))
 
  ;;; ============================================================
 ;;; プロジェクト管理
@@ -738,29 +553,7 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
          (url (concat "https://x.com/intent/tweet?text=" encoded)))
     (browse-url url)))
 
-;;; ============================================================
-;;; よく使うキーバインド
-;;; ============================================================
 
-;; バッファの切り替えを便利に
-(global-set-key (kbd "C-c b") #'switch-to-buffer)
-
-;; ウィンドウ移動
-(global-set-key (kbd "M-o") #'other-window)
-
-;; macOS: Cmd+V でペースト
-(global-set-key (kbd "s-v") #'yank)
-
-;; IME切り替えとMarkのキーバインドをEmacsデフォルトに戻す
-(global-set-key (kbd "C-SPC")  #'toggle-input-method)
-(global-set-key (kbd "C-\\") #'set-mark-command)
-
-;; C-h を削除キー（バックスペース相当）に変更する
-;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
-;;       直感的な操作に合わせる
-;; ヘルプは C-? で引き続き使用可能
-(global-set-key "\C-h" 'delete-backward-char)
-(global-set-key (kbd "C-?") 'help-command)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
