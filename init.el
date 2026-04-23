@@ -123,7 +123,7 @@
 (global-hl-line-mode 1)
 
 ;; 行番号を表示（絶対行番号）
-(setq display-line-numbers-type 'visual)
+(setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
@@ -583,14 +583,6 @@
 ;; プロジェクト内のファイル検索などができる
 (global-set-key (kbd "C-c p f") #'project-find-file)
 (global-set-key (kbd "C-c p b") #'project-switch-to-buffer)
-
-
-;;; ============================================================
-;;; 行の折り返し
-;;; ============================================================
-
-;; 全バッファで行の折り返しを有効化
-(global-visual-line-mode 1)
 
 ;;; ============================================================
 ;;; 自作関数
