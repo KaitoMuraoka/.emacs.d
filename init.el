@@ -300,54 +300,6 @@
             dest))))
 
 ;;; ============================================================
-;;; org-mode
-;;; ============================================================
-(use-package org
-  :init
-  (setq org-directory "~/org"
-        org-daily-tasks-file (expand-file-name "tasks.org" org-directory))
-
-  :hook (org-mode . visual-line-mode)
-
-  :custom
-  (org-agenda-files (list (expand-file-name "tasks.org" org-directory)))
-  (org-todo-keywords
-   '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCEL(c)")))
-  (org-startup-indented t)
-  (org-hide-leading-stars t)
-  (org-startup-folded 'overview)
-  (org-enforce-todo-checkbox-dependencies nil)
-  ;; clock の記録を Emacs セッションをまたいで永続化する
-  (org-clock-persist t)
-  (org-capture-templates
-   '(("d" "Weekdays TODO" entry
-      (file "~/org/tasks.org")
-      "%[~/.emacs.d/assets/org-templates/weekdays-todo.org]"
-      :prepend t)
-     ("w" "Weekends TODO" entry
-      (file "~/org/tasks.org")
-      "%[~/.emacs.d/assets/org-templates/weekends-todo.org]"
-      :prepend t)
-     ("t" "TIL (Today I Learned)" entry
-      (file+olp+datetree "~/org/til.org")
-      "%[~/.emacs.d/assets/org-templates/til.org]"
-      :prepend t)))
-
-  :config
-  ;; clock の永続化を有効化
-  (org-clock-persistence-insinuate)
-
-  :bind
-  (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)))
-
-(use-package org-modern
-  :custom
-  (org-modern-progress '("○" "◔" "◑" "◕" "✅"))
-  :hook
-  ((org-mode          . org-modern-mode)
-   (org-agenda-finalize . org-modern-agenda)))
-;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
 
