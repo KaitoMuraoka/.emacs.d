@@ -123,7 +123,7 @@
 (global-hl-line-mode 1)
 
 ;; 行番号を表示（絶対行番号）
-(setq display-line-numbers-type 'visual)
+(setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
@@ -299,54 +299,6 @@
             (make-directory dest t)
             dest))))
 
-;;; ============================================================
-;;; org-mode
-;;; ============================================================
-(use-package org
-  :init
-  (setq org-directory "~/org"
-        org-daily-tasks-file (expand-file-name "tasks.org" org-directory))
-
-  :hook (org-mode . visual-line-mode)
-
-  :custom
-  (org-agenda-files (list (expand-file-name "tasks.org" org-directory)))
-  (org-todo-keywords
-   '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCEL(c)")))
-  (org-startup-indented t)
-  (org-hide-leading-stars t)
-  (org-startup-folded 'overview)
-  (org-enforce-todo-checkbox-dependencies nil)
-  ;; clock の記録を Emacs セッションをまたいで永続化する
-  (org-clock-persist t)
-  (org-capture-templates
-   '(("d" "Weekdays TODO" entry
-      (file "~/org/tasks.org")
-      "%[~/.emacs.d/assets/org-templates/weekdays-todo.org]"
-      :prepend t)
-     ("w" "Weekends TODO" entry
-      (file "~/org/tasks.org")
-      "%[~/.emacs.d/assets/org-templates/weekends-todo.org]"
-      :prepend t)
-     ("t" "TIL (Today I Learned)" entry
-      (file+olp+datetree "~/org/til.org")
-      "%[~/.emacs.d/assets/org-templates/til.org]"
-      :prepend t)))
-
-  :config
-  ;; clock の永続化を有効化
-  (org-clock-persistence-insinuate)
-
-  :bind
-  (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)))
-
-(use-package org-modern
-  :custom
-  (org-modern-progress '("○" "◔" "◑" "◕" "✅"))
-  :hook
-  ((org-mode          . org-modern-mode)
-   (org-agenda-finalize . org-modern-agenda)))
 ;;; ============================================================
 ;;; 補完システム
 ;;; ============================================================
@@ -550,92 +502,6 @@
   ("C-c v s" . git-gutter:stage-hunk))   ; この変更だけをステージング
 
 ;;; ============================================================
-;;; Claude Code CLIでコミットメッセージを生成する
-;;; ============================================================
-(defun my/ai-commit--generate-async (detail callback)
-  "Claude CLI を非同期で呼び出す。
-完了したら CALLBACK を (funcall callback message-string) で呼ぶ。
-DETAIL が non-nil なら詳細形式。"
-  (let* ((prompt
-          (if detail
-              "Generate a Git commit message in Japanese based strictly on the contents of `git diff --cached`. \
-Format it as follows: First line: a concise one-line summary. \
-Then a blank line. \
-Then a detailed bullet-point list explaining what was changed and why. \
-Output ONLY the commit message, no extra explanation."
-              "Generate ONLY a one-line Git commit message in Japanese. \
-The message should summarize what was changed and why, based strictly on the contents of `git diff --cached`. \
-DO NOT add an explanation or a body. Output ONLY the commit summary line."))
-
-         ;; プロセスの出力を受け取るための専用バッファ
-         ;; " " で始まる名前は Emacs の慣習で「内部用の隠しバッファ」を意味する
-         (output-buffer (generate-new-buffer " *ai-commit-output*"))
-
-         ;; sentinel = プロセスの状態が変わったときに呼ばれるコールバック関数
-         ;; proc: プロセスオブジェクト, event: "finished\n" / "exited abnormally..." 等の文字列
-         (sentinel
-          (lambda (proc event)
-            (cond
-             ;; 正常終了した場合のみ処理する
-             ((string-prefix-p "finished" event)
-              (let ((msg (with-current-buffer output-buffer
-                           (string-trim (buffer-string)))))
-                ;; 使い終わったバッファを解放
-                (kill-buffer output-buffer)
-                (if (string-empty-p msg)
-                    (user-error "AI commit: claude returned empty output")
-                  ;; ここで初めて magit を呼ぶ（非同期の「続き」）
-                  (funcall callback msg))))
-
-             ;; 異常終了した場合はエラーメッセージを表示
-             ((string-prefix-p "exited abnormally" event)
-              (kill-buffer output-buffer)
-              (user-error "AI commit: claude failed — %s" event))))))
-
-    (message "🤖 Generating AI commit message...")
-
-    ;; make-process: ノンブロッキングでサブプロセスを起動する
-    ;; start-process と違い、キーワード引数で読みやすく書ける
-    (make-process
-     :name    "ai-commit-claude"      ; プロセスの識別名（*process-list* に表示される）
-     :buffer  output-buffer           ; stdout をここに蓄積する
-     :command (list "claude"
-                    "--no-session-persistence"
-                    "--print"
-                    prompt)
-     :sentinel sentinel)))            ; 終了時に呼ぶ関数
-
-(defun my/ai-commit ()
-  "一行形式のAIコミットメッセージを非同期生成し、Magitのコミット編集バッファを開く。"
-  (interactive)
-  (my/ai-commit--generate-async
-   nil  ; detail = false
-   (lambda (msg)
-     (magit-commit-create (list (concat "--message=" msg) "--edit")))))
-
-(defun my/ai-commit-detail ()
-  "詳細形式のAIコミットメッセージを非同期生成し、Magitのコミット編集バッファを開く。"
-  (interactive)
-  (my/ai-commit--generate-async
-   t    ; detail = true
-   (lambda (msg)
-     (magit-commit-create (list (concat "--message=" msg) "--edit")))))
-
-(with-eval-after-load 'magit-commit
-  (transient-append-suffix 'magit-commit "c"
-    '("A" "AI commit (one-line)"  my/ai-commit))
-  (transient-append-suffix 'magit-commit "A"
-    '("D" "AI commit (detail)"    my/ai-commit-detail)))
-
-
-;;; ============================================================
-;;; magit-gh
-;;; ============================================================
-(use-package magit-gh
-  :ensure t
-  :after magit)
-
-;;; ============================================================
 ;;; which-key
 ;;; ============================================================
 (use-package which-key
@@ -717,14 +583,6 @@ DO NOT add an explanation or a body. Output ONLY the commit summary line."))
 ;; プロジェクト内のファイル検索などができる
 (global-set-key (kbd "C-c p f") #'project-find-file)
 (global-set-key (kbd "C-c p b") #'project-switch-to-buffer)
-
-
-;;; ============================================================
-;;; 行の折り返し
-;;; ============================================================
-
-;; 全バッファで行の折り返しを有効化
-(global-visual-line-mode 1)
 
 ;;; ============================================================
 ;;; 自作関数
