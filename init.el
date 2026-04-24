@@ -106,6 +106,10 @@
 ;; 自動保存ファイル（#file.txt#）も作らない
 (setq auto-save-default nil)
 
+;; ロックファイル（.#file.txt）を作らない
+;; 理由: macOS でロック/アンロック時に "Invalid argument" 警告が出るため
+(setq create-lockfiles nil)
+
 ;; フォーカスが外れたら全ファイルバッファを保存する
 ;; 理由: 他アプリに切り替えた瞬間に変更が保存され、データ損失を防ぐ
 (add-hook 'focus-out-hook
@@ -595,6 +599,31 @@
   (let* ((encoded (url-hexify-string text))
          (url (concat "https://x.com/intent/tweet?text=" encoded)))
     (browse-url url)))
+
+;;; ============================================================
+;;; org-mode
+;;; ============================================================
+
+(use-package org
+  :straight (:type built-in)
+
+  :custom
+  (org-directory "~/org")
+  (org-default-notes-file "~/org/notes.org")
+  (org-todo-keywords '((sequence "TODO" "DOING" "|" "DONE")))
+  (org-clock-into-drawer t)
+  (org-clock-persist t)
+  (org-clock-persist-query-resume nil)
+
+  :config
+  (org-clock-persistence-insinuate)
+
+  :bind
+  ("C-c a"       . org-agenda)
+  ("C-c c"       . org-capture)
+  ("C-c C-x C-i" . org-clock-in)
+  ("C-c C-x C-o" . org-clock-out)
+  ("C-c C-x C-j" . org-clock-goto))
 
 ;;; ============================================================
 ;;; よく使うキーバインド
