@@ -148,6 +148,9 @@
 ;; ペースト前にクリップボードの内容をkill-ringに保存する
 (setq save-interprogram-paste-before-kill t)
 
+;;折り返しをデフォルトにする
+(setq-default truncate-lines nil)
+
 ;; TUIモード（ターミナルエミュレータ）でのクリップボード連携
 ;; 理由: select-enable-clipboard はGUI専用のため、
 ;;       TUI環境では pbcopy/pbpaste 経由でOSクリップボードと接続する
