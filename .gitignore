@@ -86,3 +86,4 @@ flycheck_init.el
 *vterm*/
 straight/
 /.agent-shell/
+org-clock-save.el
