@@ -614,6 +614,11 @@
   (org-clock-into-drawer t)
   (org-clock-persist t)
   (org-clock-persist-query-resume nil)
+  (org-capture-templates
+   '(("t" "タスク" entry
+      (file org-default-notes-file)
+      "* TODO %?\n"
+      :empty-lines 1)))
 
   :config
   (org-clock-persistence-insinuate)
