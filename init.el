@@ -170,6 +170,13 @@
           (let ((result (shell-command-to-string "pbpaste")))
             (unless (string-empty-p result) result)))))
 
+
+(setq explicit-shell-file-name "/bin/zsh")
+(setq shell-file-name "zsh")
+(setq explicit-zsh-args '("--login" "-i"))
+(setq shell-command-switch "-ic")
+(setenv "SHELL" shell-file-name)
+
 ;;; ============================================================
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
