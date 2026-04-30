@@ -61,8 +61,7 @@
   :config
   (add-to-list 'Info-directory-list "~/.emacs.d/info/"))
 
-(require 'mk-path-from-shell)
-(require 'mk-engine-mode)
+
 
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
@@ -166,6 +165,8 @@
 (unless (display-graphic-p)
   (xterm-mouse-mode 1))
 
+(require 'mk-path-from-shell)
+(require 'mk-engine-mode)
 (require 'mk-eat)
 (require 'mk-vterm)
 (require 'mk-claude-code-ide)
