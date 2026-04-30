@@ -169,6 +169,7 @@
 (require 'mk-eat)
 (require 'mk-claude-code-ide)
 (require 'mk-agent-shell)
+(require 'mk-which-key)
 
 ;;; ============================================================
 ;;; 補完システム
@@ -371,19 +372,6 @@
   ("C-c v p" . git-gutter:previous-hunk) ; 前の変更箇所へ
   ("C-c v r" . git-gutter:revert-hunk)   ; この変更を git で元に戻す
   ("C-c v s" . git-gutter:stage-hunk))   ; この変更だけをステージング
-
-;;; ============================================================
-;;; which-key
-;;; ============================================================
-(use-package which-key
-  :config
-  (setq which-key-idle-delay 0.8)
-
-  ;; 'bottom は廃止。side-window を使い、表示位置を bottom に指定する
-  (setq which-key-popup-type 'side-window)
-  (setq which-key-side-window-location 'bottom) ; 'top 'left 'right も選べる
-
-  (which-key-mode))
 
 ;;; ============================================================
 ;;; eat ターミナル キーバインド
