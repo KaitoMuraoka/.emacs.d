@@ -286,15 +286,15 @@
 
 (require 'mk-path-from-shell)
 (require 'mk-engine-mode)
+(require 'mk-which-key)
+(require 'mk-evil)
 (require 'mk-eat)
 (require 'mk-vterm)
 (require 'mk-claude-code-ide)
 (require 'mk-agent-shell)
-(require 'mk-which-key)
 (require 'mk-git)
 (require 'mk-org)
 (require 'mk-keybind)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
