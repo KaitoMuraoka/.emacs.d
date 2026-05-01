@@ -530,6 +530,46 @@
   (which-key-mode))
 
 ;;; ============================================================
+;;; Evil モード
+;;; ============================================================
+
+(use-package undo-fu)
+
+(use-package evil
+  :init
+  (setq evil-want-keybinding nil)   ; evil-collection 使用前に必須
+  (setq evil-want-C-u-scroll t)     ; C-u でページ半分スクロール（Vim デフォルト）
+  (setq evil-undo-system 'undo-fu)
+
+  :config
+  (evil-mode 1)
+
+  ;; org-mode / markdown-mode では Emacs キーバインドを維持する
+  (evil-set-initial-state 'org-mode      'emacs)
+  (evil-set-initial-state 'markdown-mode 'emacs)
+  (evil-set-initial-state 'gfm-mode      'emacs)
+
+  ;; ターミナルバッファでも Evil を無効化
+  (evil-set-initial-state 'vterm-mode 'emacs)
+  (evil-set-initial-state 'eat-mode   'emacs)
+
+  ;; Magit: magit-mode を親として設定すると派生モードにも継承される
+  ;; （magit-status-mode, magit-log-mode, magit-diff-mode 等すべてに適用）
+  (evil-set-initial-state 'magit-mode    'emacs)
+  (evil-set-initial-state 'magit-repolist-mode 'emacs) ; tabulated-list-mode 派生のため個別指定
+
+  ;; agent-shell: 各バッファタイプを個別に指定
+  (evil-set-initial-state 'agent-shell-mode               'emacs)
+  (evil-set-initial-state 'agent-shell-viewport-edit-mode 'emacs)
+  (evil-set-initial-state 'agent-shell-viewport-view-mode 'emacs)
+  (evil-set-initial-state 'agent-shell-diff-mode          'emacs))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
+;;; ============================================================
 ;;; eat ターミナル キーバインド
 ;;; ============================================================
 
