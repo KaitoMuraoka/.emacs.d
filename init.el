@@ -573,10 +573,25 @@
 (with-eval-after-load 'magit
   (add-hook 'magit-mode-hook #'evil-emacs-state))
 
-;; git-commit-mode はコミットメッセージ編集バッファの minor mode
-;; minor mode には evil-set-initial-state が効かないため hook を使う
+;; emacsclient で開いたコミットメッセージバッファを Emacs state にする
+;; git-commit パッケージは magit の一部で standalone ロード不可のため
+;; find-file-hook でファイル名を直接検知する方式を使う
+(add-hook 'find-file-hook
+          (lambda ()
+            (when (and buffer-file-name
+                       (string-match-p
+                        "COMMIT_EDITMSG\\|MERGE_MSG\\|SQUASH_MSG\\|NOTES_EDITMSG\\|git-rebase-todo"
+                        (file-name-nondirectory buffer-file-name)))
+              (evil-emacs-state))))
+
+;; git-commit-mode hook: Magit 経由で開いた場合のフォールバック
 (with-eval-after-load 'git-commit
   (add-hook 'git-commit-mode-hook #'evil-emacs-state))
+
+;; with-editor-mode: Magit がエディタとして開くすべてのバッファに適用される minor mode
+;; (COMMIT_EDITMSG 等が fundamental-mode のまま開かれるケースをカバーする)
+(with-eval-after-load 'with-editor
+  (add-hook 'with-editor-mode-hook #'evil-emacs-state))
 
 ;;; ============================================================
 ;;; eat ターミナル キーバインド
