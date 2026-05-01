@@ -553,11 +553,6 @@
   (evil-set-initial-state 'vterm-mode 'emacs)
   (evil-set-initial-state 'eat-mode   'emacs)
 
-  ;; Magit: magit-mode を親として設定すると派生モードにも継承される
-  ;; （magit-status-mode, magit-log-mode, magit-diff-mode 等すべてに適用）
-  (evil-set-initial-state 'magit-mode    'emacs)
-  (evil-set-initial-state 'magit-repolist-mode 'emacs) ; tabulated-list-mode 派生のため個別指定
-
   ;; agent-shell: 各バッファタイプを個別に指定
   (evil-set-initial-state 'agent-shell-mode               'emacs)
   (evil-set-initial-state 'agent-shell-viewport-edit-mode 'emacs)
@@ -567,7 +562,16 @@
 (use-package evil-collection
   :after evil
   :config
+  ;; evil-collection が Magit モードに対して独自の state を設定するのを防ぐため
+  ;; Magit を除外してから初期化する
+  (setq evil-collection-mode-list
+        (remove 'magit evil-collection-mode-list))
   (evil-collection-init))
+
+;; Magit: evil-collection の初期化後に hook で強制的に emacs state にする
+;; evil-set-initial-state だけでは evil-collection に上書きされるため hook を使う
+(with-eval-after-load 'magit
+  (add-hook 'magit-mode-hook #'evil-emacs-state))
 
 ;;; ============================================================
 ;;; eat ターミナル キーバインド
