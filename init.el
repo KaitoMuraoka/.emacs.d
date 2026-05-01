@@ -573,6 +573,11 @@
 (with-eval-after-load 'magit
   (add-hook 'magit-mode-hook #'evil-emacs-state))
 
+;; git-commit-mode はコミットメッセージ編集バッファの minor mode
+;; minor mode には evil-set-initial-state が効かないため hook を使う
+(with-eval-after-load 'git-commit
+  (add-hook 'git-commit-mode-hook #'evil-emacs-state))
+
 ;;; ============================================================
 ;;; eat ターミナル キーバインド
 ;;; ============================================================
