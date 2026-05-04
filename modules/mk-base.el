@@ -38,6 +38,9 @@
 ;; yes/no を y/n で答えられるようにする
 (setq use-short-answers t)
 
+;; ディスク上のファイルが変更されたら自動的にバッファを再読み込みする
+(global-auto-revert-mode 1)
+
 ;; 現在行をハイライト
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
