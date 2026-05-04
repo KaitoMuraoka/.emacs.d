@@ -23,4 +23,7 @@
 ;; ツールバーを非表示
 (tool-bar-mode 0)
 
+;; ピンチジェスチャーによるフォントサイズ変更を無効化
+(global-set-key (kbd "<pinch>") 'ignore)
+
 (provide 'mk-view)
