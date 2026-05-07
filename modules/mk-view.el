@@ -10,8 +10,15 @@
   (set-fontset-font t '(#x2600 . #x26FF) (font-spec :family "Apple Color Emoji") nil 'prepend)
   (set-fontset-font t '(#x1F300 . #x1FAFF) (font-spec :family "Apple Color Emoji") nil 'prepend))
 
-;; GUI の外観
-(load-theme 'modus-vivendi t)
+;; GUI/TUI の外観
+;;(load-theme 'modus-vivendi t)
+(use-package gruvbox-theme
+  :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
+;;(load-theme 'gruvbox-dark-medium t)
+(use-package kaolin-themes
+  :straight (:host github :repo "ogdenwebb/emacs-kaolin-themes")
+  :config
+  (load-theme 'kaolin-galaxy t))
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
@@ -22,5 +29,8 @@
 
 ;; ツールバーを非表示
 (tool-bar-mode 0)
+
+;; ピンチジェスチャーによるフォントサイズ変更を無効化
+(global-set-key (kbd "<pinch>") 'ignore)
 
 (provide 'mk-view)
