@@ -13,9 +13,12 @@
 ;; GUI/TUI の外観
 ;;(load-theme 'modus-vivendi t)
 (use-package gruvbox-theme
-  :straight (:host github :repo "Greduan/emacs-theme-gruvbox")
+  :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
+;;(load-theme 'gruvbox-dark-medium t)
+(use-package kaolin-themes
+  :straight (:host github :repo "ogdenwebb/emacs-kaolin-themes")
   :config
-  (load-theme 'gruvbox-dark-medium t))
+  (load-theme 'kaolin-galaxy t))
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
