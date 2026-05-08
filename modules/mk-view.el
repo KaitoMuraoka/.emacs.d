@@ -14,11 +14,7 @@
 ;;(load-theme 'modus-vivendi t)
 (use-package gruvbox-theme
   :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
-;;(load-theme 'gruvbox-dark-medium t)
-(use-package kaolin-themes
-  :straight (:host github :repo "ogdenwebb/emacs-kaolin-themes")
-  :config
-  (load-theme 'kaolin-galaxy t))
+(load-theme 'gruvbox-dark-medium t)
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)

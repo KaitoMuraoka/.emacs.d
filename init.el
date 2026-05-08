@@ -57,7 +57,7 @@
 (require 'mk-path-from-shell)
 (require 'mk-engine-mode)
 (require 'mk-which-key)
-(require 'mk-evil)
+;;(require 'mk-evil)
 (require 'mk-eat)
 (require 'mk-vterm)
 (require 'mk-claude-code-ide)
