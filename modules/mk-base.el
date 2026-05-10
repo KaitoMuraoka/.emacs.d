@@ -26,6 +26,9 @@
 ;; 理由: macOS でロック/アンロック時に "Invalid argument" 警告が出るため
 (setq create-lockfiles nil)
 
+;; カーソルを修正
+(add-to-list 'default-frame-alist '(cursor-type . bar))
+
 ;; フォーカスが外れたら全ファイルバッファを保存する
 ;; 理由: 他アプリに切り替えた瞬間に変更が保存され、データ損失を防ぐ
 (add-hook 'focus-out-hook
