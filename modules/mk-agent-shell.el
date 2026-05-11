@@ -46,6 +46,32 @@
                         (file-name-concat "projects" encoded "agent-shell" subdir)
                         "~/.claude")))
             (make-directory dest t)
-            dest))))
+            dest)))
+
+  ;; mode-line に Git ブランチ名を表示する
+  (defvar-local my/agent-shell--branch nil)
+
+  (defun my/agent-shell--update-branch ()
+    (let* ((dir (or my/agent-shell--invoked-dir default-directory))
+           (root (let ((default-directory dir))
+                   (when-let ((p (project-current nil)))
+                     (project-root p))))
+           (base (or root dir))
+           (branch (let ((default-directory base))
+                     (car (ignore-errors
+                            (process-lines "git" "rev-parse" "--abbrev-ref" "HEAD"))))))
+      (setq my/agent-shell--branch
+            (unless (or (null branch) (string= branch "HEAD"))
+              branch))))
+
+  (defun my/agent-shell--setup-git-branch-mode-line ()
+    (my/agent-shell--update-branch)
+    (setq-local mode-line-misc-info
+                (append mode-line-misc-info
+                        '((:eval (when my/agent-shell--branch
+                                   (propertize (concat " ⎇ " my/agent-shell--branch)
+                                               'face 'font-lock-string-face)))))))
+
+  (add-hook 'agent-shell-mode-hook #'my/agent-shell--setup-git-branch-mode-line))
 
 (provide 'mk-agent-shell)
