@@ -16,15 +16,11 @@
   :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
 (load-theme 'gruvbox-dark-medium t)
 
-;; TUI 時はターミナルの背景色に準拠（テーマ再適用時も自動で上書きを防ぐ）
-(defun mk/tui-transparent-bg (&rest _)
-  (unless (display-graphic-p)
-    (set-face-attribute 'default nil :background 'unspecified)))
-(add-hook 'enable-theme-functions #'mk/tui-transparent-bg)
-(mk/tui-transparent-bg)
-
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
+  (set-face-background 'default "unspecified-bg")
+  (set-face-background 'line-number "unspecified-bg")
+  (set-face-background 'line-number-current-line "unspecified-bg")
   (xterm-mouse-mode 1))
 
 ;; メニューバーを非表示
