@@ -68,32 +68,9 @@
 ;; ファイル末尾に改行を自動挿入
 (setq require-final-newline t)
 
-;; ペースト前にクリップボードの内容をkill-ringに保存する
-(setq save-interprogram-paste-before-kill t)
-
 ;;折り返しをデフォルトにする
 (setq-default truncate-lines nil)
 (setq-default org-startup-truncated nil);; org-mode ではデフォルト折り返ししないので
-
-;; クリップボードをOSと共有する（コピー・ペースト両方向）
-(setq select-enable-clipboard t)
-;; TUIモード（ターミナルエミュレータ）でのクリップボード連携
-;; 理由: select-enable-clipboard はGUI専用のため、
-;;       TUI環境では pbcopy/pbpaste 経由でOSクリップボードと接続する
-;; call-process-region を使って同期実行することで、C-w / M-w 後に
-;; 確実にOSクリップボードへ反映される
-(unless (display-graphic-p)
-  (setq interprogram-cut-function
-        (lambda (text)
-          ;; kill/copy 時に pbcopy へテキストを同期送信する
-          (with-temp-buffer
-            (insert text)
-            (call-process-region (point-min) (point-max) "pbcopy"))))
-  (setq interprogram-paste-function
-        (lambda ()
-          ;; yank 時に pbpaste からテキストを受け取る
-          (let ((result (shell-command-to-string "pbpaste")))
-            (unless (string-empty-p result) result)))))
 
 
 (setq explicit-shell-file-name "/bin/zsh")
