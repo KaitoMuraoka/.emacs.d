@@ -63,6 +63,7 @@
 (require 'mk-claude-code-ide)
 (require 'mk-agent-shell)
 (require 'mk-git)
+(require 'mk-dirvish)
 (require 'mk-org)
 (require 'mk-keybind)
 (require 'mk-lsp)
