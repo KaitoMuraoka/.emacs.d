@@ -18,6 +18,7 @@
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
+  (load-theme 'modus-vivendi t)
   (set-face-background 'default "unspecified-bg")
   (set-face-background 'line-number "unspecified-bg")
   (set-face-background 'line-number-current-line "unspecified-bg")
