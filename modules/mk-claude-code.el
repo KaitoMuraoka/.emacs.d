@@ -9,6 +9,8 @@
 (use-package claude-code
   :straight (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
                    :files ("*.el" (:exclude "images/*")))
+  :custom
+  (claude-code-terminal-backend 'ghostel)
   :bind-keymap
   ("C-c a" . claude-code-command-map)
   :bind

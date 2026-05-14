@@ -10,8 +10,6 @@
              :files ("lisp/*.el"))
 
   :custom
-  ;; シェルのパスのみ指定する（ghostel は引数を別途扱うため -l は不可）
-  (ghostel-shell shell-file-name)
   ;; プロセス終了時にバッファを自動で閉じる
   (ghostel-kill-buffer-on-exit t)
   ;; モジュールをリポジトリディレクトリに保存する
@@ -21,6 +19,17 @@
    (expand-file-name "straight/repos/ghostel" user-emacs-directory))
 
   :config
+  ;; ログインシェル起動ラッパーを作成して ghostel-shell に設定する。
+  ;; 理由: ghostel-shell は引数を取らないため "-l" を直接渡せない。
+  ;;       exec -a -zsh とすることで argv[0] を "-zsh" にし、
+  ;;       zsh をログインシェルとして起動する（.zprofile も読み込まれる）。
+  ;;       スクリプト名に "zsh" を含めることで ghostel のシェル検出にも一致する。
+  (let* ((wrapper (expand-file-name "ghostel-zsh" user-emacs-directory)))
+    (with-temp-file wrapper
+      (insert "#!/bin/bash\nexec -a -zsh /bin/zsh\n"))
+    (set-file-modes wrapper #o755)
+    (setq ghostel-shell wrapper))
+
   ;; straight.el は etc/ を build/ にコピーしないため、シンボリックリンクで代替する。
   ;; リビルド後に空の etc/ ディレクトリが作られた場合でも対応するため
   ;; 普通のディレクトリなら削除してからリンクを張る。

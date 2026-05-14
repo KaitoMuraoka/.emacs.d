@@ -6,8 +6,8 @@
   :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
 
   :custom
-  ;; ターミナルバックエンド: vterm
-  (claude-code-ide-terminal-backend 'vterm)
+  ;; ターミナルバックエンド: ghostel
+  (claude-code-ide-terminal-backend 'ghostel)
   ;; Claude ウィンドウを右側に表示（'right / 'left / 'bottom / 'top）
   (claude-code-ide-window-side 'right)
   ;; ediff を使ったファイル差分表示を有効化
