@@ -61,6 +61,7 @@
 (require 'mk-eat)
 (require 'mk-vterm)
 (require 'mk-claude-code-ide)
+(require 'mk-claude-code)
 (require 'mk-agent-shell)
 (require 'mk-git)
 (require 'mk-dirvish)
