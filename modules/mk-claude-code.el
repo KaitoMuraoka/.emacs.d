@@ -11,6 +11,11 @@
                    :files ("*.el" (:exclude "images/*")))
   :custom
   (claude-code-terminal-backend 'ghostel)
+  (claude-code-display-window-fn
+   (lambda (buffer)
+     (display-buffer buffer '((display-buffer-in-side-window)
+                              (side . right)
+                              (window-width . 90)))))
   :bind-keymap
   ("C-c a" . claude-code-command-map)
   :bind
