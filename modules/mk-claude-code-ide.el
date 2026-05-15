@@ -7,7 +7,7 @@
 
   :custom
   ;; ターミナルバックエンド: ghostel
-  (claude-code-ide-terminal-backend 'ghostel)
+  (claude-code-ide-terminal-backend 'vterm)
   ;; Claude ウィンドウを右側に表示（'right / 'left / 'bottom / 'top）
   (claude-code-ide-window-side 'right)
   ;; ediff を使ったファイル差分表示を有効化
