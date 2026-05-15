@@ -33,4 +33,14 @@
 ;; ピンチジェスチャーによるフォントサイズ変更を無効化
 (global-set-key (kbd "<pinch>") 'ignore)
 
+;; splash.svg の :scale default が Retina 環境でフレーム高を超え
+;; use-fancy-splash-screens-p が nil を返す問題を修正する。
+;; SVG が描画可能な場合は常にロゴを表示するよう advice でバイパスする。
+(when (display-graphic-p)
+  (advice-add 'use-fancy-splash-screens-p :override
+              (lambda ()
+                (and (display-graphic-p)
+                     (ignore-errors
+                       (create-image (fancy-splash-image-file)))))))
+
 (provide 'mk-view)
