@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Applications/Emacs.app/Contents/MacOS/Emacs --version)",
+      "Bash(/Applications/Emacs.app/Contents/MacOS/Emacs *)"
+    ]
+  }
+}
