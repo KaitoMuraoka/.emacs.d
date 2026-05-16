@@ -52,6 +52,10 @@
                (expand-file-name "modules" user-emacs-directory)))
   (add-to-list 'load-path path))
 
+(add-to-list 'load-path "~/dev-emacs/magh")
+
+(server-start) ;; GUI Emacsをサーバーとして常駐させる
+
 (require 'mk-base)
 (require 'mk-view)
 (require 'mk-path-from-shell)
