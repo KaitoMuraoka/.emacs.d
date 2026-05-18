@@ -60,6 +60,7 @@
 (require 'mk-view)
 (require 'mk-path-from-shell)
 (require 'mk-engine-mode)
+(require 'mk-xwidgets)
 (require 'mk-which-key)
 ;;(require 'mk-evil)
 (require 'mk-eat)
