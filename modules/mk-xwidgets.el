@@ -82,6 +82,54 @@
                xw (format "window.__mkXwidgetsHints.click(%S);" (string c1 c2)))))
         (quit (cleanup))))))
 
+;; ダークモード: WebKit ページ全体に invert + hue-rotate フィルターを
+;; かけて暗色化する。img/video/iframe 等は二重反転で正しい色に戻す。
+;; 多くのサイトが Light モード固定なので、フィルターで強制ダーク化する。
+(defvar mk-xwidgets-dark-mode-enabled t
+  "Non-nil ならページ読み込み完了時にダークモード CSS を自動注入する。")
+
+(defconst mk-xwidgets--dark-css
+  "html { filter: invert(1) hue-rotate(180deg) !important; background:#fff !important; }
+img, video, picture, iframe, svg, canvas, [style*='background-image'] {
+  filter: invert(1) hue-rotate(180deg) !important;
+}")
+
+(defun mk-xwidgets--dark-inject-script (css)
+  "CSS を <style id='mk-xwidgets-dark'> として注入する JS を返す。"
+  (format "(function(){var s=document.getElementById('mk-xwidgets-dark');if(s)s.remove();var n=document.createElement('style');n.id='mk-xwidgets-dark';n.textContent=%S;document.documentElement.appendChild(n);})();"
+          css))
+
+(defconst mk-xwidgets--dark-remove-script
+  "(function(){var s=document.getElementById('mk-xwidgets-dark');if(s)s.remove();})();")
+
+(defun mk-xwidgets--apply-dark (xwidget)
+  "XWIDGET にダークモード CSS を適用する。"
+  (when (and mk-xwidgets-dark-mode-enabled (xwidget-live-p xwidget))
+    (xwidget-webkit-execute-script
+     xwidget (mk-xwidgets--dark-inject-script mk-xwidgets--dark-css))))
+
+(defun mk-xwidgets-toggle-dark-mode ()
+  "現在の xwidget セッションのダークモードを切り替える。
+切り替え後はグローバル設定 `mk-xwidgets-dark-mode-enabled' も更新するため、
+以降に開くページにも反映される。"
+  (interactive)
+  (setq mk-xwidgets-dark-mode-enabled (not mk-xwidgets-dark-mode-enabled))
+  (let ((xw (xwidget-webkit-current-session)))
+    (when (and xw (xwidget-live-p xw))
+      (if mk-xwidgets-dark-mode-enabled
+          (mk-xwidgets--apply-dark xw)
+        (xwidget-webkit-execute-script xw mk-xwidgets--dark-remove-script))))
+  (message "xwidget dark mode: %s" (if mk-xwidgets-dark-mode-enabled "on" "off")))
+
+(defun mk-xwidgets--callback-advice (xwidget event-type)
+  "ページ読み込み完了時にダークモード CSS を再適用する。"
+  (when (and (eq event-type 'load-changed)
+             (string-equal (nth 3 last-input-event) "load-finished"))
+    (mk-xwidgets--apply-dark xwidget)))
+
+(when (featurep 'xwidget-internal)
+  (advice-add 'xwidget-webkit-callback :after #'mk-xwidgets--callback-advice))
+
 ;; xwidgets は Emacs 同梱の機能で、GUI かつ xwidget サポート付きで
 ;; ビルドされている場合のみ動作する。TUI や非対応ビルドでロードしても
 ;; 害がないようガードする。
@@ -108,7 +156,8 @@
    ("r" . xwidget-webkit-reload)
    ("g" . xwidget-webkit-browse-url)
    ("y" . xwidget-webkit-copy-selection-as-kill)
-   ("c" . xwidget-webkit-current-url)))
+   ("c" . xwidget-webkit-current-url)
+   ("D" . mk-xwidgets-toggle-dark-mode)))
 
 ;; xwwp: WebKit ページに JavaScript でリンクヒントを注入し、
 ;; completing-read でリンクを選択して開けるようにする。
