@@ -65,6 +65,7 @@
 (require 'mk-eat)
 (require 'mk-vterm)
 (require 'mk-ghostel)
+(require 'mk-kitty-graphics)
 (require 'mk-claude-code-ide)
 (require 'mk-claude-code)
 (require 'mk-agent-shell)
