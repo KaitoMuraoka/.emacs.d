@@ -3,7 +3,7 @@
 ;;; ============================================================
 (set-default-coding-systems 'utf-8)
 ;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
-(set-face-attribute 'default nil :family "HackGen Console" :height 140)
+(set-face-attribute 'default nil :family "HackGen Console" :height 130)
 ;; 絵文字・天気記号（☁ ⛅ 🌧 等）は HackGen 非収録のため Apple Color Emoji へフォールバック
 (when (display-graphic-p)
   (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'prepend)

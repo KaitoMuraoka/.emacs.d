@@ -10,7 +10,7 @@
   :straight (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
                    :files ("*.el" (:exclude "images/*")))
   :custom
-  (claude-code-terminal-backend 'eat)
+  (claude-code-terminal-backend 'ghostel)
   (claude-code-display-window-fn
    (lambda (buffer)
      (display-buffer buffer '((display-buffer-in-side-window)
