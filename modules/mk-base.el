@@ -82,4 +82,17 @@
 
 (add-hook 'focus-in-hook #'my/force-ascii-input-source)
 
+;; Setup DDSKK
+(use-package ddskk
+  :ensure t
+  :bind ("C-x C-j" . skk-mode)
+  :custom
+  (skk-large-jisyo "~/Library/Containers/net.mtgto.inputmethod.macSKK/Data/Documents/Dictionaries/skk-jisyo.utf8")
+  (skk-large-jisyo "~/Library/Containers/net.mtgto.inputmethod.macSKK/Data/Documents/Dictionaries/SKK-JISYO.L")
+  (skk-sticky-key ";")
+  (skk-show-inline t)
+  (skk-dcomp-activate t)
+  (skk-egg-like-newline t)
+  (skk-isearch-mode-enable 'always))
+
 (provide 'mk-base)
