@@ -73,4 +73,13 @@
 (setq shell-command-switch "-ic")
 (setenv "SHELL" shell-file-name)
 
+;; Emacsにフォーカスが移ったとき、macOSの入力ソースをABCに強制する
+(defun my/force-ascii-input-source ()
+  (start-process "input-source" nil
+                 "osascript" "-e"
+                 "tell application \"System Events\" to key code 102"))
+;; key code 102 = 英数キー
+
+(add-hook 'focus-in-hook #'my/force-ascii-input-source)
+
 (provide 'mk-base)
