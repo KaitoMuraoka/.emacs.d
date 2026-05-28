@@ -11,10 +11,10 @@
   (set-fontset-font t '(#x1F300 . #x1FAFF) (font-spec :family "Apple Color Emoji") nil 'prepend))
 
 ;; GUI/TUI の外観
-;;(load-theme 'modus-vivendi t)
-(use-package gruvbox-theme
-  :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
-(load-theme 'gruvbox-dark-medium t)
+(load-theme 'modus-vivendi t)
+;; (use-package gruvbox-theme
+;;   :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
+;; (load-theme 'gruvbox-dark-medium t)
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
