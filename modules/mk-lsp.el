@@ -72,7 +72,8 @@
    (typescript-mode  . eglot-ensure)
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
-   (python-ts-mode   . eglot-ensure))
+   (python-ts-mode   . eglot-ensure)
+   (ruby-ts-mode     . eglot-ensure))
 
   :config
   ;; Ruby
