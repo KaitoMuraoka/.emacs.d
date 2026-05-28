@@ -75,6 +75,9 @@
    (python-ts-mode   . eglot-ensure))
 
   :config
+  ;; Ruby
+  (add-to-list 'eglot-server-programs
+               '(ruby-ts-mode . ("ruby-lsp")))
   ;; Swift: sourcekit-lsp を使用
   ;; Xcode に含まれているので追加インストール不要
   (add-to-list 'eglot-server-programs
