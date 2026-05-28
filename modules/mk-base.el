@@ -76,11 +76,14 @@
 ;; Emacsにフォーカスが移ったとき、macOSの入力ソースをABCに強制する
 (defun my/force-ascii-input-source ()
   (start-process "input-source" nil
-                 "osascript" "-e"
-                 "tell application \"System Events\" to key code 102"))
-;; key code 102 = 英数キー
+                 "/opt/homebrew/bin/im-select"
+                 "com.apple.keylayout.ABC"))
 
-(add-hook 'focus-in-hook #'my/force-ascii-input-source)
+(defun my/after-focus-change ()
+  (when (frame-focus-state)
+    (my/force-ascii-input-source)))
+
+(add-function :after after-focus-change-function #'my/after-focus-change)
 
 ;; Setup DDSKK
 (use-package ddskk
