@@ -72,7 +72,8 @@
    (typescript-mode  . eglot-ensure)
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
-   (python-ts-mode   . eglot-ensure))
+   (python-ts-mode   . eglot-ensure)
+   (ruby-ts-mode     . eglot-ensure))
 
   :config
   ;; Swift: sourcekit-lsp を使用
@@ -91,6 +92,12 @@
   (add-to-list 'eglot-server-programs
                '((python-mode python-ts-mode) . ("jedi-language-server")))
 
+  ;; Ruby: ruby-lsp を使用（rbenv shim 経由で .ruby-version を尊重する）
+  ;; Rails 専用機能はプロジェクトの Gemfile に ruby-lsp-rails を入れると
+  ;; ruby-lsp が自動で addon として読み込む
+  (add-to-list 'eglot-server-programs
+               '(ruby-ts-mode . ("ruby-lsp")))
+
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
   (add-to-list 'completion-category-overrides
@@ -104,5 +111,23 @@
               ("C-c l f" . eglot-format-buffer)     ; フォーマット
               ("M-."     . xref-find-definitions)   ; 定義へジャンプ
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
+
+
+;;; ============================================================
+;;; 保存時の自動フォーマット
+;;; ============================================================
+
+;; eglot が管理しているバッファのみフォーマットする
+;; 理由: LSP 未接続のときに eglot-format-buffer を呼ぶとエラーになるため
+(defun mk/eglot-format-on-save ()
+  "eglot 管理下のバッファを保存前にフォーマットする。"
+  (when (bound-and-true-p eglot--managed-mode)
+    (eglot-format-buffer)))
+
+;; Ruby: 保存時に ruby-lsp（RuboCop）で自動整形する
+;; 手動整形は引き続き C-c l f が使える
+(add-hook 'ruby-ts-mode-hook
+          (lambda ()
+            (add-hook 'before-save-hook #'mk/eglot-format-on-save nil t)))
 
 (provide 'mk-lsp)
