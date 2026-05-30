@@ -26,7 +26,15 @@
 ;; ERB テンプレートサポート
 ;; web-mode は HTML に埋め込まれた Ruby（<%= %>）を適切にハイライトする
 (use-package web-mode
-  :mode ("\\.erb\\'" "\\.html\\.erb\\'"))
+  :mode ("\\.erb\\'" "\\.html\\.erb\\'")
+  :custom
+  ;; 閉じタグの自動挿入を有効化（ターミナルでも効くように明示）
+  (web-mode-enable-auto-closing t)
+  ;; 自動挿入スタイル 2: 「>」で開きタグを閉じた時と「</」入力時の
+  ;;                     両方で対応する閉じタグを自動挿入する
+  (web-mode-auto-close-style 2)
+  ;; <% %> などのペア記号も自動補完
+  (web-mode-enable-auto-pairing t))
 
 ;; YAML サポート
 ;; config/database.yml など Rails の設定ファイル用
