@@ -73,7 +73,8 @@
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
    (python-ts-mode   . eglot-ensure)
-   (ruby-ts-mode     . eglot-ensure))
+   (ruby-ts-mode     . eglot-ensure)
+   (web-mode         . eglot-ensure))
 
   :config
   ;; Swift: sourcekit-lsp を使用
@@ -97,6 +98,12 @@
   ;; ruby-lsp が自動で addon として読み込む
   (add-to-list 'eglot-server-programs
                '(ruby-ts-mode . ("ruby-lsp")))
+
+  ;; HTML/ERB: vscode-html-language-server を使用
+  ;; web-mode で HTML タグ・属性の補完を corfu に出すため
+  ;; インストール: npm install -g vscode-langservers-extracted
+  (add-to-list 'eglot-server-programs
+               '(web-mode . ("vscode-html-language-server" "--stdio")))
 
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
