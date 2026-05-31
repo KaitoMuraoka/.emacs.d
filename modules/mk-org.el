@@ -2,7 +2,7 @@
 ;;; org-mode
 ;;; ============================================================
 (defconst org-icloud-path
-  "/Users/kaito.muraoka/Library/Mobile Documents/com~apple~CloudDocs/org/")
+  "~/Library/Mobile Documents/com~apple~CloudDocs/org/")
 (global-set-key (kbd "C-c o") (lambda () (interactive) (dired org-icloud-path)))
 (use-package org
   :straight (:type built-in)
