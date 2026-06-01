@@ -63,6 +63,7 @@
 (require 'mk-which-key)
 ;;(require 'mk-evil)
 (require 'mk-eat)
+(require 'mk-eshell)
 (require 'mk-vterm)
 (require 'mk-ghostel)
 (require 'mk-kitty-graphics)
