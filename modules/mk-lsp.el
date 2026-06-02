@@ -57,6 +57,31 @@
 ;; Swift, TypeScript, ELisp など主要言語のスニペットが含まれる
 (use-package yasnippet-snippets)
 
+;; cape: 複数の補完ソース(capf)を合成・拡張する
+;; eglot 単独だと出ない「スニペット・バッファ内の語」を補うために使う
+(use-package cape)
+
+;; yasnippet-capf: yasnippet スニペットを補完候補(capf)として出す
+;; これで def 等のスニペットが corfu のポップアップに出るようになる
+(use-package yasnippet-capf
+  :after (cape yasnippet))
+
+;; corfu-popupinfo: 補完候補のドキュメントをポップアップ表示（VSCode 風）
+;; corfu に同梱の拡張なので straight では取得しない
+(use-package corfu-popupinfo
+  :straight nil
+  :after corfu
+  :hook (corfu-mode . corfu-popupinfo-mode)
+  :custom
+  (corfu-popupinfo-delay '(0.4 . 0.2)))
+
+;; LSP 非接続バッファでも最低限の補完が出るよう底上げする
+;; （スニペット・バッファ内の語・ファイルパス）
+;; 末尾(t)に追加し、各モード本来の capf を優先しつつフォールバックさせる
+(add-to-list 'completion-at-point-functions #'yasnippet-capf t)
+(add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+(add-to-list 'completion-at-point-functions #'cape-file t)
+
 
 ;;; ============================================================
 ;;; LSP（Language Server Protocol）設定
@@ -72,7 +97,9 @@
    (typescript-mode  . eglot-ensure)
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
-   (python-ts-mode   . eglot-ensure))
+   (python-ts-mode   . eglot-ensure)
+   (ruby-ts-mode     . eglot-ensure)
+   (web-mode         . eglot-ensure))
 
   :config
   ;; Swift: sourcekit-lsp を使用
@@ -91,6 +118,18 @@
   (add-to-list 'eglot-server-programs
                '((python-mode python-ts-mode) . ("jedi-language-server")))
 
+  ;; Ruby: ruby-lsp を使用（rbenv shim 経由で .ruby-version を尊重する）
+  ;; Rails 専用機能はプロジェクトの Gemfile に ruby-lsp-rails を入れると
+  ;; ruby-lsp が自動で addon として読み込む
+  (add-to-list 'eglot-server-programs
+               '(ruby-ts-mode . ("ruby-lsp")))
+
+  ;; HTML/ERB: vscode-html-language-server を使用
+  ;; web-mode で HTML タグ・属性の補完を corfu に出すため
+  ;; インストール: npm install -g vscode-langservers-extracted
+  (add-to-list 'eglot-server-programs
+               '(web-mode . ("vscode-html-language-server" "--stdio")))
+
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
   (add-to-list 'completion-category-overrides
@@ -104,5 +143,45 @@
               ("C-c l f" . eglot-format-buffer)     ; フォーマット
               ("M-."     . xref-find-definitions)   ; 定義へジャンプ
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
+
+
+;;; ============================================================
+;;; 保存時の自動フォーマット
+;;; ============================================================
+
+;; eglot が管理しているバッファのみフォーマットする
+;; 理由: LSP 未接続のときに eglot-format-buffer を呼ぶとエラーになるため
+(defun mk/eglot-format-on-save ()
+  "eglot 管理下のバッファを保存前にフォーマットする。"
+  (when (bound-and-true-p eglot--managed-mode)
+    (eglot-format-buffer)))
+
+;; Ruby: 保存時に ruby-lsp（RuboCop）で自動整形する
+;; 手動整形は引き続き C-c l f が使える
+(add-hook 'ruby-ts-mode-hook
+          (lambda ()
+            (add-hook 'before-save-hook #'mk/eglot-format-on-save nil t)))
+
+
+;;; ============================================================
+;;; eglot の補完ソース合成（VSCode 風の補完体験）
+;;; ============================================================
+
+;; eglot は有効化時に completion-at-point-functions を自分のものだけに
+;; 置き換えてしまい、yasnippet スニペットやバッファ内の語が corfu に出なくなる。
+;;
+;; ここでは eglot（LSP）を最優先にする:
+;;   - 第1要素: cape-capf-super で「LSP + スニペット」を合成
+;;     （LSP の Method 候補と def 等のスニペットを一緒に出す）
+;;   - 第2要素: cape-dabbrev は LSP が候補を返せない箇所だけのフォールバック
+;;     （第1要素が候補を返す間は Dabbrev は出ないので Method がノイズに埋もれない）
+(defun mk/eglot-capf ()
+  (setq-local completion-at-point-functions
+              (list (cape-capf-super
+                     #'eglot-completion-at-point
+                     #'yasnippet-capf)
+                    #'cape-dabbrev)))
+
+(add-hook 'eglot-managed-mode-hook #'mk/eglot-capf)
 
 (provide 'mk-lsp)
