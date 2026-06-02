@@ -1,4 +1,3 @@
-; git ブランチは外部プロセスを起動せず vc-mode 経由で取得する。
 (defun mk-eshell--git-branch ()
   "カレントディレクトリの git ブランチ名を返す（無ければ空文字）。"
   (let ((branch (when (fboundp 'vc-git--symbolic-ref)
@@ -6,6 +5,7 @@
     (if (and branch (not (string-empty-p branch)))
         (format " (%s)" branch)
       "")))
+
 (defun mk-eshell-prompt ()
   "eshell 用のカスタムプロンプトを返す。"
   (let ((status eshell-last-command-status))
@@ -39,5 +39,10 @@
         (list "la" "eza -a --icons --git $*")
         (list "ll" "eza -aahl --icons --git $*")
         )))
+
+;; visual commands（全画面コマンドは term バッファで開く）
+(with-eval-after-load 'em-term
+  (dolist (cmd '("htop" "top" "less" "more" "ssh" "tmux" "nvim" "vim"))
+    (add-to-list 'eshell-visual-commands cmd)))
 
 (provide 'mk-eshell)
