@@ -13,7 +13,7 @@
      (abbreviate-file-name (eshell/pwd))
      (mk-eshell--git-branch)
      (if (zerop status) " " (format " [%d] " status))
-     (if (zerop (user-uid)) "# " "λ "))))
+     (if (zerop (user-uid)) "# " "$ "))))
 
 (setq eshell-prompt-function #'mk-eshell-prompt)
 (setq eshell-highlight-prompt t);; プロンプトの部分をハイライトにする
@@ -26,6 +26,10 @@
 (setq eshell-cmpl-cycle-completions nil)
 (setq eshell-scroll-to-bottom-on-input 'this)
 
+;; cat 
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (setenv "GIT_PAGER" "cat")))
 
 ;;; alias
 (setq eshell-command-aliases-list
@@ -44,5 +48,9 @@
 (with-eval-after-load 'em-term
   (dolist (cmd '("htop" "top" "less" "more" "ssh" "tmux" "nvim" "vim"))
     (add-to-list 'eshell-visual-commands cmd)))
+
+;; mysql のpath設定(railsの設定で必要)
+(setenv "PATH" (concat "/opt/homebrew/opt/mysql@8.0/bin:" (getenv "PATH")))
+(add-to-list 'exec-path "/opt/homebrew/opt/mysql@8.0/bin")
 
 (provide 'mk-eshell)
