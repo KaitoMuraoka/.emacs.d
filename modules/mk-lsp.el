@@ -99,7 +99,9 @@
    (python-mode      . eglot-ensure)
    (python-ts-mode   . eglot-ensure)
    (ruby-ts-mode     . eglot-ensure)
-   (web-mode         . eglot-ensure))
+   (web-mode         . eglot-ensure)
+   (c++-ts-mode      . eglot-ensure)
+   (c-ts-mode        . eglot-ensure))
 
   :config
   ;; Swift: sourcekit-lsp を使用
@@ -129,6 +131,17 @@
   ;; インストール: npm install -g vscode-langservers-extracted
   (add-to-list 'eglot-server-programs
                '(web-mode . ("vscode-html-language-server" "--stdio")))
+
+  ;; C/C++: clangd を使用（Apple clang に同梱、追加インストール不要）
+  ;; --query-driver で Homebrew g++-15 の system include を参照させ、
+  ;; macOS の clang では見つからない <bits/stdc++.h> を解決する
+  (add-to-list 'eglot-server-programs
+               '((c++-ts-mode c-ts-mode) .
+                 ("clangd"
+                  "--query-driver=/opt/homebrew/bin/g++-15"
+                  "--header-insertion=never"   ; 競プロでは自動 include 不要
+                  "--clang-tidy"
+                  "--completion-style=detailed")))
 
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する

@@ -76,6 +76,7 @@
 (require 'mk-keybind)
 (require 'mk-lsp)
 (require 'mk-language-mode)
+(require 'mk-cpp)
 (require 'mk-rails)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
