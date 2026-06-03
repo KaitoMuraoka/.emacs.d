@@ -29,7 +29,9 @@
 ;; cat 
 (add-hook 'eshell-mode-hook
           (lambda ()
-            (setenv "GIT_PAGER" "cat")))
+            (setenv "GIT_PAGER" "cat")
+            (display-line-numbers-mode -1) ;;行番号を非表示
+            ))
 
 ;;; alias
 (setq eshell-command-aliases-list
