@@ -12,10 +12,6 @@
   ;; ログインシェルで起動する（vterm と同様の理由）
   (eat-shell (concat shell-file-name " -l"))
 
-  :hook
-  ;; eshell 内で eat を使う場合のシェル統合
-  (eshell-load . eat-eshell-mode)
-
   :config
   ;; global-display-line-numbers-mode の内部 turn-on 関数をアドバイス
   ;; hook の実行順序に依存せず、eat バッファへの有効化を根本から阻止する
