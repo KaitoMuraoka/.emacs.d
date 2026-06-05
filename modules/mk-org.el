@@ -10,6 +10,12 @@
   (interactive)
   (org-capture nil "n"))
 
+(defun mk-org-note-datetree-end ()
+  "今日の日付ツリーを見つけ（なければ作成し）、そのサブツリー末尾へ移動する。"
+  (org-datetree-find-date-create
+   (calendar-gregorian-from-absolute (org-today)))
+  (org-end-of-subtree t))
+
 (use-package org
   :straight (:type built-in)
 
@@ -26,7 +32,7 @@
       "* TODO %?\n"
       :empty-lines 1)
      ("n" "メモ" plain
-      (file+olp+datetree org-default-notes-file)
+      (file+function org-default-notes-file mk-org-note-datetree-end)
       "%<%H:%M>: %^{メモ}"
       :immediate-finish t)))
 
