@@ -38,138 +38,33 @@
 
 
 ;;; ============================================================
-;;; コンパイル設定
+;;; eshell 起動
 ;;; ============================================================
 
-(defgroup mk/cpp nil
-  "競技プログラミング (C++) 用の設定。"
-  :group 'tools)
+;; コンパイル・実行・テスト・提出はキーバインドや専用関数ではなく
+;; eshell を開いてコマンドラインで直接実行する方針。
+;; `mk/cpp-eshell' は現在のソースと同じディレクトリで eshell を開く。
+;;
+;; コマンドラインでの典型操作:
+;;   g++-15 -std=gnu++20 -O2 -Wall -Wextra -DLOCAL -g main.cpp -o main && ./main < input.txt
+;;   oj t -c ./main -d test      # acc/oj が取得したサンプルを全件テスト
+;;   acc submit main.cpp -- -y   # 提出（-y は確認スキップ）
+;;
+;; 注意（macOS）:
+;;   - ローカルは Homebrew g++-15 を使う（Apple clang は <bits/stdc++.h> 不可）
+;;   - Homebrew GCC は asan/ubsan 非対応のため -fsanitize=... は使えない
 
-(defcustom mk/cpp-compiler "/opt/homebrew/bin/g++-15"
-  "C++ のコンパイラ。
-macOS の Apple clang は bits/stdc++.h が使えないため
-Homebrew GCC (g++-15) を既定にしている。"
-  :type 'string
-  :group 'mk/cpp)
-
-(defcustom mk/cpp-std "gnu++20"
-  "C++ の言語標準。AtCoder に合わせて gnu++23 等に変更してよい。"
-  :type 'string
-  :group 'mk/cpp)
-
-(defcustom mk/cpp-flags
-  '("-O2" "-Wall" "-Wextra" "-DLOCAL" "-g")
-  "コンパイルフラグ。
-注: Homebrew GCC は macOS 向けの sanitizer ランタイム(asan/ubsan)を
-同梱しておらず `-fsanitize=...' を付けるとリンクに失敗するため既定では付けない。"
-  :type '(repeat string)
-  :group 'mk/cpp)
-
-(defcustom mk/cpp-input-file "input.txt"
-  "`mk/cpp-compile-run' が標準入力として流すファイル名。
-ソースと同じディレクトリにあれば使われる。"
-  :type 'string
-  :group 'mk/cpp)
-
-(defun mk/cpp--exe-path ()
-  "現在のソースに対応する実行ファイルのパスを返す。"
-  (file-name-sans-extension (buffer-file-name)))
-
-(defun mk/cpp--compile-command ()
-  "現在のソースをビルドするシェルコマンド文字列を返す。"
-  (let ((src (shell-quote-argument (buffer-file-name)))
-        (exe (shell-quote-argument (mk/cpp--exe-path))))
-    (mapconcat #'identity
-               (append (list (shell-quote-argument mk/cpp-compiler)
-                             (concat "-std=" mk/cpp-std))
-                       mk/cpp-flags
-                       (list src "-o" exe))
-               " ")))
-
-;;;###autoload
-(defun mk/cpp-compile ()
-  "現在の C++ ファイルを g++-15 でコンパイルする。"
+(defun mk/cpp-eshell ()
+  "現在のバッファのディレクトリで eshell を開く。
+既存の *eshell* があればそのバッファに切り替え、カレントディレクトリを移動する。"
   (interactive)
-  (unless (buffer-file-name)
-    (user-error "バッファがファイルに紐づいていません"))
-  (save-buffer)
-  (let ((default-directory (file-name-directory (buffer-file-name))))
-    (compile (mk/cpp--compile-command))))
-
-;;;###autoload
-(defun mk/cpp-compile-run ()
-  "現在の C++ ファイルをコンパイルし、続けて実行する。
-ソースと同じディレクトリに `mk/cpp-input-file' があれば
-それを標準入力として流す。無ければ対話実行する。"
-  (interactive)
-  (unless (buffer-file-name)
-    (user-error "バッファがファイルに紐づいていません"))
-  (save-buffer)
-  (let* ((default-directory (file-name-directory (buffer-file-name)))
-         (exe (shell-quote-argument (mk/cpp--exe-path)))
-         (input (and (file-exists-p mk/cpp-input-file)
-                     (concat " < " (shell-quote-argument mk/cpp-input-file))))
-         (run (concat exe (or input "")))
-         (cmd (concat (mk/cpp--compile-command) " && echo '--- run ---' && " run)))
-    (if input
-        ;; 入力ファイルがあるなら compilation バッファで完結させる
-        (compile cmd)
-      ;; 対話入力が要る場合は端末で実行する
-      (compile (mk/cpp--compile-command))
-      (when (file-exists-p (mk/cpp--exe-path))
-        (async-shell-command run "*cpp-run*")))))
-
-
-;;; ============================================================
-;;; online-judge-tools (oj) / atcoder-cli (acc) 連携
-;;; ============================================================
-
-(defun mk/cpp--problem-dir ()
-  "サンプルテスト (test/) があるディレクトリを返す。
-ソースのあるディレクトリを既定とする。"
-  (file-name-directory (buffer-file-name)))
-
-;;;###autoload
-(defun mk/cpp-oj-test ()
-  "acc/oj が取得したサンプル (test/) を全件テストする。
-事前にビルドして a.out 相当を作ってから oj test を呼ぶ。"
-  (interactive)
-  (unless (buffer-file-name)
-    (user-error "バッファがファイルに紐づいていません"))
-  (save-buffer)
-  (let* ((default-directory (mk/cpp--problem-dir))
-         (exe (shell-quote-argument (mk/cpp--exe-path)))
-         (cmd (concat (mk/cpp--compile-command)
-                      " && oj t -c " exe " -d test")))
-    (compile cmd)))
-
-;;;###autoload
-(defun mk/cpp-oj-submit ()
-  "現在のファイルを AtCoder に提出する (acc submit 経由)。"
-  (interactive)
-  (unless (buffer-file-name)
-    (user-error "バッファがファイルに紐づいていません"))
-  (save-buffer)
-  (let ((default-directory (mk/cpp--problem-dir)))
-    (async-shell-command
-     ;; acc submit <filename> -- <oj options>
-     ;; -y は oj submit に渡され提出確認をスキップする
-     (concat "acc submit "
-             (shell-quote-argument (file-name-nondirectory (buffer-file-name)))
-             " -- -y")
-     "*acc-submit*")))
-
-
-;;; ============================================================
-;;; キーバインド
-;;; ============================================================
-
-;; eglot の C-c l ... と衝突しないよう C-c c プレフィックスを使う
-(with-eval-after-load 'c-ts-mode
-  (define-key c++-ts-mode-map (kbd "C-c c c") #'mk/cpp-compile)
-  (define-key c++-ts-mode-map (kbd "C-c c r") #'mk/cpp-compile-run)
-  (define-key c++-ts-mode-map (kbd "C-c c t") #'mk/cpp-oj-test)
-  (define-key c++-ts-mode-map (kbd "C-c c s") #'mk/cpp-oj-submit))
+  (let ((dir default-directory))
+    (eshell)
+    (unless (string= (expand-file-name default-directory)
+                     (expand-file-name dir))
+      (goto-char (point-max))
+      (eshell/cd dir)
+      (eshell-send-input))))
 
 (provide 'mk-cpp)
 ;;; mk-cpp.el ends here
