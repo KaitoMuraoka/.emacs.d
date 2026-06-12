@@ -57,6 +57,19 @@
 ;; Swift, TypeScript, ELisp など主要言語のスニペットが含まれる
 (use-package yasnippet-snippets)
 
+;; yasnippet-snippets の js-mode スニペット（*@r, *ty, *@p, @ty）は
+;; #condition: で js2-mode の関数 js2-node-type / js2-node-at-point /
+;; 変数 js2-COMMENT を参照している。js2-mode は未インストールのため、
+;; JS バッファで補完が走るたびに条件評価が void エラーになり
+;;   [yas] Error in condition evaluation: Symbol's function definition is void: js2-node-type
+;; が大量に出る。条件式が「エラー」ではなく nil を返すよう無害なスタブを置き、
+;; 該当スニペットを静かに非表示にする（(= -1 0) => nil）。
+(unless (fboundp 'js2-node-at-point)
+  (defun js2-node-at-point (&rest _) nil))
+(unless (fboundp 'js2-node-type)
+  (defun js2-node-type (_) -1))
+(defvar js2-COMMENT 0)
+
 ;; cape: 複数の補完ソース(capf)を合成・拡張する
 ;; eglot 単独だと出ない「スニペット・バッファ内の語」を補うために使う
 (use-package cape)
