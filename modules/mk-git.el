@@ -5,7 +5,7 @@
 ;; Magit: Emacs 上で Git を操作できる強力なツール
 ;; ターミナルを開かず Git の全操作が行える
 (use-package magit
-  :bind ("C-c C-g" . magit-status))
+  :bind ("C-c g" . magit-status))
 ;;; バッファに依存せず、常にディレクトリを明示的に入力する
 (defun magit-status-ask-dir ()
   "Enter the directory to open Magit"
