@@ -26,6 +26,9 @@
 (global-set-key (kbd "C-SPC")  #'toggle-input-method)
 (global-set-key (kbd "C-\\") #'set-mark-command)
 
+;; C-x C-j で Emacs 内蔵の日本語入力（toggle-input-method）を切り替える
+(global-set-key (kbd "C-x C-j") #'toggle-input-method)
+
 ;; C-h を削除キー（バックスペース相当）に変更する
 ;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
 ;;       直感的な操作に合わせる

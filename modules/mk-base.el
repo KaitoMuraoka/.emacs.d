@@ -88,7 +88,7 @@
 ;; Setup DDSKK
 (use-package ddskk
   :ensure t
-  :bind ("C-x C-j" . skk-mode)
+  :commands skk-mode
   :custom
   (skk-large-jisyo "~/Library/Containers/net.mtgto.inputmethod.macSKK/Data/Documents/Dictionaries/skk-jisyo.utf8")
   (skk-large-jisyo "~/Library/Containers/net.mtgto.inputmethod.macSKK/Data/Documents/Dictionaries/SKK-JISYO.L")
