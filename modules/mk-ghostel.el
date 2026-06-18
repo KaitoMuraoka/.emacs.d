@@ -50,9 +50,9 @@
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
 
   :bind
-  ;; C-c g t : ghostel を開く
-  ("C-c g t" . ghostel)
-  ;; C-c g p : プロジェクトルートで ghostel を開く
-  ("C-c g p" . ghostel-project))
+  ;; C-c C-g t : ghostel を開く
+  ("C-c C-g t" . ghostel)
+  ;; C-c C-g p : プロジェクトルートで ghostel を開く
+  ("C-c C-g p" . ghostel-project))
 
 (provide 'mk-ghostel)
