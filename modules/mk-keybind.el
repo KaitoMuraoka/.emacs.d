@@ -36,4 +36,14 @@
 (global-set-key "\C-h" 'delete-backward-char)
 (global-set-key (kbd "C-?") 'help-command)
 
+;; 日本語入力（内蔵 quail / kkc）の変換中も C-h をバックスペースとして扱う
+;; 既定では C-h がヘルプ（kkc-help / quail-translation-help）に割り当てられており、
+;; グローバルの C-h（delete-backward-char）と挙動が食い違うため、各文脈の
+;; バックスペースキー（DEL）と同じコマンドに統一する
+(with-eval-after-load 'kkc
+  (define-key kkc-keymap (kbd "C-h") #'kkc-cancel))
+(with-eval-after-load 'quail
+  (define-key quail-translation-keymap (kbd "C-h") #'quail-delete-last-char)
+  (define-key quail-conversion-keymap (kbd "C-h") #'quail-conversion-backward-delete-char))
+
 (provide 'mk-keybind)
