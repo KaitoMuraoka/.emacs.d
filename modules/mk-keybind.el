@@ -26,6 +26,10 @@
 (global-set-key (kbd "C-SPC")  #'toggle-input-method)
 (global-set-key (kbd "C-\\") #'set-mark-command)
 
+;; Emacs標準の入力機能(LEIM)を C-x C-j で切り替える
+(setq default-input-method "japanese")
+(global-set-key (kbd "C-x C-j") #'toggle-input-method)
+
 ;; C-h を削除キー（バックスペース相当）に変更する
 ;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
 ;;       直感的な操作に合わせる
