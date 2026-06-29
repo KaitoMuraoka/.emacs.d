@@ -28,6 +28,8 @@
 
 ;; Emacs標準の入力機能(LEIM)を C-x C-j で切り替える
 (setq default-input-method "japanese")
+;; 「nn」を一つの「ん」に変換する（デフォルトは n を即時確定するため nn が んん になる）
+(setq quail-japanese-use-double-n t)
 (global-set-key (kbd "C-x C-j") #'toggle-input-method)
 
 ;; C-h を削除キー（バックスペース相当）に変更する
