@@ -31,6 +31,10 @@
 ;; 「nn」を一つの「ん」に変換する（デフォルトは n を即時確定するため nn が んん になる）
 (setq quail-japanese-use-double-n t)
 (global-set-key (kbd "C-x C-j") #'toggle-input-method)
+;; Quail 中でも C-h を削除に統一する
+(with-eval-after-load 'quail
+  (define-key quail-translation-keymap "\C-h" #'quail-delete-last-char)
+  (define-key quail-conversion-keymap "\C-h" #'quail-conversion-backward-delete-char))
 
 ;; C-h を削除キー（バックスペース相当）に変更する
 ;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
