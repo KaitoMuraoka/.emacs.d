@@ -11,14 +11,16 @@
   (set-fontset-font t '(#x1F300 . #x1FAFF) (font-spec :family "Apple Color Emoji") nil 'prepend))
 
 ;; GUI/TUI の外観
-(load-theme 'modus-vivendi t)
-;; (use-package gruvbox-theme
-;;   :straight (:host github :repo "Greduan/emacs-theme-gruvbox"))
-;; (load-theme 'gruvbox-dark-medium t)
+;; Cobalt テーマ（emacs-jp/replace-colorthemes より）
+(use-package cobalt-theme
+  :straight (cobalt-theme :type git :host github
+                          :repo "emacs-jp/replace-colorthemes"
+                          :files ("cobalt-theme.el")))
+(load-theme 'cobalt t)
 
 ;; TUI時はターミナルのマウスイベントを受け取る
 (unless (display-graphic-p)
-  (load-theme 'modus-vivendi t)
+  (load-theme 'cobalt t)
   (set-face-background 'default "unspecified-bg")
   (set-face-background 'line-number "unspecified-bg")
   (set-face-background 'line-number-current-line "unspecified-bg")
