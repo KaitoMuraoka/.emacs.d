@@ -62,7 +62,6 @@
 (require 'mk-git)
 ;;(require 'mk-evil)
 (require 'mk-eshell)
-(require 'mk-eat)
 (require 'mk-vterm)
 (require 'mk-ghostel)
 (require 'mk-kitty-graphics)
