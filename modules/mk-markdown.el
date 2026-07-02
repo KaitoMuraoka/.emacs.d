@@ -25,6 +25,32 @@
           (remove-text-properties pos next '(display nil)))
         (setq pos next)))))
 
+(defun mk-markdown--heading-face-on-line (beg end)
+  "BEG から END の間にある見出しフェイス (markdown-header-face-N) を返す。"
+  (let ((pos beg) result)
+    (while (and (not result) (< pos end))
+      (let ((face (get-text-property pos 'face)))
+        (dolist (f (ensure-list face))
+          (when (and (symbolp f)
+                     (string-match-p "\\`markdown-header-face-[1-6]\\'"
+                                     (symbol-name f)))
+            (setq result f))))
+      (setq pos (or (next-single-property-change pos 'face nil end) end)))
+    result))
+
+(defun mk-markdown--scale-heading-delimiter (beg end)
+  "BEG から END の見出し記号 # に見出しフェイスを重ね、文字サイズを揃える。"
+  (let ((header-face (mk-markdown--heading-face-on-line beg end)))
+    (when header-face
+      (let ((pos beg))
+        (while (< pos end)
+          (let ((next (or (next-single-property-change pos 'face nil end) end))
+                (face (get-text-property pos 'face)))
+            (when (memq 'markdown-header-delimiter-face (ensure-list face))
+              (put-text-property pos next 'face
+                                 (list 'markdown-header-delimiter-face header-face)))
+            (setq pos next)))))))
+
 (defun mk-markdown--reveal-markup-at-point ()
   "カーソル行の Markdown 記号を一時的に表示する。
 行を離れたら font-lock による再フォント化で隠し直す。"
@@ -42,7 +68,8 @@
       (when (mk-markdown--hidden-markup-p beg end)
         (with-silent-modifications
           (remove-text-properties beg end '(invisible nil))
-          (mk-markdown--remove-empty-display beg end))
+          (mk-markdown--remove-empty-display beg end)
+          (mk-markdown--scale-heading-delimiter beg end))
         (setq mk-markdown--revealed-extent
               (cons (copy-marker beg) (copy-marker end)))))))
 
