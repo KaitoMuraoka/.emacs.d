@@ -62,27 +62,42 @@
 
 (defun mk-markdown--reveal-markup-at-point ()
   "カーソル位置の Markdown 記号を一時的に表示する。
-その場所を離れたら font-lock による再フォント化で隠し直す。"
-  (when markdown-hide-markup
-    (pcase-let ((`(,beg . ,end) (mk-markdown--reveal-region)))
-      ;; 前に表示していた範囲から離れたら隠し直す
-      (when (and mk-markdown--revealed-extent
-                 (or (<= end (car mk-markdown--revealed-extent))
-                     (>= beg (cdr mk-markdown--revealed-extent))))
-        (font-lock-flush (car mk-markdown--revealed-extent)
-                         (cdr mk-markdown--revealed-extent))
-        (setq mk-markdown--revealed-extent nil))
-      ;; 現在行に隠れた記号があれば表示する
-      (when (mk-markdown--hidden-markup-p beg end)
-        (with-silent-modifications
-          (remove-text-properties beg end '(invisible nil))
-          (mk-markdown--remove-empty-display beg end)
-          (mk-markdown--scale-heading-delimiter beg end))
-        (setq mk-markdown--revealed-extent
-              (cons (copy-marker beg) (copy-marker end)))))))
+その場所を離れたら font-lock による再フォント化で隠し直す。
+エラー時は demote し、post-command-hook から自動除去されるのを防ぐ。"
+  (with-demoted-errors "mk-markdown reveal error: %S"
+    (when markdown-hide-markup
+      (pcase-let ((`(,beg . ,end) (mk-markdown--reveal-region)))
+        ;; 前に表示していた範囲から離れたら隠し直す
+        (when (and mk-markdown--revealed-extent
+                   (or (<= end (car mk-markdown--revealed-extent))
+                       (>= beg (cdr mk-markdown--revealed-extent))))
+          (font-lock-flush (car mk-markdown--revealed-extent)
+                           (cdr mk-markdown--revealed-extent))
+          (setq mk-markdown--revealed-extent nil))
+        ;; 現在行に隠れた記号があれば表示する
+        (when (mk-markdown--hidden-markup-p beg end)
+          (with-silent-modifications
+            (remove-text-properties beg end '(invisible nil))
+            (mk-markdown--remove-empty-display beg end)
+            (mk-markdown--scale-heading-delimiter beg end))
+          (setq mk-markdown--revealed-extent
+                (cons (copy-marker beg) (copy-marker end))))))))
+
+(defvar mk-markdown--reveal-timer nil
+  "reveal を再実行するアイドルタイマー。")
+
+(defun mk-markdown--reveal-on-idle ()
+  "アイドル時に reveal を再実行する。
+jit-lock のフォント化は post-command-hook より後(再描画時)に走るため、
+未フォント化領域へのカーソル移動時に記号が隠し直される。ここで回復する。"
+  (when (derived-mode-p 'markdown-mode)
+    (mk-markdown--reveal-markup-at-point)))
 
 (defun mk-markdown--setup-reveal ()
-  (add-hook 'post-command-hook #'mk-markdown--reveal-markup-at-point nil t))
+  (add-hook 'post-command-hook #'mk-markdown--reveal-markup-at-point nil t)
+  (unless mk-markdown--reveal-timer
+    (setq mk-markdown--reveal-timer
+          (run-with-idle-timer 0.15 t #'mk-markdown--reveal-on-idle))))
 
 (use-package markdown-mode
   :mode (("README\\.md\\'" . gfm-mode)
