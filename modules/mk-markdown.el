@@ -51,16 +51,24 @@
                                  (list 'markdown-header-delimiter-face header-face)))
             (setq pos next)))))))
 
+(defun mk-markdown--reveal-region ()
+  "reveal 対象の範囲 (BEG . END) を返す。
+コードブロック内ではフェンス行が行ごと invisible になりカーソルを
+置けないため、ブロック全体を対象にする。それ以外は現在行。"
+  (let ((block (markdown-code-block-at-pos (point))))
+    (if block
+        (cons (car block) (min (cadr block) (point-max)))
+      (cons (line-beginning-position) (line-end-position)))))
+
 (defun mk-markdown--reveal-markup-at-point ()
-  "カーソル行の Markdown 記号を一時的に表示する。
-行を離れたら font-lock による再フォント化で隠し直す。"
+  "カーソル位置の Markdown 記号を一時的に表示する。
+その場所を離れたら font-lock による再フォント化で隠し直す。"
   (when markdown-hide-markup
-    (let ((beg (line-beginning-position))
-          (end (line-end-position)))
-      ;; 前に表示していた行から離れたら隠し直す
+    (pcase-let ((`(,beg . ,end) (mk-markdown--reveal-region)))
+      ;; 前に表示していた範囲から離れたら隠し直す
       (when (and mk-markdown--revealed-extent
-                 (or (< end (car mk-markdown--revealed-extent))
-                     (> beg (cdr mk-markdown--revealed-extent))))
+                 (or (<= end (car mk-markdown--revealed-extent))
+                     (>= beg (cdr mk-markdown--revealed-extent))))
         (font-lock-flush (car mk-markdown--revealed-extent)
                          (cdr mk-markdown--revealed-extent))
         (setq mk-markdown--revealed-extent nil))
@@ -85,6 +93,16 @@
   (markdown-hide-markup t)                      ; 強調・リンク等の記号を隠す
   (markdown-header-scaling t)                   ; 見出しをレベル別に拡大表示
   (markdown-fontify-code-blocks-natively t)     ; コードブロックを言語別にハイライト
-  (markdown-list-item-bullets '("●" "○" "■"))) ; リストを Unicode バレットで表示
+  (markdown-list-item-bullets '("●" "○" "■")) ; リストを Unicode バレットで表示
+  :config
+  ;; コードブロックの範囲を背景色で示す(render-markdown.nvim 風)
+  (require 'color)
+  (when-let* ((bg (face-background 'default nil t))
+              (rgb (color-name-to-rgb bg)))
+    (set-face-attribute 'markdown-code-face nil
+                        :background (if (color-dark-p rgb)
+                                        (color-lighten-name bg 10)
+                                      (color-darken-name bg 8))
+                        :extend t)))
 
 (provide 'mk-markdown)
