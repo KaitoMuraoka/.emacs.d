@@ -24,7 +24,6 @@
 
   ;; ターミナルバッファでも Evil を無効化
   (evil-set-initial-state 'vterm-mode 'emacs)
-  (evil-set-initial-state 'eat-mode   'emacs)
 
   ;; agent-shell: 各バッファタイプを個別に指定
   (evil-set-initial-state 'agent-shell-mode               'emacs)
