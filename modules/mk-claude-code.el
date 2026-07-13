@@ -17,7 +17,7 @@
                               (side . right)
                               (window-width . 90)))))
   :bind-keymap
-  ("C-c a" . claude-code-command-map)
+  ("C-c c" . claude-code-command-map)
   :bind
   (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode))
   :config

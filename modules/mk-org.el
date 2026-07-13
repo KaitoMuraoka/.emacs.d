@@ -10,6 +10,12 @@
 
   :custom
   (org-directory org-icloud-path)
-  (org-default-notes-file (concat org-icloud-path "note.org")))
+  (org-default-notes-file (concat org-icloud-path "note.org"))
+
+  :bind
+  ("C-c a" . org-agenda))
+
+;; 画像をインラインで表示
+(setq org-startup-with-inline-images t)
 
 (provide 'mk-org)
