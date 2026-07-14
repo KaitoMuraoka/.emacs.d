@@ -18,6 +18,10 @@
    '(("t" "タスク" entry
       (file+headline org-default-notes-file "Tasks")
       "* TODO %?\n %u\n"
+      :empty-lines 1)
+     ("k" "ナレッジ" entry
+      (file "knowledge.org")
+      "* %?\n  # Wrote on %U"
       :empty-lines 1)))
 
   :bind
