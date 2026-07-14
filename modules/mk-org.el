@@ -11,6 +11,8 @@
   :custom
   (org-directory org-icloud-path)
   (org-default-notes-file (concat org-icloud-path "note.org"))
+  ;; agenda はタスクを書き込む note.org のみを対象にする
+  (org-agenda-files (list (concat org-icloud-path "note.org")))
   ;; capture テンプレート（%a を付けない）
   (org-capture-templates
    '(("t" "タスク" entry
@@ -19,7 +21,8 @@
       :empty-lines 1)))
 
   :bind
-  ("C-c a" . org-agenda))
+  ("C-c a" . org-agenda)
+  ("C-c c" . org-capture))
 
 ;; 画像をインラインで表示
 (setq org-startup-with-inline-images t)

@@ -16,8 +16,6 @@
      (display-buffer buffer '((display-buffer-in-side-window)
                               (side . right)
                               (window-width . 90)))))
-  :bind-keymap
-  ("C-c c" . claude-code-command-map)
   :bind
   (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode))
   :config
