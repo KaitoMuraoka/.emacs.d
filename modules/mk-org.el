@@ -16,7 +16,7 @@
   ;; capture テンプレート（%a を付けない）
   (org-capture-templates
    '(("t" "タスク" entry
-      (file org-default-notes-file)
+      (file+headline org-default-notes-file "Tasks")
       "* TODO %?\n %u\n"
       :empty-lines 1)))
 
