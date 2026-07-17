@@ -67,7 +67,6 @@
 (require 'mk-kitty-graphics)
 (require 'mk-claude-code-ide)
 (require 'mk-claude-code)
-(require 'mk-agent-shell)
 (require 'mk-ai-code-interface)
 (require 'mk-dirvish)
 (require 'mk-org)
