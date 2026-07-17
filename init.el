@@ -70,6 +70,7 @@
 (require 'mk-agent-shell)
 (require 'mk-dirvish)
 (require 'mk-org)
+(require 'mk-markdown)
 (require 'mk-org-scratch)
 (require 'mk-keybind)
 (require 'mk-lsp)
