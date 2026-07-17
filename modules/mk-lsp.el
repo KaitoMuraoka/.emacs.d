@@ -21,7 +21,12 @@
 ;; 例: "find file" → "file find" でも補完される
 (use-package orderless
   :init
-  (setq completion-styles '(orderless basic)))
+  (setq completion-styles '(orderless basic))
+  ;; smart-case を無効化する
+  ;; デフォルトでは入力に大文字が含まれると大文字小文字を区別するようになり、
+  ;; 例えば "Unfix" が小文字始まりの候補にマッチしなくなる。
+  ;; nil にすると常に completion-ignore-case（上記で t）に従う
+  (setq orderless-smart-case nil))
 
 ;; Marginalia: 補完候補の横に説明文を表示
 (use-package marginalia
@@ -72,7 +77,16 @@
 
 ;; cape: 複数の補完ソース(capf)を合成・拡張する
 ;; eglot 単独だと出ない「スニペット・バッファ内の語」を補うために使う
-(use-package cape)
+(use-package cape
+  :config
+  ;; cape-keyword: 言語ごとの予約語を補完候補に出す
+  (require 'cape-keyword)
+  ;; ruby-lsp は raise などレシーバなしの Kernel メソッドを補完候補に
+  ;; 返さないため、頻出のものを予約語リストに足して補完に出す
+  ;; （ruby-ts-mode は cape-keyword-list 内で ruby-mode のリストを参照する）
+  (dolist (kw '("raise" "puts" "p" "pp" "require" "require_relative"
+                "lambda" "proc" "loop" "throw" "catch"))
+    (cl-pushnew kw (alist-get 'ruby-mode cape-keyword-list) :test #'equal)))
 
 ;; yasnippet-capf: yasnippet スニペットを補完候補(capf)として出す
 ;; これで def 等のスニペットが corfu のポップアップに出るようになる
@@ -184,15 +198,22 @@
 ;; 置き換えてしまい、yasnippet スニペットやバッファ内の語が corfu に出なくなる。
 ;;
 ;; ここでは eglot（LSP）を最優先にする:
-;;   - 第1要素: cape-capf-super で「LSP + スニペット」を合成
-;;     （LSP の Method 候補と def 等のスニペットを一緒に出す）
+;;   - 第1要素: cape-capf-super で「LSP + スニペット + 予約語」を合成
+;;     （LSP の Method 候補と def 等のスニペット・raise 等の予約語を一緒に出す）
 ;;   - 第2要素: cape-dabbrev は LSP が候補を返せない箇所だけのフォールバック
 ;;     （第1要素が候補を返す間は Dabbrev は出ないので Method がノイズに埋もれない）
+;;
+;; eglot 側は cape-capf-buster でラップする。
+;; 理由: ruby-lsp のように候補をサーバー側でフィルタして isIncomplete で返す
+;;       サーバーでは入力のたびに再クエリが必要だが、cape-capf-super は候補を
+;;       キャッシュするため再クエリが止まり、プロジェクト定義の定数などが
+;;       補完に出なくなる。buster がキャッシュを無効化して毎回再クエリさせる。
 (defun mk/eglot-capf ()
   (setq-local completion-at-point-functions
               (list (cape-capf-super
-                     #'eglot-completion-at-point
-                     #'yasnippet-capf)
+                     (cape-capf-buster #'eglot-completion-at-point)
+                     #'yasnippet-capf
+                     #'cape-keyword)
                     #'cape-dabbrev)))
 
 (add-hook 'eglot-managed-mode-hook #'mk/eglot-capf)
