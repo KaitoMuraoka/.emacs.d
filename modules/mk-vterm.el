@@ -18,6 +18,7 @@
   :hook
   ;; vterm バッファでは行番号・hl-line を無効化
   (vterm-mode . (lambda ()
+                  (with-editor-export-editor)
                   ;; $EDITOR ではなく、$GIT_EDITORを優先
                   (with-editor-export-git-editor)))
   :bind
