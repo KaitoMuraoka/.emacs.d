@@ -60,8 +60,6 @@
 (require 'mk-engine-mode)
 (require 'mk-which-key)
 (require 'mk-git)
-;;(require 'mk-evil)
-(require 'mk-eshell)
 (require 'mk-vterm)
 (require 'mk-ghostel)
 (require 'mk-kitty-graphics)
