@@ -1,55 +1,50 @@
 ;;; ============================================================
 ;;; markdown-mode
 ;;; ============================================================
+(defvar mk-markdown-heading-markers '("① " "② " "③ " "④ " "⑤ " "⑥ ")
+  "見出しレベル 1〜6 の # の代わりに表示する記号。")
+
 (defvar-local mk-markdown--revealed-extent nil
   "現在記号を再表示している行の範囲 (BEG-MARKER . END-MARKER)。")
 
+(defun mk-markdown--hidden-display-p (value)
+  "display プロパティ VALUE が記号を隠すためのものか。
+見出しの # は丸数字、それ以外の記号は \"\" に置き換えられる。"
+  (or (equal value "")
+      (and (stringp value) (member value mk-markdown-heading-markers) t)))
+
 (defun mk-markdown--hidden-markup-p (beg end)
   "BEG から END の間に隠された Markdown 記号があるか。
-強調・リンク等は invisible、見出しの # は display \"\" で隠される。"
+強調・リンク等は invisible、見出しの # は display で置き換えられる。"
   (or (text-property-any beg end 'invisible 'markdown-markup)
       (let ((pos beg) found)
         (while (and (not found) (< pos end))
-          (when (equal (get-text-property pos 'display) "")
+          (when (mk-markdown--hidden-display-p (get-text-property pos 'display))
             (setq found t))
           (setq pos (or (next-single-property-change pos 'display nil end) end)))
         found)))
 
-(defun mk-markdown--remove-empty-display (beg end)
-  "BEG から END の display \"\" プロパティのみ除去する。
+(defun mk-markdown--remove-hidden-display (beg end)
+  "BEG から END の記号を隠す display プロパティのみ除去する。
 インライン画像などの display プロパティは対象にしない。"
   (let ((pos beg))
     (while (< pos end)
       (let ((next (or (next-single-property-change pos 'display nil end) end)))
-        (when (equal (get-text-property pos 'display) "")
+        (when (mk-markdown--hidden-display-p (get-text-property pos 'display))
           (remove-text-properties pos next '(display nil)))
         (setq pos next)))))
 
-(defun mk-markdown--heading-face-on-line (beg end)
-  "BEG から END の間にある見出しフェイス (markdown-header-face-N) を返す。"
-  (let ((pos beg) result)
-    (while (and (not result) (< pos end))
-      (let ((face (get-text-property pos 'face)))
-        (dolist (f (ensure-list face))
-          (when (and (symbolp f)
-                     (string-match-p "\\`markdown-header-face-[1-6]\\'"
-                                     (symbol-name f)))
-            (setq result f))))
-      (setq pos (or (next-single-property-change pos 'face nil end) end)))
+(defun mk-markdown--number-heading-markup (fn last)
+  "`markdown-fontify-headings' の後で atx 見出しの # を丸数字に差し替える。"
+  (let ((result (funcall fn last)))
+    (when (and result markdown-hide-markup (match-beginning 4))
+      (let* ((beg (match-beginning 4))
+             (end (match-end 4))
+             (level (save-excursion (goto-char beg) (skip-chars-forward "#")))
+             (marker (nth (1- level) mk-markdown-heading-markers)))
+        (when marker
+          (put-text-property beg end 'display marker))))
     result))
-
-(defun mk-markdown--scale-heading-delimiter (beg end)
-  "BEG から END の見出し記号 # に見出しフェイスを重ね、文字サイズを揃える。"
-  (let ((header-face (mk-markdown--heading-face-on-line beg end)))
-    (when header-face
-      (let ((pos beg))
-        (while (< pos end)
-          (let ((next (or (next-single-property-change pos 'face nil end) end))
-                (face (get-text-property pos 'face)))
-            (when (memq 'markdown-header-delimiter-face (ensure-list face))
-              (put-text-property pos next 'face
-                                 (list 'markdown-header-delimiter-face header-face)))
-            (setq pos next)))))))
 
 (defun mk-markdown--reveal-region ()
   "reveal 対象の範囲 (BEG . END) を返す。
@@ -78,8 +73,7 @@
         (when (mk-markdown--hidden-markup-p beg end)
           (with-silent-modifications
             (remove-text-properties beg end '(invisible nil))
-            (mk-markdown--remove-empty-display beg end)
-            (mk-markdown--scale-heading-delimiter beg end))
+            (mk-markdown--remove-hidden-display beg end))
           (setq mk-markdown--revealed-extent
                 (cons (copy-marker beg) (copy-marker end))))))))
 
@@ -106,10 +100,12 @@ jit-lock のフォント化は post-command-hook より後(再描画時)に走�
   :custom
   ;; render-markdown.nvim 相当のバッファ内装飾
   (markdown-hide-markup t)                      ; 強調・リンク等の記号を隠す
-  (markdown-header-scaling t)                   ; 見出しをレベル別に拡大表示
+  (markdown-header-scaling nil)                 ; 見出しの文字サイズは変えない
   (markdown-fontify-code-blocks-natively t)     ; コードブロックを言語別にハイライト
   (markdown-list-item-bullets '("●" "○" "■")) ; リストを Unicode バレットで表示
   :config
+  ;; 見出しの # をレベル別の丸数字で表示する
+  (advice-add 'markdown-fontify-headings :around #'mk-markdown--number-heading-markup)
   ;; コードブロックの範囲を背景色で示す(render-markdown.nvim 風)
   (require 'color)
   (when-let* ((bg (face-background 'default nil t))
