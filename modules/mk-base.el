@@ -47,6 +47,10 @@
 
 ;; 行番号を表示（絶対行番号）
 (setq display-line-numbers-type 'relative)
+;; 表示中の行だけでなくバッファ全体の最大行数からガター幅を決める。
+;; これをしないと相対行番号の桁数が変わるたびにガター幅が再計算され、
+;; スクロール中に本文がガタッとズレて見える。
+(setq display-line-numbers-width-start t)
 (global-display-line-numbers-mode 1)
 
 ;; 対応する括弧をハイライト
