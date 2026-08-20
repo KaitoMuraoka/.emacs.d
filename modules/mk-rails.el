@@ -45,6 +45,8 @@
 
 ;; rspec-mode: spec の実行・再実行をバッファから行う
 ;; 例: C-c , v（verify file）/ C-c , s（verify single）/ C-c , r（rerun）
+;; Gemfile に ruby-lsp-rspec を追加すると ruby-lsp 側からも spec 関連の
+;; 定義ジャンプ等が効くようになる（addon 設定は mk-lsp.el を参照）
 (use-package rspec-mode
   :hook (ruby-ts-mode . rspec-mode)
   :custom
