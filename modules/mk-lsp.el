@@ -146,8 +146,17 @@
                '((python-mode python-ts-mode) . ("jedi-language-server")))
 
   ;; Ruby: ruby-lsp を使用（rbenv shim 経由で .ruby-version を尊重する）
-  ;; Rails 専用機能はプロジェクトの Gemfile に ruby-lsp-rails を入れると
-  ;; ruby-lsp が自動で addon として読み込む
+  ;; Rails / RSpec 専用機能は addon gem として提供され、プロジェクトの
+  ;; Gemfile に追加すると ruby-lsp が自動で検出して読み込む（elisp 側の追加設定は不要）:
+  ;;
+  ;;   group :development do
+  ;;     gem "ruby-lsp-rails", require: false
+  ;;     gem "ruby-lsp-rspec", require: false
+  ;;   end
+  ;;
+  ;; 注意: eglot は LSP の CodeLens に未対応のため、ruby-lsp-rspec が提供する
+  ;; 「spec 実行ボタン」自体は表示されない。spec の実行は引き続き
+  ;; rspec-mode（mk-rails.el）の C-c , v 等を使う
   (add-to-list 'eglot-server-programs
                '(ruby-ts-mode . ("ruby-lsp")))
 
