@@ -1,93 +1,42 @@
-;; -*- lexical-binding: t; -*-
+;; ~/.emacs.d/elisp ディレクトリをロードパスに追加する
+;; load-path を追加する関数を定義
+(defun add-to-load-path (&rest paths)
+  (let (path)
+    (dolist (path paths paths)
+      (let ((default-directory
+              (expand-file-name (concat user-emacs-directory path))))
+        (add-to-list 'load-path default-directory)
+        (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
+            (normal-top-level-add-subdirs-to-load-path))))))
 
-;;; ============================================================
-;; straight.el ブートストラップ
-;;; ============================================================
+;; 引数のディレクトリとそのサブディレクトリをload-pathに追加
+(add-to-load-path "elisp" "conf" "public_repos")
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        user-emacs-directory))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(require 'init-loader)
+(init-loader-load "~/.emacs.d/conf") 	;設定ファイルがあるディレクトリを指定
+;; Mac だけに読み込ませる内容を書く
+(when (eq system-type 'darwin)
+  ;; Mac の Emacs でファイル名を正しく扱うための設定
+  (require 'ucs-normalize)
+  (setq file-name-coding-system 'utf-8-hfs)
+  (setq locale-coding-system 'utf-8-hfs))
 
-;; straight.el に use-package を管理させる
-(straight-use-package 'use-package)
+;; CocoaEmacs 以外はメニューバーを非表示
+(unless (eq window-system 'ns)
+  ;; menu-bar を非表示
+  (menu-bar-mode 0))
 
-;; 全 use-package を自動的に straight で管理する
-;; （既存の :ensure t と同じ感覚で使える）
-(setq straight-use-package-by-default t)
+;; cl-lib パッケージを読み込む
+(require 'cl-lib)
 
-;; org を組み込みとして扱う
-;; 理由: straight.el が org をソースからビルドする際に lisp/ ディレクトリが
-;;       存在しないケースがあり :pre-build エラーで init.el がアボートするため
-(straight-use-package '(org :type built-in))
+;; php-mode を読み込み
+(when (require 'php-mode nil t)
+  ;; 読み込みに成功した場合のみ、拡張子 .ctp を php-mode で実行する
+  (add-to-list 'auto-mode-alist '("\\.ctp$" . php-mode)))
 
-;; project を組み込みとして扱う
-;; 理由: 依存パッケージ経由で straight が外部版をビルドすると
-;;       "Feature 'project' is now provided by a different file" エラーが発生するため
-(straight-use-package '(project :type built-in))
+;; run-ruby 関数の初呼び出し時に inf-ruby.el を読み込む
+(autoload 'ruby-ruby "inf-ruby"
+  "Run an inferior Ruby process")
 
-;; flymake を組み込みとして扱う
-;; 理由: 同上。外部版との競合で起動エラーになるため
-(straight-use-package '(flymake :type built-in))
-
-;; Emacs 29 以降で組み込みになったパッケージを built-in として宣言する
-;; 理由: 依存パッケージが外部版を引き込み、起動時に
-;;       "Feature 'X' is now provided by a different file" エラーが連鎖するため
-;; transient は agent-shell が新しい API（transient--set-layout 等）を使うため
-;; built-in ではなく straight で外部版を管理する
-(dolist (pkg '(xref eldoc seq eglot jsonrpc use-package))
-  (straight-use-package `(,pkg :type built-in)))
-
-(dolist (path (list
-               (expand-file-name "modules" user-emacs-directory)))
-  (add-to-list 'load-path path))
-
-(add-to-list 'load-path "~/dev-emacs/magh")
-
-(require 'mk-base)
-(require 'mk-view)
-(require 'mk-path-from-shell)
-(require 'mk-engine-mode)
-(require 'mk-which-key)
-(require 'mk-git)
-;;(require 'mk-evil)
-(require 'mk-eshell)
-(require 'mk-vterm)
-(require 'mk-ghostel)
-(require 'mk-kitty-graphics)
-(require 'mk-claude-code-ide)
-(require 'mk-claude-code)
-(require 'mk-ai-code-interface)
-(require 'mk-dirvish)
-(require 'mk-org)
-(require 'mk-markdown)
-(require 'mk-org-scratch)
-(require 'mk-keybind)
-(require 'mk-lsp)
-(require 'mk-language-mode)
-(require 'mk-rails)
-(require 'mk-origami)
-(require 'mk-multiple-cursors)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ai-code-onboarding-seen t)
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(when (executable-find "git")
+  (require 'magit nil t)
