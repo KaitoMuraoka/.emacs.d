@@ -4,10 +4,10 @@
 (require 'mk-straight)
 (require 'mk-base)
 (require 'mk-view)
+(require 'mk-git)
 ;;(require 'mk-path-from-shell)
 ;; (require 'mk-engine-mode)
 ;; (require 'mk-which-key)
-;; (require 'mk-git)
 
 ;; (require 'mk-eshell)
 ;; (require 'mk-vterm)
