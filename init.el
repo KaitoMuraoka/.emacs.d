@@ -1,10 +1,14 @@
+
+
 (add-to-list 'load-path (locate-user-emacs-file "modules"))
+(require 'mk-straight)
 (require 'mk-base)
 (require 'mk-view)
-;; (require 'mk-path-from-shell)
+;;(require 'mk-path-from-shell)
 ;; (require 'mk-engine-mode)
 ;; (require 'mk-which-key)
 ;; (require 'mk-git)
+
 ;; (require 'mk-eshell)
 ;; (require 'mk-vterm)
 ;; (require 'mk-ghostel)
