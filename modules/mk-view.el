@@ -77,10 +77,20 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 ;; それより前に設定した内容が失われるため。
 (add-hook 'window-setup-hook #'mk--setup-initial-frame-appearance)
 
-;; 本文を中央寄せして執筆に集中する（M-x olivetti-mode で切り替え）
+;; 本文を中央寄せして執筆に集中する
 (use-package olivetti
   :custom
-  (olivetti-body-width 100))
+  (olivetti-body-width 100)
+  :hook (text-mode . olivetti-mode)
+  :init
+  ;; 起動画面 (*GNU Emacs*) は text-mode 派生ではなくフックが効かないため、
+  ;; 画面生成後に明示的に有効化する
+  (defun mk-olivetti-enable-in-splash (&rest _)
+    (when-let* ((buf (get-buffer "*GNU Emacs*")))
+      (with-current-buffer buf
+        (olivetti-mode 1))))
+  (advice-add 'fancy-startup-screen :after #'mk-olivetti-enable-in-splash)
+  (advice-add 'normal-splash-screen :after #'mk-olivetti-enable-in-splash))
 
 ;; メニューバーを非表示
 (menu-bar-mode 0)
