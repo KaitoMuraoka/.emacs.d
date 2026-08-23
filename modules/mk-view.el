@@ -6,9 +6,11 @@
 (set-face-attribute 'default nil :family "HackGen Console" :height 125)
 
 ;; GUI/TUI の外観
-(use-package color-theme-sanityinc-tomorrow
+;; nano-theme は MELPA 未収録のため straight に GitHub リポジトリを直接指定する
+(use-package nano-theme
+  :straight (nano-theme :type git :host github :repo "rougier/nano-theme")
   :config
-  (load-theme 'sanityinc-tomorrow-night t))
+  (load-theme 'nano-dark t))
 
 ;;; ------------------------------------------------------------
 ;;; フレーム種別ごとの外観設定
