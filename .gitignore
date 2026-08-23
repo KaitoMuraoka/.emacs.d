@@ -88,3 +88,4 @@ flycheck_init.el
 straight/
 /.agent-shell/
 org-clock-save.el
+/fontaine-latest-state.eld

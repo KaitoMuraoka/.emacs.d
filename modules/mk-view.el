@@ -2,8 +2,15 @@
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
 (set-default-coding-systems 'utf-8)
-;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
-(set-face-attribute 'default nil :family "HackGen Console" :height 125)
+;; フォントは fontaine のプリセットで管理する
+;; 既定は fontaine 標準の regular。M-x fontaine-set-preset で切り替える
+(use-package fontaine
+  :config
+  ;; fontaine は端末では動作せず警告を出すため GUI のときだけ適用する
+  (when (display-graphic-p)
+    ;; 選択したプリセットを次回起動時に復元する
+    (fontaine-mode 1)
+    (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))))
 
 ;; GUI/TUI の外観
 ;; nano-theme は MELPA 未収録のため straight に GitHub リポジトリを直接指定する
