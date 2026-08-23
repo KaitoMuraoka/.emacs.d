@@ -26,8 +26,10 @@
 ;; 現在行をハイライト
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
-;; 行番号を表示（相対行番号）
-(setq display-line-numbers-type 'relative)
+;; 行番号を表示（見た目の行を数える相対行番号）
+;; visual-line-mode で折り返した継続行も1行として数えるため、
+;; C-n / C-p の移動量と行番号の数え方が一致する
+(setq display-line-numbers-type 'visual)
 ;; ガター幅を固定する。
 ;; display-line-numbers-width-start はモード有効化時の行数から「最小幅」を
 ;; 一度だけ決めるだけなので、追記でバッファが伸びたり、カーソルが桁の境目
@@ -50,6 +52,13 @@
 ;;折り返しをデフォルトにする
 (setq-default truncate-lines nil)
 (setq-default org-startup-truncated nil);; org-mode ではデフォルト折り返ししないので
+;; 段落を物理改行なしで視覚的に折り返す
+;; ファイル上は1段落=1行のまま保たれ、C-a / C-e / C-k が
+;; 見た目の行に対して働くようになる
+(global-visual-line-mode 1)
+;; 文末はスペース1つで区切る
+;; 「文末2スペース」の慣習を廃し、M-a / M-e の文単位ナビゲーションを機能させる
+(setq sentence-end-double-space nil)
 ;; クリップボードをOSと共有する（コピー・ペースト両方向）
 (setq select-enable-clipboard t)
 ;; TUIモード（ターミナルエミュレータ）でのクリップボード連携
