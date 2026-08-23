@@ -9,8 +9,22 @@
 ;; nano-theme は MELPA 未収録のため straight に GitHub リポジトリを直接指定する
 (use-package nano-theme
   :straight (nano-theme :type git :host github :repo "rougier/nano-theme")
+  :init
+  (defun mk-load-theme-for-appearance (appearance)
+    "APPEARANCE (`light' / `dark') に対応する nano-theme を読み込む。"
+    (mapc #'disable-theme custom-enabled-themes)
+    (if (eq appearance 'light)
+        (load-theme 'nano-light t)
+      (load-theme 'nano-dark t)))
   :config
-  (load-theme 'nano-dark t))
+  ;; macOS のライト/ダークモードに追従する。
+  ;; TUI では ns-system-appearance が nil のため dark にフォールバックし、
+  ;; 背景は下の unspecified-bg 設定でターミナル側のテーマに従わせる。
+  (mk-load-theme-for-appearance
+   (or (and (boundp 'ns-system-appearance) ns-system-appearance) 'dark))
+  (when (boundp 'ns-system-appearance-change-functions)
+    (add-hook 'ns-system-appearance-change-functions
+              #'mk-load-theme-for-appearance)))
 
 ;;; ------------------------------------------------------------
 ;;; フレーム種別ごとの外観設定
