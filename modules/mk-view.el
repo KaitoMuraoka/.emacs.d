@@ -77,6 +77,11 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 ;; それより前に設定した内容が失われるため。
 (add-hook 'window-setup-hook #'mk--setup-initial-frame-appearance)
 
+;; 本文を中央寄せして執筆に集中する（M-x olivetti-mode で切り替え）
+(use-package olivetti
+  :custom
+  (olivetti-body-width 100))
+
 ;; メニューバーを非表示
 (menu-bar-mode 0)
 
