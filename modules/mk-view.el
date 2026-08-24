@@ -5,6 +5,14 @@
 ;; フォントは fontaine のプリセットで管理する
 ;; 既定は fontaine 標準の regular。M-x fontaine-set-preset で切り替える
 (use-package fontaine
+  :custom
+  ;; regular プリセットの文字サイズを大きくする（デフォルト100だと小さいため）
+  (fontaine-presets '((regular :default-height 125)
+                       (t :default-family "Monospace"
+                          :default-weight regular
+                          :default-slant normal
+                          :default-width normal
+                          :default-height 125)))
   :config
   ;; fontaine は端末では動作せず警告を出すため GUI のときだけ適用する
   (when (display-graphic-p)
