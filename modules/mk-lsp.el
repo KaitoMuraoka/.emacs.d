@@ -125,7 +125,8 @@
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
    (python-ts-mode   . eglot-ensure)
-   (ruby-ts-mode     . eglot-ensure)
+   (ruby-mode . eglot-ensure)
+   ;; Ruby は mk-lsp-manager がサーバーの有無を確認してから起動する
    (web-mode         . eglot-ensure))
 
   :config
@@ -145,20 +146,8 @@
   (add-to-list 'eglot-server-programs
                '((python-mode python-ts-mode) . ("jedi-language-server")))
 
-  ;; Ruby: ruby-lsp を使用（rbenv shim 経由で .ruby-version を尊重する）
-  ;; Rails / RSpec 専用機能は addon gem として提供され、プロジェクトの
-  ;; Gemfile に追加すると ruby-lsp が自動で検出して読み込む（elisp 側の追加設定は不要）:
-  ;;
-  ;;   group :development do
-  ;;     gem "ruby-lsp-rails", require: false
-  ;;     gem "ruby-lsp-rspec", require: false
-  ;;   end
-  ;;
-  ;; 注意: eglot は LSP の CodeLens に未対応のため、ruby-lsp-rspec が提供する
-  ;; 「spec 実行ボタン」自体は表示されない。spec の実行は引き続き
-  ;; rspec-mode（mk-rails.el）の C-c , v 等を使う
-  (add-to-list 'eglot-server-programs
-               '(ruby-ts-mode . ("ruby-lsp")))
+  ;; Ruby: ruby-lsp の検出・インストール・起動は mk-lsp-manager.el が担当する
+  ;; （プロジェクトの Ruby / bundler を解決する必要があるため）
 
   ;; HTML/ERB: vscode-html-language-server を使用
   ;; web-mode で HTML タグ・属性の補完を corfu に出すため

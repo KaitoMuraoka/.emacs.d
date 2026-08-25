@@ -398,6 +398,53 @@ Org-babel は Org-mode 内のコードブロックを直接実行できる機能
 | `C-c l a` | コードアクション |
 | `C-c l f` | バッファをフォーマット |
 
+### Language Server Manager（Ruby）
+
+Ruby ファイルを開くと `mk-lsp-manager`（`modules/mk-lsp-manager.el`）が
+Language Server の有無を確認し、無ければ確認のうえ自動でインストールしてから
+eglot を起動します。`gem install ruby-lsp` を手動で実行する必要はありません。
+
+```text
+Ruby ファイルを開く
+  → プロジェクトの Ruby を検出（mise / rbenv / asdf / chruby / .ruby-version）
+  → ruby-lsp が無ければ「Install ruby-lsp automatically? (y or n)」
+  → y でインストール
+  → eglot 起動
+```
+
+起動コマンドはプロジェクトごとに切り替わります。
+
+- `Gemfile.lock` に `ruby-lsp` がある → `bundle exec ruby-lsp`
+- それ以外 → プロジェクトの Ruby に入っている `ruby-lsp`
+
+macOS の system Ruby（`/usr/bin/ruby`）には gem をインストールしません
+（`sudo gem install` は実行しません）。その場合は mise / rbenv などの
+Ruby 環境を用意してください。
+
+| コマンド | 動作 |
+|------|------|
+| `M-x mk-lsp-manager-status` | 検出した Ruby・ruby-lsp・eglot の状態を表示 |
+| `M-x mk-lsp-manager-install` | Language Server を手動でインストール |
+| `M-x mk-lsp-manager-refresh` | 環境の再検出（Ruby を切り替えた後などに実行） |
+
+設定は以下で変更できます（いずれもデフォルト `t`）。
+
+```elisp
+(setq mk-lsp-manager-auto-install t)   ; 未インストールなら自動インストール
+(setq mk-lsp-manager-auto-start t)     ; 利用可能になったら eglot を自動起動
+(setq mk-lsp-manager-confirm-install t) ; インストール前に確認する
+```
+
+Rails / RSpec 向けの機能は addon gem をプロジェクトの Gemfile に追加すると
+ruby-lsp が自動で読み込みます。
+
+```ruby
+group :development do
+  gem "ruby-lsp-rails", require: false
+  gem "ruby-lsp-rspec", require: false
+end
+```
+
 ### Git（Magit / git-gutter）
 
 | キー | 動作 |
@@ -493,6 +540,12 @@ typescript-language-server --version
 ```bash
 npm install -g typescript-language-server typescript
 ```
+
+**LSP が起動しない（Ruby）**
+
+`M-x mk-lsp-manager-status` で、検出された Ruby・ruby-lsp のパス・実行コマンドを
+確認します。Ruby を切り替えた直後は `M-x mk-lsp-manager-refresh` で再検出させます。
+インストールの詳細な出力は `*mk-lsp-manager*` バッファに残ります。
 
 **パッケージのインストールに失敗する**
 
