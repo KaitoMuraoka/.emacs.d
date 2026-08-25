@@ -38,6 +38,10 @@
 (setq display-line-numbers-width 3)
 (setq display-line-numbers-grow-only t)
 (global-display-line-numbers-mode 1)
+;; shell バッファでは行番号を出さない
+;; プロンプトと出力が左端から始まる前提の表示なのでガターが邪魔になる。
+;; ここで明示的に切ることで set-explicitly が立ち、globalized 版の対象外になる
+(add-hook 'shell-mode-hook (lambda () (display-line-numbers-mode -1)))
 ;; 対応する括弧をハイライト
 (show-paren-mode 1)
 ;; タブではなくスペースを使う（多くの言語でのベストプラクティス）
