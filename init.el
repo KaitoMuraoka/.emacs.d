@@ -5,6 +5,7 @@
 (require 'mk-view)
 (require 'mk-git)
 (require 'mk-dirvish)
+(require 'mk-shell)
 (require 'mk-vterm)
 (require 'mk-ghostel)
 (require 'mk-claude-code-ide)
