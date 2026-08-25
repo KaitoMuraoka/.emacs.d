@@ -7,8 +7,11 @@
 (use-package fontaine
   :custom
   ;; regular プリセットの文字サイズを大きくする（デフォルト100だと小さいため）
-  (fontaine-presets '((regular :default-height 125)
-                       (t :default-family "Monospace"
+  ;; macOS には "Monospace" という実フォントが無く courier にフォールバックし、
+  ;; 罫線（U+2500 系）が途切れて端末バッファの表示が崩れるため実名で指定する
+  (fontaine-presets '((regular)
+                       (t :default-family "HackGen Console"
+                          :fixed-pitch-family "HackGen Console"
                           :default-weight regular
                           :default-slant normal
                           :default-width normal
