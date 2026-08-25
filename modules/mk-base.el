@@ -55,7 +55,10 @@
 ;; 段落を物理改行なしで視覚的に折り返す
 ;; ファイル上は1段落=1行のまま保たれ、C-a / C-e / C-k が
 ;; 見た目の行に対して働くようになる
-(global-visual-line-mode 1)
+;; global 版は after-change-major-mode-hook から発火してメジャーモードより後に走り、
+;; ghostel など truncate-lines を前提とする特殊バッファの設定を壊すため使わない
+(add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'prog-mode-hook #'visual-line-mode)
 ;; 文末はスペース1つで区切る
 ;; 「文末2スペース」の慣習を廃し、M-a / M-e の文単位ナビゲーションを機能させる
 (setq sentence-end-double-space nil)
