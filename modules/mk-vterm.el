@@ -16,8 +16,9 @@
   ;;       Homebrew 等の PATH を引き継ぐため
   (vterm-shell (concat shell-file-name " -l"))
   :hook
-  ;; vterm バッファでは行番号・hl-line を無効化
+  ;; vterm バッファでは行番号を無効化
   (vterm-mode . (lambda ()
+                  (display-line-numbers-mode -1)
                   (with-editor-export-editor)
                   ;; $EDITOR ではなく、$GIT_EDITORを優先
                   (with-editor-export-git-editor)))
