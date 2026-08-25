@@ -34,12 +34,39 @@
   (marginalia-mode))
 
 ;; Corfu: コード補完のポップアップUI（LSPの補完候補表示に使う）
+;; VSCode / JetBrains と同じ体感になるよう、発火を早く・候補を多くする
 (use-package corfu
   :custom
-  (corfu-auto t)          ; 自動で補完候補を表示
-  (corfu-auto-delay 0.3)  ; 0.3秒後に表示
+  (corfu-auto t)              ; 自動で補完候補を表示
+  (corfu-auto-delay 0.1)      ; 0.1秒後に表示（IDE と同じくほぼ即時）
+  (corfu-auto-prefix 2)       ; 2文字で発火（既定の3文字だと出遅れる）
+  ;; トリガー文字を打った直後は prefix の文字数を無視して即座に候補を出す
+  ;; 例: `user.` でメソッド一覧、`@` でインスタンス変数一覧
+  (corfu-auto-trigger ".@")
+  (corfu-count 15)            ; 一度に表示する候補数（既定は10）
+  (corfu-cycle t)             ; 最後の候補の次で先頭に戻る
   :init
   (global-corfu-mode))
+
+;; nerd-icons-corfu: 補完候補の種類（メソッド/変数/クラス…）をアイコン表示する
+;; LSP が返す kind をアイコンに変換するため、VSCode と同じように
+;; 候補の種類がひと目で分かる（nerd-icons は mk-dirvish.el で導入済み）
+(use-package nerd-icons-corfu
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+;; corfu-history: 選んだ候補を記憶し、よく使うものを上位に並べる
+;; IDE の「最近使った補完が上に来る」挙動に相当する
+;; savehist で Emacs を再起動しても履歴を引き継ぐ
+(use-package corfu-history
+  :straight nil
+  :after corfu
+  :hook (corfu-mode . corfu-history-mode)
+  :init
+  (savehist-mode 1)
+  :config
+  (add-to-list 'savehist-additional-variables 'corfu-history))
 
 ;; corfu-terminal: ターミナル環境でCorfuの補完ポップアップを表示する
 ;; 理由: Corfuはデフォルトでchild frameを使うため、ターミナル（TUI）では動作しない
@@ -86,7 +113,12 @@
   ;; （ruby-ts-mode は cape-keyword-list 内で ruby-mode のリストを参照する）
   (dolist (kw '("raise" "puts" "p" "pp" "require" "require_relative"
                 "lambda" "proc" "loop" "throw" "catch"))
-    (cl-pushnew kw (alist-get 'ruby-mode cape-keyword-list) :test #'equal)))
+    (cl-pushnew kw (alist-get 'ruby-mode cape-keyword-list) :test #'equal))
+  ;; dabbrev（バッファ内の語）は開いている他のバッファからも集める
+  ;; IDE の「プロジェクト内で使われている語が候補に出る」に近づける
+  (setq cape-dabbrev-check-other-buffers t)
+  ;; 2文字以下の語を候補にすると LSP の候補がノイズに埋もれるため下限を設ける
+  (setq cape-dabbrev-min-length 3))
 
 ;; yasnippet-capf: yasnippet スニペットを補完候補(capf)として出す
 ;; これで def 等のスニペットが corfu のポップアップに出るようになる
@@ -100,7 +132,10 @@
   :after corfu
   :hook (corfu-mode . corfu-popupinfo-mode)
   :custom
-  (corfu-popupinfo-delay '(0.4 . 0.2)))
+  ;; ドキュメントの表示も IDE 並みに早くする（初回 0.2 秒 / 候補移動後 0.1 秒）
+  (corfu-popupinfo-delay '(0.2 . 0.1))
+  (corfu-popupinfo-max-height 20)
+  (corfu-popupinfo-max-width 100))
 
 ;; LSP 非接続バッファでも最低限の補完が出るよう底上げする
 ;; （スニペット・バッファ内の語・ファイルパス）
@@ -108,6 +143,35 @@
 (add-to-list 'completion-at-point-functions #'yasnippet-capf t)
 (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
 (add-to-list 'completion-at-point-functions #'cape-file t)
+
+
+;;; ============================================================
+;;; シグネチャヘルプ・ホバードキュメント
+;;; ============================================================
+
+;; eldoc は既定では「最初に返ってきた情報」だけを表示するため、
+;; 関数シグネチャとドキュメントのどちらか一方しか出ないことがある。
+;; compose-eagerly にすると届いたものをまとめて表示する
+;; （IDE の「引数を打っている最中に出るパラメータヒント」に相当）
+(setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+(setq eldoc-echo-area-use-multiline-p t)
+;; 引数入力中の表示を待たせない
+(setq eldoc-idle-delay 0.1)
+
+;; eldoc-box: eldoc の内容をカーソル位置のポップアップで表示する（GUI のみ）
+;; VSCode の Cmd+K Cmd+I / JetBrains の F1（ドキュメント表示）に相当する
+(use-package eldoc-box
+  :if (display-graphic-p)
+  :commands (eldoc-box-help-at-point))
+
+(defun mk/lsp-show-doc-at-point ()
+  "カーソル位置のドキュメントを表示する。
+
+GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを使う。"
+  (interactive)
+  (if (and (display-graphic-p) (fboundp 'eldoc-box-help-at-point))
+      (eldoc-box-help-at-point)
+    (eldoc-doc-buffer t)))
 
 
 ;;; ============================================================
@@ -162,14 +226,19 @@
   (add-to-list 'completion-category-overrides
                '(eglot-capf (styles orderless basic)))
 
+  :custom
+  ;; 定義ジャンプでプロジェクト外（gem や node_modules）のファイルを開いた場合も
+  ;; そのまま LSP の管理下に置く。IDE でライブラリのソースへ飛んだときと同じく
+  ;; 補完・ドキュメント・さらなる定義ジャンプが効く
+  (eglot-extend-to-xref t)
+
   :bind (:map eglot-mode-map
               ("C-c l r" . eglot-rename)           ; シンボルのリネーム
               ("C-c l a" . eglot-code-actions)      ; コードアクション
               ("C-c l f" . eglot-format-buffer)     ; フォーマット
+              ("C-c l h" . mk/lsp-show-doc-at-point) ; ホバードキュメント
               ("M-."     . xref-find-definitions)   ; 定義へジャンプ
               ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
-
-
 ;;; ============================================================
 ;;; 保存時の自動フォーマット
 ;;; ============================================================
@@ -212,6 +281,8 @@
                      (cape-capf-buster #'eglot-completion-at-point)
                      #'yasnippet-capf
                      #'cape-keyword)
+                    ;; require や File.read のパス補完（LSP が候補を返さない箇所用）
+                    #'cape-file
                     #'cape-dabbrev)))
 
 (add-hook 'eglot-managed-mode-hook #'mk/eglot-capf)
