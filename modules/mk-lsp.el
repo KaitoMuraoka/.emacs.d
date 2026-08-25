@@ -189,7 +189,6 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
    (python-ts-mode   . eglot-ensure)
-   (ruby-mode . eglot-ensure)
    ;; Ruby は mk-lsp-manager がサーバーの有無を確認してから起動する
    (web-mode         . eglot-ensure))
 
@@ -222,8 +221,6 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
   ;; orderless との相性問題を回避するため
   ;; eglot の補完カテゴリでは orderless を優先して使用する
   (add-to-list 'completion-category-overrides
-               '(eglot (styles orderless basic)))
-  (add-to-list 'completion-category-overrides
                '(eglot-capf (styles orderless basic)))
 
   :custom
@@ -236,9 +233,9 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
               ("C-c l r" . eglot-rename)           ; シンボルのリネーム
               ("C-c l a" . eglot-code-actions)      ; コードアクション
               ("C-c l f" . eglot-format-buffer)     ; フォーマット
-              ("C-c l h" . mk/lsp-show-doc-at-point) ; ホバードキュメント
-              ("M-."     . xref-find-definitions)   ; 定義へジャンプ
-              ("M-,"     . xref-pop-marker-stack))) ; ジャンプ前に戻る
+              ("C-c l h" . mk/lsp-show-doc-at-point))) ; ホバードキュメント
+
+
 ;;; ============================================================
 ;;; 保存時の自動フォーマット
 ;;; ============================================================
