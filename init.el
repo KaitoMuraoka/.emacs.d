@@ -17,6 +17,7 @@
 (require 'mk-org)
 (require 'mk-org-scratch)
 (require 'mk-markdown)
+(require 'mk-treesit)
 (require 'mk-lsp)
 (require 'mk-lsp-manager)
 (require 'mk-language-mode)
