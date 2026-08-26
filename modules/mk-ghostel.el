@@ -49,6 +49,19 @@
   ;; project.el のプロジェクトスイッチコマンドに追加
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
 
+  ;; ghostel 内でも C-h を削除キーとして使えるようにする。
+  ;; 理由: ghostel-keymap-exceptions のデフォルトに "C-h" が含まれており、
+  ;;       C-h が端末に送られずグローバルの delete-backward-char が走るため、
+  ;;       バッファ直接編集が redraw で巻き戻されて削除できない。
+  ;;       ctrl+h (0x08) ではなく Backspace (0x7f) を送ることで、
+  ;;       zsh でも TUI アプリでも確実に1文字削除になる。
+  (defun mk-ghostel-send-backspace ()
+    "ghostel の端末に Backspace (0x7f) を送る。"
+    (interactive)
+    (ghostel-send-key "backspace"))
+
+  (define-key ghostel-semi-char-mode-map (kbd "C-h") #'mk-ghostel-send-backspace)
+
   :bind
   ;; C-c C-g t : ghostel を開く
   ("C-c C-g t" . ghostel)
