@@ -3,16 +3,27 @@
 ;;; ============================================================
 
 ;; nerd-icons: ファイルタイプに応じたアイコンを提供するパッケージ
-;; GUI 環境でのみ有意義なため、グラフィカル環境限定でロードする
+;; `dirvish-attributes' が常に参照するためロード自体は無条件に行い、
+;; グラフィカルフレームを必要とするフォント登録だけをフレーム生成時に行う。
+;; 理由: daemon 起動時は (display-graphic-p) が nil のため、ロード時判定にすると
+;;       emacsclient -c で開いた GUI フレームでアイコンが使えなくなる。
 (use-package nerd-icons
-  :if (display-graphic-p)
   :config
-  ;; Nerd Font がシステム未インストールの場合は自動でインストールする
-  ;; NFM.ttf をパッケージ同梱のものから ~/Library/Fonts/ にコピーする
-  (unless (find-font (font-spec :name "Symbols Nerd Font Mono"))
-    (nerd-icons-install-fonts t))
-  ;; Emacs の fontset に Nerd Font を登録して文字化けを防ぐ
-  (nerd-icons-set-font))
+  (defun mk--nerd-icons-setup-font (frame)
+    "グラフィカルな FRAME の生成時に Nerd Font を fontset へ登録する。"
+    (when (display-graphic-p frame)
+      (with-demoted-errors "mk-dirvish: Nerd Font の設定に失敗: %S"
+        ;; Nerd Font がシステム未インストールの場合は自動でインストールする
+        ;; NFM.ttf をパッケージ同梱のものから ~/Library/Fonts/ にコピーする
+        (unless (find-font (font-spec :name "Symbols Nerd Font Mono") frame)
+          (nerd-icons-install-fonts t))
+        ;; Emacs の fontset に Nerd Font を登録して文字化けを防ぐ
+        (nerd-icons-set-font nil frame))
+      ;; fontset は全フレーム共通なので一度成功すれば以降は不要
+      (remove-hook 'after-make-frame-functions #'mk--nerd-icons-setup-font)))
+  (if (display-graphic-p)
+      (mk--nerd-icons-setup-font (selected-frame))
+    (add-hook 'after-make-frame-functions #'mk--nerd-icons-setup-font)))
 
 ;; Dirvish: dired を大幅に強化するファイルマネージャー
 ;; dired の全機能・設定を保持しつつ、プレビュー・アイコン・
