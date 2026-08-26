@@ -397,6 +397,75 @@ Org-babel は Org-mode 内のコードブロックを直接実行できる機能
 | `C-c l r` | シンボルのリネーム |
 | `C-c l a` | コードアクション |
 | `C-c l f` | バッファをフォーマット |
+| `C-c l h` | カーソル位置のドキュメントを表示 |
+
+### 補完（corfu / cape）
+
+VSCode・JetBrains に近い体感になるよう設定しています。
+
+| 動作 | 挙動 |
+|------|------|
+| 補完の発火 | 2文字入力で 0.1 秒後に表示。`.` と `@` の直後は即座に表示 |
+| 候補の種類 | アイコンで表示（メソッド / 変数 / クラスなど） |
+| 並び順 | 過去に選んだ候補が上位に来る（Emacs 再起動後も保持） |
+| ドキュメント | 選択中の候補の説明を横のポップアップに表示 |
+| 候補の内訳 | LSP + スニペット + 予約語 →（LSP が返さない箇所のみ）パス・バッファ内の語 |
+
+| キー | 動作 |
+|------|------|
+| `TAB` | 共通部分まで補完 |
+| `RET` | 選択中の候補を確定 |
+| `M-n` / `M-p` | 次 / 前の候補 |
+| `M-SPC` | 区切りを挿入して複数キーワードで絞り込む |
+| `M-h` | 選択中の候補のドキュメントを別バッファで開く |
+| `C-c l h` | カーソル位置のドキュメントを表示（GUI ではポップアップ） |
+
+### Language Server Manager（Ruby）
+
+Ruby ファイルを開くと `mk-lsp-manager`（`modules/mk-lsp-manager.el`）が
+Language Server の有無を確認し、無ければ確認のうえ自動でインストールしてから
+eglot を起動します。`gem install ruby-lsp` を手動で実行する必要はありません。
+
+```text
+Ruby ファイルを開く
+  → プロジェクトの Ruby を検出（mise / rbenv / asdf / chruby / .ruby-version）
+  → ruby-lsp が無ければ「Install ruby-lsp automatically? (y or n)」
+  → y でインストール
+  → eglot 起動
+```
+
+起動コマンドはプロジェクトごとに切り替わります。
+
+- `Gemfile.lock` に `ruby-lsp` がある → `bundle exec ruby-lsp`
+- それ以外 → プロジェクトの Ruby に入っている `ruby-lsp`
+
+macOS の system Ruby（`/usr/bin/ruby`）には gem をインストールしません
+（`sudo gem install` は実行しません）。その場合は mise / rbenv などの
+Ruby 環境を用意してください。
+
+| コマンド | 動作 |
+|------|------|
+| `M-x mk-lsp-manager-status` | 検出した Ruby・ruby-lsp・eglot の状態を表示 |
+| `M-x mk-lsp-manager-install` | Language Server を手動でインストール |
+| `M-x mk-lsp-manager-refresh` | 環境の再検出（Ruby を切り替えた後などに実行） |
+
+設定は以下で変更できます（いずれもデフォルト `t`）。
+
+```elisp
+(setq mk-lsp-manager-auto-install t)   ; 未インストールなら自動インストール
+(setq mk-lsp-manager-auto-start t)     ; 利用可能になったら eglot を自動起動
+(setq mk-lsp-manager-confirm-install t) ; インストール前に確認する
+```
+
+Rails / RSpec 向けの機能は addon gem をプロジェクトの Gemfile に追加すると
+ruby-lsp が自動で読み込みます。
+
+```ruby
+group :development do
+  gem "ruby-lsp-rails", require: false
+  gem "ruby-lsp-rspec", require: false
+end
+```
 
 ### Git（Magit / git-gutter）
 
@@ -493,6 +562,12 @@ typescript-language-server --version
 ```bash
 npm install -g typescript-language-server typescript
 ```
+
+**LSP が起動しない（Ruby）**
+
+`M-x mk-lsp-manager-status` で、検出された Ruby・ruby-lsp のパス・実行コマンドを
+確認します。Ruby を切り替えた直後は `M-x mk-lsp-manager-refresh` で再検出させます。
+インストールの詳細な出力は `*mk-lsp-manager*` バッファに残ります。
 
 **パッケージのインストールに失敗する**
 

@@ -18,6 +18,7 @@
 (require 'mk-org-scratch)
 (require 'mk-markdown)
 (require 'mk-lsp)
+(require 'mk-lsp-manager)
 (require 'mk-language-mode)
 (require 'mk-rails)
 (require 'mk-origami)
