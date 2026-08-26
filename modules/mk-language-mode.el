@@ -13,7 +13,7 @@
 
 ;; Ruby サポート
 ;; ruby-ts-mode は Emacs 30 組み込みの tree-sitter ベースのモード
-;; （grammar libtree-sitter-ruby は導入済み）
+;; （grammar libtree-sitter-ruby は mk-treesit.el で導入する）
 ;; .rb のほか Gemfile / Rakefile などの拡張子なしファイルも対象にする
 (use-package ruby-ts-mode
   :straight (:type built-in)
