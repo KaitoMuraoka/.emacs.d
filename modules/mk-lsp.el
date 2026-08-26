@@ -71,8 +71,10 @@
 ;; corfu-terminal: ターミナル環境でCorfuの補完ポップアップを表示する
 ;; 理由: Corfuはデフォルトでchild frameを使うため、ターミナル（TUI）では動作しない
 ;;       corfu-terminalはオーバーレイで代替表示する
+;; daemon では起動時に (display-graphic-p) が nil のためロード時判定にできない。
+;; corfu-terminal 自身がフレームごとに display-graphic-p を見て GUI では
+;; 本来の child frame 表示へ委譲するため、無条件に有効化してよい。
 (use-package corfu-terminal
-  :unless (display-graphic-p)
   :config
   (corfu-terminal-mode +1))
 
@@ -161,7 +163,6 @@
 ;; eldoc-box: eldoc の内容をカーソル位置のポップアップで表示する（GUI のみ）
 ;; VSCode の Cmd+K Cmd+I / JetBrains の F1（ドキュメント表示）に相当する
 (use-package eldoc-box
-  :if (display-graphic-p)
   :commands (eldoc-box-help-at-point))
 
 (defun mk/lsp-show-doc-at-point ()
