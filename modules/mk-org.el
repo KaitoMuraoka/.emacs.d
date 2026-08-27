@@ -38,4 +38,11 @@
 ;; 画像をインラインで表示
 (setq org-startup-with-inline-images t)
 
+
+(defun org-insert-title ()
+  "org-mode でタイトルを出力するショートカット"
+  (interactive)
+  (insert "#+TITLE: "))
+(define-key org-mode-map (kbd "C-c t") 'org-insert-title)
+
 (provide 'mk-org)
