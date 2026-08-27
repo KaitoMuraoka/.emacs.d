@@ -424,20 +424,20 @@ VSCode・JetBrains に近い体感になるよう設定しています。
 
 Ruby ファイルを開くと `mk-lsp-manager`（`modules/mk-lsp-manager.el`）が
 Language Server の有無を確認し、無ければ確認のうえ自動でインストールしてから
-eglot を起動します。`gem install ruby-lsp` を手動で実行する必要はありません。
+eglot を起動します。`gem install solargraph` を手動で実行する必要はありません。
 
 ```text
 Ruby ファイルを開く
   → プロジェクトの Ruby を検出（mise / rbenv / asdf / chruby / .ruby-version）
-  → ruby-lsp が無ければ「Install ruby-lsp automatically? (y or n)」
+  → solargraph が無ければ「Install solargraph automatically? (y or n)」
   → y でインストール
   → eglot 起動
 ```
 
 起動コマンドはプロジェクトごとに切り替わります。
 
-- `Gemfile.lock` に `ruby-lsp` がある → `bundle exec ruby-lsp`
-- それ以外 → プロジェクトの Ruby に入っている `ruby-lsp`
+- `Gemfile.lock` に `solargraph` がある → `bundle exec solargraph stdio`
+- それ以外 → プロジェクトの Ruby に入っている `solargraph stdio`
 
 macOS の system Ruby（`/usr/bin/ruby`）には gem をインストールしません
 （`sudo gem install` は実行しません）。その場合は mise / rbenv などの
@@ -445,7 +445,7 @@ Ruby 環境を用意してください。
 
 | コマンド | 動作 |
 |------|------|
-| `M-x mk-lsp-manager-status` | 検出した Ruby・ruby-lsp・eglot の状態を表示 |
+| `M-x mk-lsp-manager-status` | 検出した Ruby・solargraph・eglot の状態を表示 |
 | `M-x mk-lsp-manager-install` | Language Server を手動でインストール |
 | `M-x mk-lsp-manager-refresh` | 環境の再検出（Ruby を切り替えた後などに実行） |
 
@@ -457,13 +457,42 @@ Ruby 環境を用意してください。
 (setq mk-lsp-manager-confirm-install t) ; インストール前に確認する
 ```
 
-Rails / RSpec 向けの機能は addon gem をプロジェクトの Gemfile に追加すると
-ruby-lsp が自動で読み込みます。
+Rails / RSpec 向けの型情報は addon gem をプロジェクトの Gemfile に追加すると
+Solargraph が読み込みます（`bundle exec solargraph` で起動したときに有効）。
 
 ```ruby
 group :development do
-  gem "ruby-lsp-rails", require: false
-  gem "ruby-lsp-rspec", require: false
+  gem "solargraph", require: false
+  gem "solargraph-rails", require: false
+  gem "solargraph-rspec", require: false
+end
+```
+
+実行時にしか分からない情報（`rails console` 上のオブジェクトなど）は
+Solargraph では追えないため、robe で補います。
+
+| キー / コマンド | 動作 |
+|------|------|
+| `M-x inf-ruby` / `M-x inf-ruby-console-auto` | REPL を起動 |
+| `M-x robe-start` | 起動中の REPL に robe を接続 |
+| `C-c l j` | robe で定義へジャンプ（実行時情報を使う） |
+| `C-c l k` | robe でドキュメントを表示 |
+
+補完候補は Solargraph に一本化しており、robe は補完には出しません。
+
+Solargraph はブロック引数の型までは推論しないため、以下のようなケースでは
+`# @type` を書くと補完が効くようになります。
+
+```ruby
+numbers = [1, 2, 3]
+numbers.each do |num|
+  num.        # 候補が出ない（num の型が不明）
+end
+
+# @type [Array<Integer>]
+numbers = [1, 2, 3]
+numbers.each do |num|
+  num.        # Integer のメソッドが出る
 end
 ```
 
@@ -565,7 +594,7 @@ npm install -g typescript-language-server typescript
 
 **LSP が起動しない（Ruby）**
 
-`M-x mk-lsp-manager-status` で、検出された Ruby・ruby-lsp のパス・実行コマンドを
+`M-x mk-lsp-manager-status` で、検出された Ruby・solargraph のパス・実行コマンドを
 確認します。Ruby を切り替えた直後は `M-x mk-lsp-manager-refresh` で再検出させます。
 インストールの詳細な出力は `*mk-lsp-manager*` バッファに残ります。
 
