@@ -13,6 +13,31 @@
   (ruby-ts-mode . inf-ruby-minor-mode))
 
 
+;; robe: 起動中の Ruby プロセスに問い合わせる runtime-aware なコード探索
+;; 理由: Solargraph は静的解析なので、Rails の動的定義（has_many が生やす
+;;       メソッド、ActiveRecord の属性など）や RSpec の let で定義された
+;;       ヘルパを追えない。実行中のプロセスに聞ける robe がそこを補う。
+;; 補完は Solargraph に一本化し、robe は定義ジャンプとドキュメント参照に使う
+;; 使い方: M-x inf-ruby（Rails なら M-x inf-ruby-console-auto）で REPL を
+;;         起動してから M-x robe-start する
+(use-package robe
+  :hook (ruby-ts-mode . robe-mode)
+  ;; M-. は eglot（Solargraph）の xref バックエンドが優先される
+  ;; （robe も xref バックエンドを足すが、後から有効になる eglot が先に来る。
+  ;;   robe を使ったジャンプは下のキーから明示的に呼ぶ）
+  :bind (:map robe-mode-map
+              ("C-c l j" . robe-jump)
+              ("C-c l k" . robe-doc))
+  :config
+  ;; robe-mode は自身の補完関数を completion-at-point-functions に足すため、
+  ;; そのままだと Solargraph と同じ候補が二重に出る。
+  ;; 補完ソースは Solargraph に一本化し、robe は探索用途に限定する
+  (defun mk/robe-disable-capf ()
+    "robe の補完を completion-at-point から外す。"
+    (remove-hook 'completion-at-point-functions #'robe-complete-at-point t))
+  (add-hook 'robe-mode-hook #'mk/robe-disable-capf))
+
+
 ;;; ============================================================
 ;;; プロジェクト操作・Rails ナビゲーション
 ;;; ============================================================
@@ -45,8 +70,9 @@
 
 ;; rspec-mode: spec の実行・再実行をバッファから行う
 ;; 例: C-c , v（verify file）/ C-c , s（verify single）/ C-c , r（rerun）
-;; Gemfile に ruby-lsp-rspec を追加すると ruby-lsp 側からも spec 関連の
-;; 定義ジャンプ等が効くようになる（addon 設定は mk-lsp.el を参照）
+;; Gemfile に solargraph-rspec を追加すると Solargraph 側でも
+;; describe / let などの RSpec DSL を解釈できるようになる
+;;（Ruby 環境の解決は mk-lsp-manager.el を参照）
 (use-package rspec-mode
   :hook (ruby-ts-mode . rspec-mode)
   :custom

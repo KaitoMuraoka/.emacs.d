@@ -146,9 +146,21 @@ DESCRIBE … 引数なし。status 表示用の (ラベル . 値) リストを�
         (let ((out (string-trim (buffer-string))))
           (unless (string-empty-p out) out))))))
 
+(defcustom mk-lsp-manager-build-environment
+  '("CC=/usr/bin/clang" "CXX=/usr/bin/clang++")
+  "インストール処理に上書きで渡す環境変数。
+
+理由: 環境変数 CC に gcc などを設定していると、ネイティブ拡張を含む gem
+      （solargraph が依存する jaro_winkler など）のビルドが失敗することがある。
+      インストール時だけ標準のコンパイラを使わせる。"
+  :type '(repeat string)
+  :group 'mk-lsp-manager)
+
 (defun mk-lsp-manager--run-async (label command directory callback)
   "COMMAND を DIRECTORY で非同期実行し、終了時に (funcall CALLBACK 成否) を呼ぶ。"
   (let ((buffer (get-buffer-create mk-lsp-manager--process-buffer))
+        (process-environment (append mk-lsp-manager-build-environment
+                                     process-environment))
         (default-directory (file-name-as-directory directory)))
     (with-current-buffer buffer
       (goto-char (point-max))
@@ -170,21 +182,23 @@ DESCRIBE … 引数なし。status 表示用の (ラベル . 値) リストを�
 ;;; Ruby バックエンド
 ;;; ============================================================
 ;;
-;; ruby-lsp は「プロジェクトが使っている Ruby」で起動する必要がある。
+;; Solargraph は「プロジェクトが使っている Ruby」で起動する必要がある。
 ;; そのため PATH 先頭の ruby ではなく、mise / rbenv / asdf / chruby に
 ;; プロジェクトディレクトリで問い合わせて実行環境を決める。
 ;;
-;; Rails / RSpec 専用機能は addon gem として提供され、プロジェクトの
-;; Gemfile に追加すると ruby-lsp が自動で検出して読み込む:
+;; Rails / RSpec 専用の型情報は addon gem として提供される。プロジェクトの
+;; Gemfile に追加して bundle install すると、bundle exec 経由で起動した
+;; Solargraph が自動で読み込む:
 ;;
 ;;   group :development do
-;;     gem "ruby-lsp-rails", require: false
-;;     gem "ruby-lsp-rspec", require: false
+;;     gem "solargraph", require: false
+;;     gem "solargraph-rails", require: false
+;;     gem "solargraph-rspec", require: false
 ;;   end
 ;;
-;; 注意: eglot は LSP の CodeLens に未対応のため、ruby-lsp-rspec が提供する
-;; 「spec 実行ボタン」自体は表示されない。spec の実行は引き続き
-;; rspec-mode（mk-rails.el）の C-c , v 等を使う。
+;; 実行時にしか分からない情報（rails console 上のオブジェクトなど）は
+;; Solargraph では追えないため、robe（mk-rails.el）で補う。
+;; spec の実行は rspec-mode（mk-rails.el）の C-c , v 等を使う。
 
 (defconst mk-lsp-manager--ruby-system-regexp
   "\\`\\(/usr/bin/\\|/System/\\|/Library/Ruby/\\)"
@@ -242,16 +256,16 @@ DESCRIBE … 引数なし。status 表示用の (ラベル . 値) リストを�
     (split-string out "\n" t)))
 
 (defun mk-lsp-manager--ruby-bundled-p (root)
-  "ROOT の Gemfile.lock に ruby-lsp が含まれるなら非 nil。"
+  "ROOT の Gemfile.lock に solargraph が含まれるなら非 nil。"
   (let ((lock (expand-file-name "Gemfile.lock" root)))
     (and (file-readable-p lock)
          (with-temp-buffer
            (insert-file-contents lock)
            (goto-char (point-min))
-           (and (re-search-forward "^ +ruby-lsp (" nil t) t)))))
+           (and (re-search-forward "^ +solargraph (" nil t) t)))))
 
 (defun mk-lsp-manager--ruby-state (&optional force)
-  "現在のバッファに対応する Ruby / ruby-lsp の状態を plist で返す。
+  "現在のバッファに対応する Ruby / Solargraph の状態を plist で返す。
 
 FORCE が非 nil ならキャッシュを無視して再検出する。
 外部コマンドを数回呼ぶため、プロジェクトルート単位でキャッシュする。"
@@ -266,12 +280,12 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
                                                  (file-truename ruby))))
                (bin-dirs (and ruby (mk-lsp-manager--ruby-bin-directories ruby)))
                (gem-exe (mk-lsp-manager--ruby-gem-executable ruby bin-dirs))
-               (ruby-lsp (mk-lsp-manager--ruby-sibling ruby bin-dirs "ruby-lsp"))
-               ;; Gemfile.lock に ruby-lsp があり、かつ実際に gem が入っている
+               (solargraph (mk-lsp-manager--ruby-sibling ruby bin-dirs "solargraph"))
+               ;; Gemfile.lock に solargraph があり、かつ実際に gem が入っている
                ;; ときだけ bundle exec を使う。lock に載っているだけの状態で
                ;; bundle exec を選ぶと、bundler が解決のためにネットワークへ
                ;; 出ていき Eglot の起動が固まるため、ここでは外部コマンドを叩かない
-               (bundle-exe (and ruby-lsp
+               (bundle-exe (and solargraph
                                 (mk-lsp-manager--ruby-bundled-p root)
                                 (mk-lsp-manager--ruby-sibling ruby bin-dirs "bundle")))
                (state (list :root root
@@ -281,9 +295,9 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
                             :system (and system t)
                             :gem gem-exe
                             :bundler (and bundle-exe t)
-                            :executable (or bundle-exe ruby-lsp)
-                            :command (cond (bundle-exe (list bundle-exe "exec" "ruby-lsp"))
-                                           (ruby-lsp (list ruby-lsp))))))
+                            :executable (or bundle-exe solargraph)
+                            :command (cond (bundle-exe (list bundle-exe "exec" "solargraph" "stdio"))
+                                           (solargraph (list solargraph "stdio"))))))
           (puthash root state mk-lsp-manager--ruby-cache)
           state))))
 
@@ -315,7 +329,7 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
 (defun mk-lsp-manager--ruby-failure-help (state command)
   "インストール失敗時に表示する診断メッセージを組み立てる。"
   (concat
-   "[mk-lsp-manager] ruby-lsp のインストールに失敗しました\n"
+   "[mk-lsp-manager] solargraph のインストールに失敗しました\n"
    (format "  使用した Ruby : %s\n" (or (plist-get state :ruby) "(見つかりません)"))
    (format "  Ruby バージョン: %s\n" (or (plist-get state :version) "(不明)"))
    (format "  バージョン管理 : %s\n" (plist-get state :manager))
@@ -324,11 +338,11 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
    "  対処方法:\n"
    (format "    1. ターミナルで `cd %s` してから上記コマンドを手動実行し、エラーを確認する\n"
            (plist-get state :root))
-   "    2. Gemfile で管理する場合は Gemfile に gem \"ruby-lsp\", require: false を追加して bundle install する\n"
+   "    2. Gemfile で管理する場合は Gemfile に gem \"solargraph\", require: false を追加して bundle install する\n"
    (format "    3. 詳しい出力は %s バッファを参照する" mk-lsp-manager--process-buffer)))
 
 (defun mk-lsp-manager--ruby-install (callback)
-  "現在のプロジェクトの Ruby に ruby-lsp をインストールする。"
+  "現在のプロジェクトの Ruby に solargraph をインストールする。"
   (let* ((state (mk-lsp-manager--ruby-state t))
          (ruby (plist-get state :ruby))
          (gem (plist-get state :gem)))
@@ -339,7 +353,7 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
      ;; macOS の system Ruby には絶対にインストールしない（sudo も実行しない）
      ((plist-get state :system)
       (message (concat "[mk-lsp-manager] 現在の Ruby は macOS system Ruby です（%s）。\n"
-                       "  ruby-lsp をインストールするには mise / rbenv などの Ruby 環境を使用してください。\n"
+                       "  solargraph をインストールするには mise / rbenv などの Ruby 環境を使用してください。\n"
                        "  例: rbenv install 3.4.5 && rbenv local 3.4.5\n"
                        "  （sudo gem install は実行しません）")
                ruby)
@@ -348,10 +362,10 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
       (message "[mk-lsp-manager] gem コマンドが見つかりません（Ruby: %s）" ruby)
       (funcall callback nil))
      (t
-      (let ((command (list gem "install" "ruby-lsp")))
-        (message "Installing ruby-lsp...")
+      (let ((command (list gem "install" "solargraph")))
+        (message "Installing solargraph...")
         (mk-lsp-manager--run-async
-         "ruby-lsp" command (plist-get state :root)
+         "solargraph" command (plist-get state :root)
          (lambda (success)
            (when (and success (eq 'rbenv (plist-get state :manager)))
              ;; rbenv は shim を作り直さないと新しい実行ファイルが見えない
@@ -359,7 +373,7 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
                (mk-lsp-manager--call rbenv "rehash")))
            (clrhash mk-lsp-manager--ruby-cache)
            (if success
-               (message "ruby-lsp installed successfully.")
+               (message "solargraph installed successfully.")
              (message "%s" (mk-lsp-manager--ruby-failure-help state command)))
            (funcall callback success))))))))
 
@@ -376,15 +390,15 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
      (cons "Ruby version" (or (plist-get state :version) "(不明)"))
      (cons "system Ruby" (if (plist-get state :system) "yes（インストール禁止）" "no"))
      (cons "Gemfile" (if (file-readable-p (expand-file-name "Gemfile" root)) "yes" "no"))
-     (cons "ruby-lsp in Gemfile.lock" (if (plist-get state :bundler) "yes" "no"))
-     (cons "ruby-lsp" (if (plist-get state :executable) "installed" "not installed"))
-     (cons "ruby-lsp path" (or (plist-get state :executable) "-"))
+     (cons "solargraph in Gemfile.lock" (if (plist-get state :bundler) "yes" "no"))
+     (cons "solargraph" (if (plist-get state :executable) "installed" "not installed"))
+     (cons "solargraph path" (or (plist-get state :executable) "-"))
      (cons "command" (if-let* ((cmd (plist-get state :command)))
                          (mapconcat #'shell-quote-argument cmd " ")
                        "-")))))
 
 (mk-lsp-manager-register-server
- :id 'ruby-lsp
+ :id 'solargraph
  :name "Ruby"
  :modes '(ruby-ts-mode ruby-mode)
  :locate #'mk-lsp-manager--ruby-locate
@@ -400,7 +414,7 @@ FORCE が非 nil ならキャッシュを無視して再検出する。
 (defun mk-lsp-manager-eglot-contact (&optional _interactive _project)
   "`eglot-server-programs' に登録する動的コンタクト。
 
-バッファごとに `bundle exec ruby-lsp' と実体パスを出し分ける。"
+バッファごとに `bundle exec solargraph' と実体パスを出し分ける。"
   (when-let* ((server (mk-lsp-manager-server-for-mode major-mode)))
     (mk-lsp-manager-server-command server)))
 
