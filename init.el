@@ -2,6 +2,7 @@
 (require 'mk-straight)
 (require 'mk-base)
 (require 'mk-keybind)
+(require 'mk-skk)
 (require 'mk-view)
 (require 'mk-git)
 (require 'mk-dirvish)
