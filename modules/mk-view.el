@@ -2,13 +2,47 @@
 ;;; 外観（透明化・ガラス効果）
 ;;; ============================================================
 (set-default-coding-systems 'utf-8)
-;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
-(set-face-attribute 'default nil :family "HackGen Console" :height 125)
+;; フォントは fontaine のプリセットで管理する
+;; 既定は fontaine 標準の regular。M-x fontaine-set-preset で切り替える
+(use-package fontaine
+  :custom
+  ;; regular プリセットの文字サイズを大きくする（デフォルト100だと小さいため）
+  ;; macOS には "Monospace" という実フォントが無く courier にフォールバックし、
+  ;; 罫線（U+2500 系）が途切れて端末バッファの表示が崩れるため実名で指定する
+  (fontaine-presets '((regular)
+                       (t :default-family "HackGen Console"
+                          :fixed-pitch-family "HackGen Console"
+                          :default-weight regular
+                          :default-slant normal
+                          :default-width normal
+                          :default-height 125)))
+  :config
+  ;; fontaine は端末では動作せず警告を出すため GUI のときだけ適用する
+  (when (display-graphic-p)
+    ;; 選択したプリセットを次回起動時に復元する
+    (fontaine-mode 1)
+    (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))))
 
 ;; GUI/TUI の外観
-(use-package color-theme-sanityinc-tomorrow
+;; nano-theme は MELPA 未収録のため straight に GitHub リポジトリを直接指定する
+(use-package nano-theme
+  :straight (nano-theme :type git :host github :repo "rougier/nano-theme")
+  :init
+  (defun mk-load-theme-for-appearance (appearance)
+    "APPEARANCE (`light' / `dark') に対応する nano-theme を読み込む。"
+    (mapc #'disable-theme custom-enabled-themes)
+    (if (eq appearance 'light)
+        (load-theme 'nano-light t)
+      (load-theme 'nano-dark t)))
   :config
-  (load-theme 'sanityinc-tomorrow-night t))
+  ;; macOS のライト/ダークモードに追従する。
+  ;; TUI では ns-system-appearance が nil のため dark にフォールバックし、
+  ;; 背景は下の unspecified-bg 設定でターミナル側のテーマに従わせる。
+  (mk-load-theme-for-appearance
+   (or (and (boundp 'ns-system-appearance) ns-system-appearance) 'dark))
+  (when (boundp 'ns-system-appearance-change-functions)
+    (add-hook 'ns-system-appearance-change-functions
+              #'mk-load-theme-for-appearance)))
 
 ;;; ------------------------------------------------------------
 ;;; フレーム種別ごとの外観設定
@@ -60,6 +94,22 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 ;; `frame-notice-user-settings' がフレームのフェイスを再初期化し、
 ;; それより前に設定した内容が失われるため。
 (add-hook 'window-setup-hook #'mk--setup-initial-frame-appearance)
+
+;; 本文を中央寄せして執筆に集中する
+(use-package olivetti
+  :custom
+  (olivetti-body-width (/ 2.0 3))
+  :hook ((text-mode . olivetti-mode)
+         (eww-mode . olivetti-mode))
+  :init
+  ;; 起動画面 (*GNU Emacs*) は text-mode 派生ではなくフックが効かないため、
+  ;; 画面生成後に明示的に有効化する
+  (defun mk-olivetti-enable-in-splash (&rest _)
+    (when-let* ((buf (get-buffer "*GNU Emacs*")))
+      (with-current-buffer buf
+        (olivetti-mode 1))))
+  (advice-add 'fancy-startup-screen :after #'mk-olivetti-enable-in-splash)
+  (advice-add 'normal-splash-screen :after #'mk-olivetti-enable-in-splash))
 
 ;; メニューバーを非表示
 (menu-bar-mode 0)

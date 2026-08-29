@@ -44,7 +44,13 @@
   (add-hook 'ghostel-mode-hook
             (lambda ()
               (display-line-numbers-mode -1)
-              (hl-line-mode -1)))
+              (hl-line-mode -1)
+              ;; visual-line-mode を明示的に切ることで set-explicitly を立て、
+              ;; globalized 版が有効でもこのバッファを対象外にする。
+              ;; 無効化時に truncate-lines のローカル値が消えるため後から張り直す。
+              (visual-line-mode -1)
+              (setq-local truncate-lines t)
+              (setq-local word-wrap nil)))
 
   ;; project.el のプロジェクトスイッチコマンドに追加
   (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)

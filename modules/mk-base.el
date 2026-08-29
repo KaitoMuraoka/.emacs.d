@@ -26,8 +26,10 @@
 ;; 現在行をハイライト
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
-;; 行番号を表示（相対行番号）
-(setq display-line-numbers-type 'relative)
+;; 行番号を表示（見た目の行を数える相対行番号）
+;; visual-line-mode で折り返した継続行も1行として数えるため、
+;; C-n / C-p の移動量と行番号の数え方が一致する
+(setq display-line-numbers-type 'visual)
 ;; ガター幅を固定する。
 ;; display-line-numbers-width-start はモード有効化時の行数から「最小幅」を
 ;; 一度だけ決めるだけなので、追記でバッファが伸びたり、カーソルが桁の境目
@@ -36,6 +38,12 @@
 (setq display-line-numbers-width 3)
 (setq display-line-numbers-grow-only t)
 (global-display-line-numbers-mode 1)
+;; shell バッファでは行番号を出さない
+;; プロンプトと出力が左端から始まる前提の表示なのでガターが邪魔になる。
+;; ここで明示的に切ることで set-explicitly が立ち、globalized 版の対象外になる
+(add-hook 'shell-mode-hook (lambda () (display-line-numbers-mode -1)))
+;; eww は Web ページの閲覧用でソース行という概念がないため行番号を出さない
+(add-hook 'eww-mode-hook (lambda () (display-line-numbers-mode -1)))
 ;; 対応する括弧をハイライト
 (show-paren-mode 1)
 ;; タブではなくスペースを使う（多くの言語でのベストプラクティス）
@@ -50,6 +58,16 @@
 ;;折り返しをデフォルトにする
 (setq-default truncate-lines nil)
 (setq-default org-startup-truncated nil);; org-mode ではデフォルト折り返ししないので
+;; 段落を物理改行なしで視覚的に折り返す
+;; ファイル上は1段落=1行のまま保たれ、C-a / C-e / C-k が
+;; 見た目の行に対して働くようになる
+;; global 版は after-change-major-mode-hook から発火してメジャーモードより後に走り、
+;; ghostel など truncate-lines を前提とする特殊バッファの設定を壊すため使わない
+(add-hook 'text-mode-hook #'visual-line-mode)
+(add-hook 'prog-mode-hook #'visual-line-mode)
+;; 文末はスペース1つで区切る
+;; 「文末2スペース」の慣習を廃し、M-a / M-e の文単位ナビゲーションを機能させる
+(setq sentence-end-double-space nil)
 ;; クリップボードをOSと共有する（コピー・ペースト両方向）
 (setq select-enable-clipboard t)
 ;; TUIモード（ターミナルエミュレータ）でのクリップボード連携
