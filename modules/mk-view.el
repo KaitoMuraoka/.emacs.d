@@ -99,7 +99,8 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 (use-package olivetti
   :custom
   (olivetti-body-width 100)
-  :hook (text-mode . olivetti-mode)
+  :hook ((text-mode . olivetti-mode)
+         (eww-mode . olivetti-mode))
   :init
   ;; 起動画面 (*GNU Emacs*) は text-mode 派生ではなくフックが効かないため、
   ;; 画面生成後に明示的に有効化する

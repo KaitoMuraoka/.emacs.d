@@ -42,6 +42,8 @@
 ;; プロンプトと出力が左端から始まる前提の表示なのでガターが邪魔になる。
 ;; ここで明示的に切ることで set-explicitly が立ち、globalized 版の対象外になる
 (add-hook 'shell-mode-hook (lambda () (display-line-numbers-mode -1)))
+;; eww は Web ページの閲覧用でソース行という概念がないため行番号を出さない
+(add-hook 'eww-mode-hook (lambda () (display-line-numbers-mode -1)))
 ;; 対応する括弧をハイライト
 (show-paren-mode 1)
 ;; タブではなくスペースを使う（多くの言語でのベストプラクティス）
