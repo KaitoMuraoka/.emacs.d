@@ -98,7 +98,7 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 ;; 本文を中央寄せして執筆に集中する
 (use-package olivetti
   :custom
-  (olivetti-body-width 100)
+  (olivetti-body-width (/ 2.0 3))
   :hook ((text-mode . olivetti-mode)
          (eww-mode . olivetti-mode))
   :init
