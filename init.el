@@ -26,3 +26,17 @@
 (require 'mk-rails)
 (require 'mk-origami)
 (require 'mk-multiple-cursors)
+
+(defun my/herdr (&optional new)
+  "herdr 専用の Ghostel バッファを開く。
+既に動いていればそこに切り替える。
+NEW が非 nil なら常に新しいバッファを作る。"
+  (interactive "P")
+  (let* ((name "*herdr*")
+         (buf (and (not new) (get-buffer name))))
+    (unless (buffer-live-p buf)
+      (setq buf (generate-new-buffer (if new (generate-new-buffer-name name) name)))
+      (condition-case err
+          (ghostel-exec buf "herdr")
+        (error (kill-buffer buf) (signal (car err) (cdr err)))))
+    (pop-to-buffer buf)))
