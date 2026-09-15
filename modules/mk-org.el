@@ -37,8 +37,17 @@
 
 ;; 画像をインラインで表示
 (setq org-startup-with-inline-images t)
-
-
+;; エクスポートディスパッチャを使用
+(setq org-export-backends '(ascii html icalendar latex md odt))
+;; リージョンを Markdown にしてキルリングへ
+(defun my/org-md-region-to-kill-ring (beg end)
+  "選択範囲を Markdown に変換して kill-ring に入れる。"
+  (interactive "r")
+  (require 'ox-md)
+  (kill-new (org-export-string-as
+             (buffer-substring-no-properties beg end) 'md t))
+  (message "Copied the Markdown")) 
+;; org-mode でタイトルを用意する
 (defun org-insert-title ()
   "org-mode でタイトルを出力するショートカット"
   (interactive)
