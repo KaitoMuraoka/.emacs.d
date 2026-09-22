@@ -68,7 +68,7 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 (scroll-bar-mode -1)
 
 ;; ツールバーを非表示
-(tool-bar-mode 0)
+(tool-bar-mode 1)
 
 ;; ピンチジェスチャーによるフォントサイズ変更を無効化
 (global-set-key (kbd "<pinch>") 'ignore)
