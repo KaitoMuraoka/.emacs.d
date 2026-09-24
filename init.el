@@ -2,7 +2,7 @@
 (require 'mk-straight)
 (require 'mk-base)
 (require 'mk-keybind)
-(require 'mk-drill-instructor)
+;;(require 'mk-drill-instructor)
 (require 'mk-skk)
 (require 'mk-view)
 (require 'mk-git)
