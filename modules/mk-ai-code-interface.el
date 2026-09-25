@@ -1,7 +1,10 @@
+;; -*- lexical-binding: t; -*-
 ;;; ============================================================
 ;;; ai-code-interface.el
 ;;; https://github.com/tninja/ai-code-interface.el
 ;;; ============================================================
+
+(require 'transient)
 
 (use-package ai-code
   :config
