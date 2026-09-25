@@ -4,7 +4,7 @@
 ;;; ============================================================
 (set-default-coding-systems 'utf-8)
 ;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
-(set-face-attribute 'default nil :family "HackGen Console" :height 125)
+(set-face-attribute 'default nil :family "HackGen Console" :height 130)
 
 ;; GUI/TUI の外観
 (use-package color-theme-sanityinc-tomorrow
