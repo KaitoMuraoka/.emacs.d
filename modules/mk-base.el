@@ -76,12 +76,12 @@
 (setq shell-command-switch "-ic")
 (setenv "SHELL" shell-file-name)
 ;; Emacsにフォーカスが移ったとき、macOSの入力ソースをABCに強制する
-(defun my/force-ascii-input-source ()
-  (start-process "input-source" nil
-                 "/opt/homebrew/bin/im-select"
-                 "com.apple.keylayout.ABC"))
-(defun my/after-focus-change ()
-  (when (frame-focus-state)
-    (my/force-ascii-input-source)))
-(add-function :after after-focus-change-function #'my/after-focus-change)
+;; (defun my/force-ascii-input-source ()
+;;   (start-process "input-source" nil
+;;                  "/opt/homebrew/bin/im-select"
+;;                  "com.apple.keylayout.ABC"))
+;; (defun my/after-focus-change ()
+;;   (when (frame-focus-state)
+;;     (my/force-ascii-input-source)))
+;; (add-function :after after-focus-change-function #'my/after-focus-change)
 (provide 'mk-base)
