@@ -75,7 +75,9 @@
 ;; daemon では起動時に (display-graphic-p) が nil のためロード時判定にできない。
 ;; corfu-terminal 自身がフレームごとに display-graphic-p を見て GUI では
 ;; 本来の child frame 表示へ委譲するため、無条件に有効化してよい。
+;; Emacs 31 以降は TTY でも child frame が使えるため不要。
 (use-package corfu-terminal
+  :if (< emacs-major-version 31)
   :config
   (corfu-terminal-mode +1))
 
