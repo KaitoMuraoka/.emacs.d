@@ -27,8 +27,8 @@
 ;; 現在行をハイライト
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
-;; 行番号を表示（相対行番号）
-(setq display-line-numbers-type 'relative)
+;; 行番号を表示（絶対行番号）
+(setq display-line-numbers-type t)
 ;; ガター幅を固定する。
 ;; display-line-numbers-width-start はモード有効化時の行数から「最小幅」を
 ;; 一度だけ決めるだけなので、追記でバッファが伸びたり、カーソルが桁の境目
@@ -37,12 +37,6 @@
 (setq display-line-numbers-width 3)
 (setq display-line-numbers-grow-only t)
 (global-display-line-numbers-mode 1)
-;; 相対行番号は論理行で振られるため、数値引数付きの C-n/C-p は論理行で移動する
-(defun my/line-move-logical-with-prefix (orig &rest args)
-  (let ((line-move-visual (and (not current-prefix-arg) line-move-visual)))
-    (apply orig args)))
-(advice-add 'next-line :around #'my/line-move-logical-with-prefix)
-(advice-add 'previous-line :around #'my/line-move-logical-with-prefix)
 ;; 対応する括弧をハイライト
 (show-paren-mode 1)
 ;; タブではなくスペースを使う（多くの言語でのベストプラクティス）
