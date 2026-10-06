@@ -114,9 +114,8 @@ Personal Access Token は GitHub の `Settings → Developer settings → Person
 (setq require-final-newline t)      ; ファイル末尾に改行を自動挿入
 (setq select-enable-clipboard t)    ; クリップボードをOSと共有
 
-;; 相対行番号
-;; カーソルから何行上下かが一目でわかる（N行移動時に便利）
-(setq display-line-numbers-type 'relative)
+;; 行番号を表示
+(setq display-line-numbers-type t)
 (global-display-line-numbers-mode 1)
 
 

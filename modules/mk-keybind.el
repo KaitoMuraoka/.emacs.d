@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;;; ============================================================
 ;;; プロジェクト管理
 ;;; ============================================================
@@ -21,6 +22,9 @@
 
 ;; macOS: Cmd+V でペースト
 (global-set-key (kbd "s-v") #'yank)
+
+;; macOS: Cmd+クリックで定義へジャンプ
+(global-set-key [s-mouse-1] #'xref-find-definitions-at-mouse)
 
 ;; IME切り替えとMarkのキーバインドをEmacsデフォルトに戻す
 (global-set-key (kbd "C-SPC")  #'toggle-input-method)

@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;;; ============================================================
 ;;; 基本的な Emacs の設定
 ;;; ============================================================
@@ -26,8 +27,8 @@
 ;; 現在行をハイライト
 ;; カーソル位置を視覚的に把握しやすくする
 (global-hl-line-mode 1)
-;; 行番号を表示（相対行番号）
-(setq display-line-numbers-type 'relative)
+;; 行番号を表示（絶対行番号）
+(setq display-line-numbers-type t)
 ;; ガター幅を固定する。
 ;; display-line-numbers-width-start はモード有効化時の行数から「最小幅」を
 ;; 一度だけ決めるだけなので、追記でバッファが伸びたり、カーソルが桁の境目
@@ -75,12 +76,12 @@
 (setq shell-command-switch "-ic")
 (setenv "SHELL" shell-file-name)
 ;; Emacsにフォーカスが移ったとき、macOSの入力ソースをABCに強制する
-(defun my/force-ascii-input-source ()
-  (start-process "input-source" nil
-                 "/opt/homebrew/bin/im-select"
-                 "com.apple.keylayout.ABC"))
-(defun my/after-focus-change ()
-  (when (frame-focus-state)
-    (my/force-ascii-input-source)))
-(add-function :after after-focus-change-function #'my/after-focus-change)
+;; (defun my/force-ascii-input-source ()
+;;   (start-process "input-source" nil
+;;                  "/opt/homebrew/bin/im-select"
+;;                  "com.apple.keylayout.ABC"))
+;; (defun my/after-focus-change ()
+;;   (when (frame-focus-state)
+;;     (my/force-ascii-input-source)))
+;; (add-function :after after-focus-change-function #'my/after-focus-change)
 (provide 'mk-base)

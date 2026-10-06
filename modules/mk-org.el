@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
@@ -15,7 +16,8 @@
   (org-agenda-files (append (list (concat org-path "til.org")
                                    (concat org-path "routine.org")
                                    (concat org-path "inbox.org"))
-                             (directory-files-recursively (concat org-path "projects") "\\.org$")))
+                            (directory-files-recursively (concat org-path "projects") "\\.org$")
+                            (directory-files-recursively (concat org-path "daily") "\\.org$")))
   ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)

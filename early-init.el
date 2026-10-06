@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; ~/.emacs.d/early-init.el
 
 ;; パッケージシステムの自動初期化を遅らせる
