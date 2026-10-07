@@ -25,9 +25,7 @@
     (set-frame-position (selected-frame) left top)))
 
 ;; 3. 地球儀 + Control + C (つまり H-C-c) に先ほどの関数を割り当て
-(global-set-key (kbd "C-H-c") 'mac-center-frame)
-
-(add-to-list 'default-frame-alist '(cursor-type . bar))
+(global-set-key (kbd "C-H-c") 'mac-center-frqame)
 
 (require 'mk-straight)
 (require 'mk-base)
