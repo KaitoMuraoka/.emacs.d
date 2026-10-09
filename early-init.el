@@ -10,3 +10,7 @@
 (setq default-frame-alist
       '((menu-bar-lines . 0)          ; メニューバー非表示
         (fullscreen . fullheight)))    ; 高さを画面いっぱいに
+
+;; 同梱 libgccjit が Darwin 27 から誤った macOS バージョン(18.0)を算出するため明示する
+(when (eq system-type 'darwin)
+  (setq native-comp-driver-options '("-mmacosx-version-min=27.0")))
