@@ -12,7 +12,7 @@
   :custom
   (org-directory org-path)
   (org-default-notes-file (concat org-path "inbox.org"))
-  ;; agenda は til.org / routine.org / inbox.org / projects 配下の全ファイルを対象にする
+  ;; agenda は inbox.org / projects・daily 配下の全ファイルを対象にする
   (org-agenda-files (append (list (concat org-path "inbox.org"))
                             (directory-files-recursively (concat org-path "projects") "\\.org$")
                             (directory-files-recursively (concat org-path "daily") "\\.org$")))
