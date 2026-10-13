@@ -3,7 +3,7 @@
 ;;; org-mode
 ;;; ============================================================
 (defconst org-path
-  "~/org/")
+  "~/Library/Mobile Documents/com~apple~CloudDocs/org/")
 (global-set-key (kbd "C-c o") (lambda () (interactive) (dired org-path)))
 
 (use-package org
@@ -13,9 +13,7 @@
   (org-directory org-path)
   (org-default-notes-file (concat org-path "inbox.org"))
   ;; agenda は til.org / routine.org / inbox.org / projects 配下の全ファイルを対象にする
-  (org-agenda-files (append (list (concat org-path "til.org")
-                                   (concat org-path "routine.org")
-                                   (concat org-path "inbox.org"))
+  (org-agenda-files (append (list (concat org-path "inbox.org"))
                             (directory-files-recursively (concat org-path "projects") "\\.org$")
                             (directory-files-recursively (concat org-path "daily") "\\.org$")))
   ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
@@ -27,10 +25,6 @@
    '(("t" "タスク" entry
       (file+headline org-default-notes-file "Tasks")
       "* TODO %?\n %u\n"
-      :empty-lines 1)
-     ("k" "ナレッジ" entry
-      (file (concat org-path "til.org"))
-      "* %?\n  # Wrote on %U"
       :empty-lines 1)))
 
   :bind
