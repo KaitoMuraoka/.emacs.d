@@ -29,6 +29,7 @@
 
 (require 'mk-straight)
 (require 'mk-base)
+(require 'mk-server)
 (require 'mk-keybind)
 (require 'mk-view)
 ;;(require 'mk-drill-instructor)
