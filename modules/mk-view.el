@@ -84,4 +84,8 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
                    (ignore-errors
                      (create-image (fancy-splash-image-file))))))
 
+;; カーソル変更
+;; 縦棒(|) 'bar
+(setq-default cursor-type 'bar)
+
 (provide 'mk-view)
