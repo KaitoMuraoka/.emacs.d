@@ -343,7 +343,7 @@ Org-mode は Emacs 組み込みのタスク管理・ノート作成・文書作�
 
 ### アジェンダファイル
 
-`~/org/note.org` がアジェンダファイルとして登録されています。
+iCloud Drive の `org/`（`~/Library/Mobile Documents/com~apple~CloudDocs/org/`）配下の `inbox.org`、`projects/`・`daily/` 以下の `.org` がアジェンダファイルとして登録されています。
 
 ---
 
