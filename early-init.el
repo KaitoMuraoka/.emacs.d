@@ -14,3 +14,6 @@
 ;; 同梱 libgccjit が Darwin 27 から誤った macOS バージョン(18.0)を算出するため明示する
 (when (eq system-type 'darwin)
   (setq native-comp-driver-options '("-mmacosx-version-min=27.0")))
+
+;; ddskk など cookie のない外部パッケージで出る lexical-binding 警告を抑制する
+(add-to-list 'warning-suppress-types '(files missing-lexbind-cookie))
