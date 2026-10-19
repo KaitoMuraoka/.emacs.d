@@ -7,7 +7,7 @@
   :config
   (sis-ism-lazyman-config
    "com.apple.keylayout.ABC"
-   "jp.monokakido.inputmethod.Kawasemi4.japanese")
+   "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese")
   (sis-global-respect-mode 1)
   (sis-global-cursor-color-mode 1))
 

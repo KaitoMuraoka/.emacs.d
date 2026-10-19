@@ -26,8 +26,7 @@
 ;; macOS: Cmd+クリックで定義へジャンプ
 (global-set-key [s-mouse-1] #'xref-find-definitions-at-mouse)
 
-;; IME切り替えとMarkのキーバインドをEmacsデフォルトに戻す
-(global-set-key (kbd "C-SPC")  #'toggle-input-method)
+;; MarkのキーバインドをEmacsデフォルトに戻す
 (global-set-key (kbd "C-;") #'set-mark-command)
 
 ;; C-h を削除キー（バックスペース相当）に変更する
