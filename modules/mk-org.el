@@ -12,6 +12,9 @@
   :custom
   (org-directory org-path)
   (org-default-notes-file (concat org-path "inbox.org"))
+  ;; タスクの状態: 未着手 → 対応中 → 完了
+  (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
+  (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
   ;; agenda は inbox.org / projects・daily 配下の全ファイルを対象にする
   (org-agenda-files (append (list (concat org-path "inbox.org"))
                             (directory-files-recursively (concat org-path "projects") "\\.org$")
