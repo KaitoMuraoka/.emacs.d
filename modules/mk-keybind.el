@@ -35,5 +35,14 @@
 ;; ヘルプは C-? で引き続き使用可能
 (global-set-key "\C-h" 'delete-backward-char)
 (global-set-key (kbd "C-?") 'help-command)
+;; isearch は C-h を独自のヘルプに割り当てているため上書きする
+(with-eval-after-load 'isearch
+  (define-key isearch-mode-map (kbd "C-h") #'isearch-delete-char))
+;; 内蔵 IME（Quail / KKC）も C-h をヘルプにしているため、DEL と同じ動作にする
+(with-eval-after-load 'quail
+  (dolist (map (list quail-translation-keymap quail-conversion-keymap))
+    (define-key map (kbd "C-h") (lookup-key map (kbd "DEL")))))
+(with-eval-after-load 'kkc
+  (define-key kkc-keymap (kbd "C-h") (lookup-key kkc-keymap (kbd "DEL"))))
 
 (provide 'mk-keybind)
