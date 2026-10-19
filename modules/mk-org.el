@@ -28,7 +28,10 @@
    '(("t" "タスク" entry
       (file+headline org-default-notes-file "Tasks")
       "* TODO %?\n %u\n"
-      :empty-lines 1)))
+      :empty-lines 1)
+     ("l" "ログ" item
+      (file (lambda () (expand-file-name (format-time-string "daily/%Y-%m-%d.org") org-path)))
+      "- %<%H:%M>：%?")))
 
   :bind
   ("C-c a" . org-agenda)
