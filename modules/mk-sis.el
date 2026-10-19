@@ -10,6 +10,7 @@
    "com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese")
   (sis-global-respect-mode 1)
   (sis-global-cursor-color-mode 1)
+  (sis-global-inline-mode 1)
   ;; フォーカス時にバッファごとの入力ソースを復元すると下の ABC 固定と競合するため止める
   ;; ponytail: sis の内部関数に依存。sis 更新で名前が変わったら advice が空振りする
   (advice-add 'sis--respect-focus-in-handler :override #'ignore))
