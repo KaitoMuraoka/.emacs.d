@@ -28,7 +28,7 @@
 
 ;; IME切り替えとMarkのキーバインドをEmacsデフォルトに戻す
 (global-set-key (kbd "C-SPC")  #'toggle-input-method)
-(global-set-key (kbd "C-\\") #'set-mark-command)
+(global-set-key (kbd "C-;") #'set-mark-command)
 
 ;; C-h を削除キー（バックスペース相当）に変更する
 ;; 理由: ターミナル環境でバックスペースが C-h として送られることが多く、
