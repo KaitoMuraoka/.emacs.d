@@ -3,7 +3,7 @@
 ;;; org-mode
 ;;; ============================================================
 (defconst org-path
-  "~/Library/Mobile Documents/com~apple~CloudDocs/org/")
+  "~/org/")
 (global-set-key (kbd "C-c o") (lambda () (interactive) (dired org-path)))
 
 (use-package org
