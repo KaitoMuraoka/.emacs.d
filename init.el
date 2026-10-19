@@ -34,6 +34,7 @@
 (require 'mk-sis)
 (require 'mk-view)
 ;;(require 'mk-drill-instructor)
+;;(require 'mk-skk)
 (require 'mk-git)
 (require 'mk-dirvish)
 (require 'mk-shell)
