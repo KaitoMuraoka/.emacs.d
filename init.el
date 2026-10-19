@@ -31,7 +31,7 @@
 (require 'mk-base)
 (require 'mk-server)
 (require 'mk-keybind)
-(require 'mk-input-method)
+(require 'mk-sis)
 (require 'mk-view)
 ;;(require 'mk-drill-instructor)
 (require 'mk-git)
