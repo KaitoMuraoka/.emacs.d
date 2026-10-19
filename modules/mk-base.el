@@ -18,6 +18,12 @@
 (add-hook 'focus-out-hook
           (lambda ()
             (save-some-buffers t)))
+;; フォーカスを得たら OS の入力ソースを ABC にする
+;; 入力遅延を避けるため im-select の完了は待たない
+(add-function :after after-focus-change-function
+              (lambda ()
+                (when (frame-focus-state)
+                  (call-process "im-select" nil 0 nil "com.apple.keylayout.ABC"))))
 ;; 確認なしで保存
 (setq magit-save-repository-buffers 'dontask)
 ;; yes/no を y/n で答えられるようにする
