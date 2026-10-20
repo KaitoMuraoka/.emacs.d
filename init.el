@@ -24,9 +24,8 @@
          (top (+ screen-y (max 0 (/ (- screen-h frame-h) 2)))))
     (set-frame-position (selected-frame) left top)))
 
-;; 3. 地球儀 + Control + C (つまり H-C-c) に先ほどの関数を割り当て
-(global-set-key (kbd "C-H-c") 'mac-center-frqame)
-
+;; 3. 地球儀 + Control + C (つまり C-H-c) に先ほどの関数を割り当て
+(global-set-key [16777219] #'mac-center-frame)  
 (require 'mk-straight)
 (require 'mk-base)
 (require 'mk-server)
