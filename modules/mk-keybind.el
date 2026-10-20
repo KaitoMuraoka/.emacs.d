@@ -42,5 +42,7 @@
   (define-key quail-conversion-keymap "\C-h" #'quail-conversion-backward-delete-char))
 (with-eval-after-load 'kkc
   (define-key kkc-keymap "\C-h" #'kkc-cancel))
+;; 日本語入力（Quail）で "nn" を「ん」にする
+(setq quail-japanese-use-double-n t)
 
 (provide 'mk-keybind)
