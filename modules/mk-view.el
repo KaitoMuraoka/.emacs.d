@@ -5,6 +5,9 @@
 (set-default-coding-systems 'utf-8)
 ;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
 (set-face-attribute 'default nil :family "HackGen Console" :height 120)
+;; 行間（VSCode のデフォルト lineHeight = fontSize × 1.5 (macOS) に近づける）
+;; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
+(setq-default line-spacing '(0.125 . 0.125))
 
 ;; GUI/TUI の外観
 (use-package color-theme-sanityinc-tomorrow
