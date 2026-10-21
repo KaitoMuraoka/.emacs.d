@@ -36,13 +36,13 @@
 (global-set-key "\C-h" 'delete-backward-char)
 (global-set-key (kbd "C-?") 'help-command)
 
-;; 日本語入力（Quail/KKC）の変換中も C-h を DEL と同じ動作にする
-(with-eval-after-load 'quail
-  (define-key quail-translation-keymap "\C-h" #'quail-delete-last-char)
-  (define-key quail-conversion-keymap "\C-h" #'quail-conversion-backward-delete-char))
-(with-eval-after-load 'kkc
-  (define-key kkc-keymap "\C-h" #'kkc-cancel))
-;; 日本語入力（Quail）で "nn" を「ん」にする
-(setq quail-japanese-use-double-n t)
+;; ;; 日本語入力（Quail/KKC）の変換中も C-h を DEL と同じ動作にする
+;; (with-eval-after-load 'quail
+;;   (define-key quail-translation-keymap "\C-h" #'quail-delete-last-char)
+;;   (define-key quail-conversion-keymap "\C-h" #'quail-conversion-backward-delete-char))
+;; (with-eval-after-load 'kkc
+;;   (define-key kkc-keymap "\C-h" #'kkc-cancel))
+;; ;; 日本語入力（Quail）で "nn" を「ん」にする
+;; (setq quail-japanese-use-double-n t)
 
 (provide 'mk-keybind)
