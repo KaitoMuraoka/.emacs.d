@@ -5,8 +5,15 @@
 
 ;; Magit: Emacs 上で Git を操作できる強力なツール
 ;; ターミナルを開かず Git の全操作が行える
+(defun mk--magit-enable-wrap ()
+  "magit-section-mode が強制する truncate-lines を解除して折り返す。"
+  (setq truncate-lines nil))
+
 (use-package magit
-  :bind ("C-c g" . magit-status))
+  :bind ("C-c g" . magit-status)
+  ;; diff 表示のみ折り返す（log のグラフが崩れないよう全体には適用しない）
+  ;; magit-revision-mode 等も magit-diff-mode の派生なので対象になる
+  :hook ((magit-diff-mode magit-status-mode) . mk--magit-enable-wrap))
 ;;; バッファに依存せず、常にディレクトリを明示的に入力する
 (defun magit-status-ask-dir ()
   "Enter the directory to open Magit"
