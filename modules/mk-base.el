@@ -69,6 +69,7 @@
 (setq save-interprogram-paste-before-kill t)
 ;;折り返しをデフォルトにする
 (setq-default truncate-lines nil)
+(setq truncate-partial-width-windows nil) ;; 左右分割で狭いウィンドウでも折り返す
 (setq-default org-startup-truncated nil);; org-mode ではデフォルト折り返ししないので
 ;; クリップボードをOSと共有する（コピー・ペースト両方向）
 (setq select-enable-clipboard t)
