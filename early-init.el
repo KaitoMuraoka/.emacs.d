@@ -15,5 +15,5 @@
 (when (eq system-type 'darwin)
   (setq native-comp-driver-options '("-mmacosx-version-min=27.0")))
 
-;; ddskk など cookie のない外部パッケージで出る lexical-binding 警告を抑制する
+;; cookie のない外部パッケージで出る lexical-binding 警告を抑制する
 (add-to-list 'warning-suppress-types '(files missing-lexbind-cookie))
