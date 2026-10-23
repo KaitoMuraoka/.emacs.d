@@ -23,13 +23,13 @@
 ;; 入力遅延を避けるため im-select の切替完了は待たない
 ;; ponytail: NS 版には入力ソース変更フックが無いので 0.5 秒ごとに確認する。
 ;; 切替直後の数打鍵が IME に入るのが気になるなら Karabiner で Emacs 中の IME 切替キーを潰す
-(defun my/force-abc-input-source ()
-  (when (and (eq (frame-focus-state) t)
-             (not (equal (car (process-lines-ignore-status "im-select"))
-                         "com.apple.keylayout.ABC")))
-    (call-process "im-select" nil 0 nil "com.apple.keylayout.ABC")))
-(add-function :after after-focus-change-function #'my/force-abc-input-source)
-(run-with-timer 0 0.5 #'my/force-abc-input-source)
+;; (defun my/force-abc-input-source ()
+;;   (when (and (eq (frame-focus-state) t)
+;;              (not (equal (car (process-lines-ignore-status "im-select"))
+;;                          "com.apple.keylayout.ABC")))
+;;     (call-process "im-select" nil 0 nil "com.apple.keylayout.ABC")))
+;; (add-function :after after-focus-change-function #'my/force-abc-input-source)
+;; (run-with-timer 0 0.5 #'my/force-abc-input-source)
 ;; 確認なしで保存
 (setq magit-save-repository-buffers 'dontask)
 ;; yes/no を y/n で答えられるようにする
