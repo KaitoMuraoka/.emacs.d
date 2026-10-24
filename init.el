@@ -30,6 +30,7 @@
 (require 'mk-base)
 (require 'mk-server)
 (require 'mk-keybind)
+(require 'mk-sis)
 (require 'mk-view)
 ;;(require 'mk-drill-instructor)
 (require 'mk-skk)
