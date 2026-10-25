@@ -32,7 +32,7 @@
 (require 'mk-keybind)
 (require 'mk-view)
 ;;(require 'mk-drill-instructor)
-(require 'mk-skk)
+(require 'mk-ime)
 (require 'mk-git)
 (require 'mk-dirvish)
 (require 'mk-shell)
