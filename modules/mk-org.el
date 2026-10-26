@@ -16,9 +16,10 @@
   (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
   (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
   ;; agenda は inbox.org / projects・daily 配下の全ファイルを対象にする
-  (org-agenda-files (append (list (concat org-path "inbox.org"))
-                            (directory-files-recursively (concat org-path "projects") "\\.org$")
-                            (directory-files-recursively (concat org-path "daily") "\\.org$")))
+  ;; ディレクトリ指定にして、起動後に作成されたファイルも参照時に拾われるようにする
+  (org-agenda-files (list (concat org-path "inbox.org")
+                          (concat org-path "projects")
+                          (concat org-path "daily")))
   ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
