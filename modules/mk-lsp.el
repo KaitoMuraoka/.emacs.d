@@ -113,7 +113,7 @@
   :config
   ;; cape-keyword: 言語ごとの予約語を補完候補に出す
   (require 'cape-keyword)
-  ;; Solargraph はレシーバなしの Kernel メソッド（raise 等）を候補に
+  ;; Language Server はレシーバなしの Kernel メソッド（raise 等）を候補に
   ;; 出さないことがあるため、頻出のものを予約語リストに足して補完に出す
   ;; （ruby-ts-mode は cape-keyword-list 内で ruby-mode のリストを参照する）
   (dolist (kw '("raise" "puts" "p" "pp" "require" "require_relative"
@@ -193,7 +193,7 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
    (tsx-ts-mode      . eglot-ensure)
    (python-mode      . eglot-ensure)
    (python-ts-mode   . eglot-ensure)
-   ;; Ruby（Solargraph）は mk-lsp-manager がサーバーの有無を確認してから起動する
+   ;; Ruby（Ruby LSP）は mk-lsp-manager がサーバーの有無を確認してから起動する
    (web-mode         . eglot-ensure))
 
   :config
@@ -213,15 +213,10 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
   (add-to-list 'eglot-server-programs
                '((python-mode python-ts-mode) . ("jedi-language-server")))
 
-  ;; Ruby: Solargraph の検出・インストール・起動は mk-lsp-manager.el が担当する
-  ;; （プロジェクトの Ruby / bundler を解決する必要があるため）
-
-  ;; Solargraph は診断とフォーマットが既定で無効なので明示的に有効化する
-  ;; （どちらも Solargraph が依存する RuboCop を使うため追加インストールは不要）
-  ;; RuboCop 設定のない単発スクリプトでは既定 cop の指摘が大量に出るため、
-  ;; うるさければ :diagnostics :json-false に落とす
-  (setq-default eglot-workspace-configuration
-                '(:solargraph (:diagnostics t :formatting t)))
+  ;; Ruby: Ruby LSP（ruby-lsp）の検出・インストール・起動は mk-lsp-manager.el が担当する
+  ;; （プロジェクトの Ruby を解決する必要があるため）
+  ;; 診断とフォーマットは Ruby LSP の既定で有効
+  ;; （プロジェクトの bundle に RuboCop があれば RuboCop を使う）
 
   ;; HTML/ERB: vscode-html-language-server を使用
   ;; web-mode で HTML タグ・属性の補完を corfu に出すため
@@ -240,6 +235,13 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
   ;; 補完・ドキュメント・さらなる定義ジャンプが効く
   (eglot-extend-to-xref t)
 
+  ;; 定義ジャンプ・参照検索・シンボル検索は Emacs 標準のキーを eglot が引き継ぐ
+  ;;   M-.   定義へジャンプ（xref-find-definitions）
+  ;;   M-,   ジャンプ元へ戻る（xref-go-back）
+  ;;   M-?   参照元の一覧（xref-find-references）
+  ;;   C-M-. ワークスペース全体のシンボル検索（xref-find-apropos）
+  ;;   M-g i ファイル内のシンボル一覧（imenu。Rails の関連付けやコールバックも出る）
+  ;; ホバー情報はエコーエリアの eldoc に自動で出る。ポップアップは下の C-c l h
   :bind (:map eglot-mode-map
               ("C-c l r" . eglot-rename)           ; シンボルのリネーム
               ("C-c l a" . eglot-code-actions)      ; コードアクション
@@ -257,7 +259,7 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
   "eglot 管理下のバッファを保存前にフォーマットする。
 
 フォーマットに失敗しても保存自体は止めない。
-理由: Solargraph の整形は RuboCop に委ねられており、RuboCop の設定を
+理由: Ruby LSP の整形は RuboCop に委ねられており、RuboCop の設定を
       解決できないプロジェクトではサーバーがエラーを返すため。"
   (when (bound-and-true-p eglot--managed-mode)
     (condition-case err
@@ -265,7 +267,7 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
       (error (message "[mk-lsp] 保存時のフォーマットをスキップしました: %s"
                       (error-message-string err))))))
 
-;; Ruby: 保存時に Solargraph（RuboCop）で自動整形する
+;; Ruby: 保存時に Ruby LSP（RuboCop）で自動整形する
 ;; 手動整形は引き続き C-c l f が使える
 (add-hook 'ruby-ts-mode-hook
           (lambda ()
@@ -286,7 +288,7 @@ GUI では eldoc-box のポップアップ、TUI では eldoc のバッファを
 ;;     （第1要素が候補を返す間は Dabbrev は出ないので Method がノイズに埋もれない）
 ;;
 ;; eglot 側は cape-capf-buster でラップする。
-;; 理由: 入力に応じてサーバー側で候補を絞り込むサーバー（Solargraph の
+;; 理由: 入力に応じてサーバー側で候補を絞り込むサーバー（Ruby の
 ;;       `numbers.` のようなレシーバ補完もこれに当たる）では入力のたびに
 ;;       再クエリが必要だが、cape-capf-super は候補を
 ;;       キャッシュするため再クエリが止まり、プロジェクト定義の定数などが

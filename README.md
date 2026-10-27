@@ -423,20 +423,26 @@ VSCode・JetBrains に近い体感になるよう設定しています。
 
 Ruby ファイルを開くと `mk-lsp-manager`（`modules/mk-lsp-manager.el`）が
 Language Server の有無を確認し、無ければ確認のうえ自動でインストールしてから
-eglot を起動します。`gem install solargraph` を手動で実行する必要はありません。
+eglot を起動します。Language Server は [Ruby LSP](https://shopify.github.io/ruby-lsp/) です。
+`gem install ruby-lsp` を手動で実行する必要はありません。
 
 ```text
 Ruby ファイルを開く
   → プロジェクトの Ruby を検出（mise / rbenv / asdf / chruby / .ruby-version）
-  → solargraph が無ければ「Install solargraph automatically? (y or n)」
+  → ruby-lsp が無ければ「Install ruby-lsp automatically? (y or n)」
   → y でインストール
   → eglot 起動
 ```
 
-起動コマンドはプロジェクトごとに切り替わります。
+起動コマンドは、プロジェクトの Ruby に入っている `ruby-lsp` です（`bundle exec` は付けません）。
+ruby-lsp はプロジェクトの Gemfile を元にした専用の bundle を `.ruby-lsp/` に自動生成し、
+Rails プロジェクトなら ruby-lsp-rails もそこに自動で追加します。
+プロジェクトの Gemfile を編集する必要はありません。
+`.ruby-lsp/` には中身が `*` の `.gitignore` が自動で置かれるため、git の管理対象にはなりません。
 
-- `Gemfile.lock` に `solargraph` がある → `bundle exec solargraph stdio`
-- それ以外 → プロジェクトの Ruby に入っている `solargraph stdio`
+ruby-lsp-rails はホスト上で rails runner を起動します。Docker の `compose.yml` でしか
+渡していない環境変数が必要なプロジェクトでは、`mk-lsp-manager-ruby-environment` に
+プロジェクトルートと環境変数を登録すると、ruby-lsp の起動時だけ `env` 経由で渡します。
 
 macOS の system Ruby（`/usr/bin/ruby`）には gem をインストールしません
 （`sudo gem install` は実行しません）。その場合は mise / rbenv などの
@@ -444,7 +450,7 @@ Ruby 環境を用意してください。
 
 | コマンド | 動作 |
 |------|------|
-| `M-x mk-lsp-manager-status` | 検出した Ruby・solargraph・eglot の状態を表示 |
+| `M-x mk-lsp-manager-status` | 検出した Ruby・ruby-lsp・eglot の状態を表示 |
 | `M-x mk-lsp-manager-install` | Language Server を手動でインストール |
 | `M-x mk-lsp-manager-refresh` | 環境の再検出（Ruby を切り替えた後などに実行） |
 
@@ -456,19 +462,21 @@ Ruby 環境を用意してください。
 (setq mk-lsp-manager-confirm-install t) ; インストール前に確認する
 ```
 
-Rails / RSpec 向けの型情報は addon gem をプロジェクトの Gemfile に追加すると
-Solargraph が読み込みます（`bundle exec solargraph` で起動したときに有効）。
+定義ジャンプなどは Emacs 標準のキーで使えます。
+ruby-lsp-rails により、関連付け・コールバック・ルートヘルパーからのジャンプや、
+モデルのホバーでのスキーマ表示も効きます（rails runner を裏で起動するため DB が必要です）。
 
-```ruby
-group :development do
-  gem "solargraph", require: false
-  gem "solargraph-rails", require: false
-  gem "solargraph-rspec", require: false
-end
-```
+| キー | 動作 |
+|------|------|
+| `M-.` | 定義へジャンプ |
+| `M-,` | ジャンプ元へ戻る |
+| `M-?` | 参照元の一覧 |
+| `C-M-.` | ワークスペース全体のシンボル検索 |
+| `M-g i` | ファイル内のシンボル一覧（関連付けやコールバックも出る） |
+| `C-c l h` | ホバー情報をポップアップ表示 |
 
 実行時にしか分からない情報（`rails console` 上のオブジェクトなど）は
-Solargraph では追えないため、robe で補います。
+Ruby LSP では追えないため、robe で補います。
 
 | キー / コマンド | 動作 |
 |------|------|
@@ -477,23 +485,7 @@ Solargraph では追えないため、robe で補います。
 | `C-c l j` | robe で定義へジャンプ（実行時情報を使う） |
 | `C-c l k` | robe でドキュメントを表示 |
 
-補完候補は Solargraph に一本化しており、robe は補完には出しません。
-
-Solargraph はブロック引数の型までは推論しないため、以下のようなケースでは
-`# @type` を書くと補完が効くようになります。
-
-```ruby
-numbers = [1, 2, 3]
-numbers.each do |num|
-  num.        # 候補が出ない（num の型が不明）
-end
-
-# @type [Array<Integer>]
-numbers = [1, 2, 3]
-numbers.each do |num|
-  num.        # Integer のメソッドが出る
-end
-```
+補完候補は Ruby LSP に一本化しており、robe は補完には出しません。
 
 ### Git（Magit / git-gutter）
 
@@ -593,9 +585,12 @@ npm install -g typescript-language-server typescript
 
 **LSP が起動しない（Ruby）**
 
-`M-x mk-lsp-manager-status` で、検出された Ruby・solargraph のパス・実行コマンドを
+`M-x mk-lsp-manager-status` で、検出された Ruby・ruby-lsp のパス・実行コマンドを
 確認します。Ruby を切り替えた直後は `M-x mk-lsp-manager-refresh` で再検出させます。
 インストールの詳細な出力は `*mk-lsp-manager*` バッファに残ります。
+サーバー自体のログ（ruby-lsp-rails の rails runner のエラーを含む）は
+`M-x eglot-events-buffer` で確認できます。DB が起動していない、initializer が
+エラーになる、といった場合は rails runner が起動できず Rails 固有の機能が効きません。
 
 **パッケージのインストールに失敗する**
 
