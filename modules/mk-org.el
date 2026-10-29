@@ -19,7 +19,7 @@
   ;; ディレクトリ指定にして、起動後に作成されたファイルも参照時に拾われるようにする
   (org-agenda-files (list (concat org-path "inbox.org")
                           (concat org-path "projects")
-                          (concat org-path "daily")))
+                          (concat org-path "journal")))
   ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
