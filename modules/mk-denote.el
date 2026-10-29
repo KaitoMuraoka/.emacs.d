@@ -120,6 +120,10 @@
 
 ;; Live Preview 風の表示
 (use-package org-modern
+  :custom
+  ;; 見出しは * の数で階層がわかるよう、記号への置き換えも先頭の * の非表示もしない
+  (org-modern-star nil)
+  (org-modern-hide-stars nil)
   :hook (org-mode . org-modern-mode))
 
 (use-package org-appear
