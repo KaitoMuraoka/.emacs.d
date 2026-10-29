@@ -13,7 +13,6 @@
   :custom
   ;; Vault は ~/org。サブディレクトリ（journal など）も再帰的に対象になる
   (denote-directory (expand-file-name "~/org/"))
-  (denote-file-type 'org)
   (denote-known-keywords '("idea" "book" "meeting" "project"))
   ;; バックリンクは右のサイドウィンドウに出す（Obsidian のバックリンクパネル）
   (denote-backlinks-display-buffer-action
@@ -25,8 +24,7 @@
      (preserve-size . (t . t))))
   ;; denote-template で選ぶテンプレート（TYPE などのプロパティは org-ql で集計できる）
   (denote-templates
-   '((plain . "")
-     ;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
+   '(;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
      (journal . "* 今日やること\n\n* ログ\n\n* 振り返り\n")
      (meeting . "* 参加者\n\n* 議題\n\n* 決定事項\n\n* TODO\n")
      (book . "* 概要\n:PROPERTIES:\n:TYPE: book\n:AUTHOR:\n:STATUS: 未読\n:RATING:\n:END:\n\n* メモ\n")))
@@ -52,14 +50,12 @@
 
 ;; ノート内のバックリンク・リンク・ファイル一覧（動的ブロック）
 (use-package denote-org
-  :after denote
   :bind
   (("C-c n d" . denote-org-dblock-insert-backlinks)
    ("C-c n D" . denote-org-dblock-insert-links)))
 
 ;; デイリーノート（~/org/journal に作る）
 (use-package denote-journal
-  :after denote
   :custom
   (denote-journal-directory (expand-file-name "journal" denote-directory))
   (denote-journal-title-format 'day-date-month-year)
@@ -77,8 +73,6 @@
   (consult-ripgrep denote-directory))
 
 ;; Properties / Bases / カンバン（実行時にファイルを走査するだけで DB は作らない）
-(use-package org-super-agenda)
-
 (use-package org-ql
   :custom
   (org-ql-views
@@ -112,7 +106,6 @@
 
 ;; グラフビュー（実行時に走査して Graphviz で SVG を出力する。graphviz が必要）
 (use-package denote-explore
-  :after denote
   :custom
   (denote-explore-network-format 'graphviz)
   :bind
@@ -143,7 +136,6 @@
                  (file denote-last-path)
                  #'denote-org-capture
                  :no-save t
-                 :immediate-finish nil
                  :kill-buffer t
                  :jump-to-captured t))
   (add-to-list 'org-capture-templates
@@ -155,7 +147,6 @@
                            "* 出典\n%:link\n\n* 引用\n#+begin_quote\n%i\n#+end_quote\n\n* メモ\n%?"))
                       (denote-org-capture))))
                  :no-save t
-                 :immediate-finish nil
                  :kill-buffer t
                  :jump-to-captured t)))
 
@@ -164,7 +155,6 @@
   (add-to-list 'org-publish-project-alist
                `("denote"
                  :base-directory ,(expand-file-name "~/org/")
-                 :base-extension "org"
                  :recursive t
                  :exclude "public_html/"
                  :publishing-directory ,(expand-file-name "~/org/public_html/")
