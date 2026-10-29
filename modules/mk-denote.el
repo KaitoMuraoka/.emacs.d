@@ -48,7 +48,7 @@
 (defun mk/denote-filter-by-keyword (keyword)
   "KEYWORD（ファイル名の __tag）を持つノートを Dired で一覧する。"
   (interactive (list (completing-read "タグ: " (denote-keywords))))
-  (denote-sort-dired (concat "_" (regexp-quote keyword)) nil nil nil))
+  (denote-sort-dired (concat "_" (regexp-quote keyword) "[_.]") nil nil nil))
 
 ;; ノート内のバックリンク・リンク・ファイル一覧（動的ブロック）
 (use-package denote-org
