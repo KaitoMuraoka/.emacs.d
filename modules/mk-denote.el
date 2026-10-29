@@ -124,6 +124,8 @@
   ;; 見出しは * の数で階層がわかるよう、記号への置き換えも先頭の * の非表示もしない
   (org-modern-star nil)
   (org-modern-hide-stars nil)
+  ;; TODO / WIP / DONE はラベル化せず、org-todo-keyword-faces の表示を使う
+  (org-modern-todo nil)
   :hook (org-mode . org-modern-mode))
 
 (use-package org-appear
