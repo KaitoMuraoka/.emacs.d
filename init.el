@@ -45,6 +45,7 @@
 (require 'mk-which-key)
 (require 'mk-ai-code-interface)
 (require 'mk-org)
+(require 'mk-denote)
 (require 'mk-org-scratch)
 (require 'mk-markdown)
 (require 'mk-treesit)
