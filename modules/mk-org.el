@@ -31,7 +31,7 @@
       "* TODO %?\n %u\n"
       :empty-lines 1)
      ("l" "ログ" item
-      (file (lambda () (expand-file-name (format-time-string "daily/%Y-%m-%d.org") org-path)))
+      (file+headline denote-journal-path-to-new-or-existing-entry "ログ")
       "- %<%H:%M>：%?")))
 
   :bind
