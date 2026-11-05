@@ -89,6 +89,6 @@ fontset は全フレーム共通のため一度だけ実行すればよい。")
 
 ;; カーソル変更
 ;; 縦棒(|) 'bar
-(setq-default cursor-type t)
+(setq-default cursor-type 'bar)
 
 (provide 'mk-view)
