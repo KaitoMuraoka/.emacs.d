@@ -56,6 +56,9 @@
 
 ;; デイリーノート（~/org/journal に作る）
 (use-package denote-journal
+  :init
+  ;; ~/org-work/.dir-locals.el で silo ごとに切り替えるため、確認なしで適用できるようにする
+  (put 'denote-journal-directory 'safe-local-variable #'stringp)
   :custom
   (denote-journal-directory (expand-file-name "journal" denote-directory))
   (denote-journal-title-format 'day-date-month-year)
