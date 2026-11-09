@@ -17,11 +17,12 @@
   ;; タスクの状態: 未着手 → 対応中 → 完了
   (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
   (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
-  ;; agenda は inbox.org / projects・daily 配下の全ファイルを対象にする
+  ;; agenda は inbox.org / projects・daily 配下 / ~/org-work 直下の全ファイルを対象にする
   ;; ディレクトリ指定にして、起動後に作成されたファイルも参照時に拾われるようにする
   (org-agenda-files (list (concat org-path "inbox.org")
                           (concat org-path "projects")
-                          (concat org-path "daily")))
+                          (concat org-path "daily")
+                          "~/org-work/"))
   ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
