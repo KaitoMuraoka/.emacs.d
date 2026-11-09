@@ -53,6 +53,7 @@
   "org-mode でタイトルを出力するショートカット"
   (interactive)
   (insert "#+TITLE: "))
-(define-key org-mode-map (kbd "C-c t") 'org-insert-title)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c t") 'org-insert-title))
 
 (provide 'mk-org)
