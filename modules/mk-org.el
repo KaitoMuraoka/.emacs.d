@@ -37,17 +37,19 @@
   ;; タスクの状態: 未着手 → 対応中 → 完了
   (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
   (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
-  ;; agenda は inbox.org / projects・daily 配下の全ファイルを対象にする
+  ;; agenda は各 silo の inbox.org と、直下・journal 配下の Denote ノートを対象にする
   ;; ディレクトリ指定にして、起動後に作成されたファイルも参照時に拾われるようにする
-  ;; 存在しないパスは agenda 起動時にエラーになるため、ディレクトリは作成済みのものだけを指定する
-  (org-agenda-files (append (list (concat org-path "inbox.org")
-                                  (concat org-path "projects")
-                                  (concat org-path "journal"))
-                            (when (mk/org-work-available-p)
-                              (list (concat org-work-path "inbox.org")
-                                    (concat org-work-path "projects")
-                                    (concat org-work-path "journal")))))
-  ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
+  ;; ディレクトリからは Denote のファイル名（識別子で始まるもの）だけを拾い、README.org などは除く
+  (org-agenda-file-regexp "\\`[0-9]\\{8\\}T[0-9]\\{6\\}.*\\.org\\'")
+  ;; 存在しないパスがあると agenda 起動時に削除を求められ、その削除で一覧が init.el に保存されてしまうため除く
+  (org-agenda-files (seq-filter #'file-exists-p
+                                (list (concat org-path "inbox.org")
+                                      org-path
+                                      (concat org-path "journal")
+                                      (concat org-work-path "inbox.org")
+                                      org-work-path
+                                      (concat org-work-path "journal"))))
+  ;; refile は org-agenda-files の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
   (org-outline-path-complete-in-steps nil)
