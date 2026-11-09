@@ -46,6 +46,7 @@
 (require 'mk-ai-code-interface)
 (require 'mk-org)
 (require 'mk-org-scratch)
+(require 'mk-denote)
 (require 'mk-markdown)
 (require 'mk-treesit)
 (require 'mk-lsp)
