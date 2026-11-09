@@ -2,8 +2,6 @@
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
-(defconst org-path
-  "~/org/")
 (global-set-key (kbd "C-c o") (lambda () (interactive) (dired org-path)))
 
 (use-package org
@@ -15,12 +13,10 @@
   ;; タスクの状態: 未着手 → 対応中 → 完了
   (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
   (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
-  ;; agenda は inbox.org / projects・daily 配下の全ファイルを対象にする
+  ;; agenda は ~/org と ~/org-work 直下の全ファイルを対象にする
   ;; ディレクトリ指定にして、起動後に作成されたファイルも参照時に拾われるようにする
-  (org-agenda-files (list (concat org-path "inbox.org")
-                          (concat org-path "projects")
-                          (concat org-path "daily")))
-  ;; refile は org-agenda-files（projects 配下含む）の見出しレベル2までを対象にする
+  (org-agenda-files (list "~/org" "~/org-work/"))
+  ;; refile は org-agenda-files の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
   (org-outline-path-complete-in-steps nil)
@@ -30,9 +26,10 @@
       (file+headline org-default-notes-file "Tasks")
       "* TODO %?\n %u\n"
       :empty-lines 1)
-     ("l" "ログ" item
-      (file (lambda () (expand-file-name (format-time-string "daily/%Y-%m-%d.org") org-path)))
-      "- %<%H:%M>：%?")))
+     ("T" "仕事タスク" entry
+      (file "~/org-work/inbox.org")
+      "* TODO %?\n %u\n"
+      :empty-lines 1)))
 
   :bind
   ("C-c a" . org-agenda)
@@ -46,6 +43,7 @@
   "org-mode でタイトルを出力するショートカット"
   (interactive)
   (insert "#+TITLE: "))
-(define-key org-mode-map (kbd "C-c t") 'org-insert-title)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c t") 'org-insert-title))
 
 (provide 'mk-org)
