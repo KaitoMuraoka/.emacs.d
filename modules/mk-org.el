@@ -2,10 +2,6 @@
 ;;; ============================================================
 ;;; org-mode
 ;;; ============================================================
-(defconst org-path
-  "~/org/")
-(defconst org-path
-  "~/org/")
 (global-set-key (kbd "C-c o") (lambda () (interactive) (dired org-path)))
 
 (use-package org
@@ -17,10 +13,9 @@
   ;; タスクの状態: 未着手 → 対応中 → 完了
   (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
   (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
-  ;; agenda は inbox.org / ~/org-work 直下の全ファイルを対象にする
+  ;; agenda は ~/org と ~/org-work 直下の全ファイルを対象にする
   ;; ディレクトリ指定にして、起動後に作成されたファイルも参照時に拾われるようにする
-  (org-agenda-files (list (concat org-path "inbox.org")
-                          "~/org-work/"))
+  (org-agenda-files (list "~/org" "~/org-work/"))
   ;; refile は org-agenda-files の見出しレベル2までを対象にする
   (org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (org-refile-use-outline-path 'file)
