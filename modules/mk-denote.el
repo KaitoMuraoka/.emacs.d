@@ -137,10 +137,24 @@
   (add-to-list 'org-capture-templates
                '("n" "Denote ノート" plain
                  (file denote-last-path)
-                 #'denote-org-capture
+                 (function
+                  (lambda ()
+                    (let ((denote-directory (expand-file-name org-path)))
+                      (denote-org-capture))))
                  :no-save t
                  :kill-buffer t
                  :jump-to-captured t))
+  (when (mk/org-work-available-p)
+    (add-to-list 'org-capture-templates
+                 '("N" "仕事の Denote ノート" plain
+                   (file denote-last-path)
+                   (function
+                    (lambda ()
+                      (let ((denote-directory (expand-file-name org-work-path)))
+                        (denote-org-capture))))
+                   :no-save t
+                   :kill-buffer t
+                   :jump-to-captured t)))
   (add-to-list 'org-capture-templates
                '("w" "Web クリップ（Denote ノート）" plain
                  (file denote-last-path)
