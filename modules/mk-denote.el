@@ -14,12 +14,7 @@
   :custom
   (denote-directory (expand-file-name "~/org/"))
   :config
-  (denote-rename-buffer-mode 1)
-  ;; ~/org-work 配下では denote-directory を仕事用に切り替える(silo)
-  (dir-locals-set-class-variables
-   'mk-denote-work
-   `((nil . ((denote-directory . ,(expand-file-name "~/org-work/"))))))
-  (dir-locals-set-directory-class (expand-file-name "~/org-work/") 'mk-denote-work))
+  (denote-rename-buffer-mode 1))
 
 (use-package denote-silo
   :bind
