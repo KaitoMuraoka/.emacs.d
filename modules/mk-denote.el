@@ -25,11 +25,27 @@
    (list (expand-file-name "~/org/")
          (expand-file-name "~/org-work/"))))
 
+(defun mk-denote-work-journal ()
+  "仕事用 silo (~/org-work) の今日の日報を開く。無ければ作る。"
+  (interactive)
+  (let ((denote-directory (expand-file-name "~/org-work/")))
+    (call-interactively #'denote-journal-new-or-existing-entry)))
+
 (use-package denote-journal
-  :bind ("C-c n j" . denote-journal-new-or-existing-entry)
+  :bind (("C-c n j" . denote-journal-new-or-existing-entry)
+         ("C-c n J" . mk-denote-work-journal))
   :hook (calendar-mode . denote-journal-calendar-mode)
   :custom
   ;; nil にして各 silo の denote-directory 直下に作る
-  (denote-journal-directory nil))
+  (denote-journal-directory nil)
+  ;; 日報に _project のノートへのリンク一覧を入れる
+  (denote-templates
+   '((journal . "* 今日やったタスク\n#+BEGIN: denote-links :regexp \"_project\"\n#+END:\n")))
+  :config
+  (add-hook 'denote-journal-hook #'org-update-all-dblocks))
+
+;; denote-links 動的ブロックを提供する
+(use-package denote-org
+  :defer t)
 
 (provide 'mk-denote)
