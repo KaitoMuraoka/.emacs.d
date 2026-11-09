@@ -38,9 +38,9 @@
   :custom
   ;; nil にして各 silo の denote-directory 直下に作る
   (denote-journal-directory nil)
-  ;; 日報に _project のノートへのリンク一覧を入れる
+  ;; 日報に _project のノートへのリンク一覧と、今日 clock した TODO の一覧を入れる
   (denote-templates
-   '((journal . "* 今日やったタスク\n#+BEGIN: denote-links :regexp \"_project\"\n#+END:\n")))
+   '((journal . "* 今日やったタスク\n#+BEGIN: denote-links :regexp \"_project\"\n#+END:\n\n#+BEGIN: clocktable :scope agenda :block today :link t :fileskip0 t :hidefiles t\n#+END:\n")))
   :config
   (add-hook 'denote-journal-hook #'org-update-all-dblocks))
 
