@@ -25,4 +25,11 @@
    (list (expand-file-name "~/org/")
          (expand-file-name "~/org-work/"))))
 
+(use-package denote-journal
+  :bind ("C-c n j" . denote-journal-new-or-existing-entry)
+  :hook (calendar-mode . denote-journal-calendar-mode)
+  :custom
+  ;; nil にして各 silo の denote-directory 直下に作る
+  (denote-journal-directory nil))
+
 (provide 'mk-denote)
