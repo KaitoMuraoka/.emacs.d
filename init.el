@@ -15,3 +15,4 @@
 (require 'indentation)
 (require 'keybind)
 (require 'os)
+(require 'package-manager)
