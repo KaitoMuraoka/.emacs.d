@@ -9,7 +9,9 @@
 ;; フェイスを変更する
 (set-face-background 'show-paren-match nil)
 (set-face-underline 'show-paren-match "darkgreen")
-
+;; ファイルの自動更新
+;; 更新されたファイルを自動的に読み込み直す
+(global-auto-revert-mode t)
 
 (provide 'indentation)
 ;;; indentation.el ends here
