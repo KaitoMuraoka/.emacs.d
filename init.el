@@ -10,6 +10,7 @@
 
 ;; カスタムファイルを読み込む
 (load custom-file)
+(require 'mk-auto-complete)
 (require 'backup)
 (require 'emacs-frame)
 (require 'indentation)
