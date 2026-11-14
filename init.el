@@ -8,3 +8,4 @@
 (require 'mk-keybind)
 (require 'mk-view)
 (require 'mk-auto-complete)
+(require 'mk-git)
