@@ -11,7 +11,12 @@
   (centaur-tabs-set-icons t)
   (centaur-tabs-icon-type 'nerd-icons)
   :config
-  (centaur-tabs-mode t))
+  (centaur-tabs-mode t)
+  :bind
+  (:map centaur-tabs-mode-map
+        ("C-<tab>"     . centaur-tabs-forward)
+        ("C-S-<tab>"   . centaur-tabs-backward)
+        ("C-<backtab>" . centaur-tabs-backward)))
 
 (provide 'mk-centaur-tabs)
 ;;; mk-centaur-tabs.el ends here
