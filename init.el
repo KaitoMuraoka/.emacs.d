@@ -19,3 +19,4 @@
 (require 'mk-treemacs)
 (require 'mk-language-mode)
 (require 'mk-centaur-tabs)
+(require 'mk-super-save)
