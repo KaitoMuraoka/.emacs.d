@@ -2,7 +2,9 @@
 ;;; ---- 執筆用（org-mode / Markdown のみ） ----
 (use-package olivetti
   :ensure t
-  :custom (olivetti-body-width 80))
+  :custom
+  (olivetti-body-width 120)
+  (olivetti-style 'fancy))
 (use-package typo :ensure t)
 (use-package markdown-mode :ensure t)
 
