@@ -9,3 +9,4 @@
 (require 'mk-view)
 (require 'mk-auto-complete)
 (require 'mk-git)
+(require 'mk-which-key)
