@@ -5,6 +5,9 @@
 (global-set-key (kbd "C-t") 'other-window);; "C-t" でウィンドウを切り替える。初期値はtranspose-chars
 (global-set-key (kbd "C-;") 'set-mark-command) ;; C-;でマークセット
 
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 
 (provide 'mk-keybind)
 ;;; mk-keybind.el ends here
