@@ -1,5 +1,12 @@
 ;;; mk-view.el --- -*- lexical-binding: t -*-
 (column-number-mode t) ;; カラム番号を追加
+;; theme
+(use-package nano-theme
+  :ensure t
+  :hook (ns-system-appearance-change-functions
+         . (lambda (appearance)
+             (mapc #'disable-theme custom-enabled-themes)
+             (load-theme (if (eq appearance 'dark) 'nano-dark 'nano-light) t))))
 
 ;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
 (defun count-lines-and-chars ()
