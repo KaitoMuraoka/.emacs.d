@@ -7,7 +7,6 @@
 (require 'mk-base)
 (require 'mk-keybind)
 (require 'mk-view)
-(require 'mk-auto-complete)
 (require 'mk-git)
 (require 'mk-which-key)
-(require 'mk-vertico)
+(require 'mk-completion)
