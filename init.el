@@ -20,3 +20,4 @@
 (require 'mk-language-mode)
 (require 'mk-centaur-tabs)
 (require 'mk-super-save)
+(require 'mk-olivetti)
