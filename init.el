@@ -3,10 +3,8 @@
 
 ;; customize の書き込みを init.el に混ぜないよう、使い捨ての一時ファイルに逃がす
 (setq custom-file (make-temp-file "emacs-custom-" nil ".el"))
-(require 'package-manager)
+(require 'mk-package)
+(require 'mk-base)
+(require 'mk-keybind)
+(require 'mk-view)
 (require 'mk-auto-complete)
-(require 'backup)
-(require 'emacs-frame)
-(require 'indentation)
-(require 'keybind)
-(require 'os)

@@ -1,4 +1,4 @@
-;;; --- -*- lexical-binding: t -*-
+;;; mk-auto-complete.el --- -*- lexical-binding: t -*-
 
 ;; auto-completeの設定
 (use-package auto-complete
@@ -13,3 +13,4 @@
   (ac-config-default))
 
 (provide 'mk-auto-complete)
+;;; mk-auto-complete.el ends here

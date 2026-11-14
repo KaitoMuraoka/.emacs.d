@@ -1,4 +1,9 @@
-;;; os.el --- -*- lexical-binding: t -*-
+;;; mk-base.el --- -*- lexical-binding: t -*-
+(setq make-backup-files nil) ;; バックアップファイルを作成しない
+(setq auto-save-default nil) ;; オートセーブファイルを作成しない
+(setq-default tab-width 4) ;; TAB の表示幅。初期値は8
+(global-auto-revert-mode t) ;; 更新されたファイルを自動的に読み込み直す
+
 ;; Macだけに読み込ませる内容を書く
 (when (eq system-type 'darwin)
   ;; MacのEmacsでファイル名を正しく扱うための設定
@@ -10,17 +15,5 @@
     (when (file-directory-p sdk-lib)
       (setq native-comp-driver-options (list "-Wl,-w" (concat "-L" sdk-lib))))))
 
-;; ターミナル以外はツールバー、スクロールバーを非表示
-(when window-system
-  ;; tool-barを非表示
-  (tool-bar-mode 0)
-  ;; scroll-barを非表示
-  (scroll-bar-mode 0))
-
-;; CocoaEmacs以外はメニューバーを非表示
-(unless (eq window-system 'ns)
-  ;; menu-barを非表示
-  (menu-bar-mode 0))
-
-(provide 'os)
-;;; os.el ends here
+(provide 'mk-base)
+;;; mk-base.el ends here

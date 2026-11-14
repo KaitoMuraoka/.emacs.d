@@ -1,4 +1,4 @@
-;;; --- -*- lexical-binding: t -*-
+;;; mk-package.el --- -*- lexical-binding: t -*-
 
 (require 'package) ; package.elを有効化
 ;; パッケージリポジトリにMarmaladeとMELPAを追加
@@ -10,4 +10,5 @@
  '("melpa" . "https://melpa.org/packages/"))
 (package-initialize) ; インストール済みのElispを読み込む
 
-(provide 'package-manager)
+(provide 'mk-package)
+;;; mk-package.el ends here
