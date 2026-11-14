@@ -14,3 +14,4 @@
 (require 'mk-eglot)
 (require 'mk-vterm)
 (require 'mk-ghostel)
+(require 'mk-org)
