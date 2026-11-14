@@ -1,6 +1,0 @@
-* %^{Title} :TIL:
-:PROPERTIES:
-:CREATED: %U
-:END:
-
-%?

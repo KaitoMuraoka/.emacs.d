@@ -1,94 +1,67 @@
-;; -*- lexical-binding: t; -*-
-;;; ============================================================
-;;; 外観（透明化・ガラス効果）
-;;; ============================================================
-(set-default-coding-systems 'utf-8)
-;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
-(set-face-attribute 'default nil :family "HackGen Console" :height 120)
-;; 行間（VSCode のデフォルト lineHeight = 18px に合わせ、文字の高さ 13px に上 2px・下 3px を足す）
-;; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
-(setq-default line-spacing '(2 . 3))
+;;; mk-view.el --- -*- lexical-binding: t -*-
+(column-number-mode t) ;; カラム番号を追加
+;; theme
+(use-package nano-theme
+  :ensure t
+  :hook (ns-system-appearance-change-functions
+         . (lambda (appearance)
+             (mapc #'disable-theme custom-enabled-themes)
+             (load-theme (if (eq appearance 'dark) 'nano-dark 'nano-light) t))))
 
-;; GUI/TUI の外観
-(use-package color-theme-sanityinc-tomorrow
+(use-package fontaine
+  :ensure t
   :config
-  (load-theme 'sanityinc-tomorrow-night t))
+  (setq fontaine-presets
+        '((regular :default-family "Iosevka" :default-height 120)
+          (writing :default-family "Iosevka" :default-height 160)))
+  (fontaine-set-preset 'regular))
 
-;;; ------------------------------------------------------------
-;;; フレーム種別ごとの外観設定
-;;; ------------------------------------------------------------
-;; 理由: daemon 起動時はグラフィカルフレームが存在せず (display-graphic-p) が
-;;       nil を返す。ロード時に一度だけ判定して設定すると TUI 用の設定が
-;;       グローバル指定として残り、後から emacsclient -c で作られる
-;;       GUI フレームまで壊してしまう。
-;;       そのため判定と適用はフレーム生成のたびに、そのフレームに対して行う。
+;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
+(defun count-lines-and-chars ()
+  (if mark-active
+      (format "(%dlines,%dchars) "
+              (count-lines (region-beginning) (region-end))
+              (- (region-end) (region-beginning)))
+    ""))
 
-(defvar mk--emoji-fontset-configured nil
-  "絵文字 fontset を設定済みかどうか。
-fontset は全フレーム共通のため一度だけ実行すればよい。")
+(setq-default mode-line-format
+              (cons '(:eval (count-lines-and-chars))
+                    (default-value 'mode-line-format)))
 
-(defun mk--setup-gui-frame (frame)
-  "グラフィカルな FRAME 向けの外観設定を適用する。"
-  (unless mk--emoji-fontset-configured
-    ;; 絵文字・天気記号（☁ ⛅ 🌧 等）は HackGen 非収録のため Apple Color Emoji へフォールバック
-    (with-demoted-errors "mk-view: emoji fontset の設定に失敗: %S"
-      (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") frame 'prepend)
-      (set-fontset-font t '(#x2600 . #x26FF) (font-spec :family "Apple Color Emoji") frame 'prepend)
-      (set-fontset-font t '(#x1F300 . #x1FAFF) (font-spec :family "Apple Color Emoji") frame 'prepend)
-      (setq mk--emoji-fontset-configured t))))
+;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
+(use-package emacs
+  :config
+  (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
 
-(defun mk--setup-tty-frame (frame)
-  "端末上の FRAME 向けの外観設定を適用する。
-`set-face-background' に FRAME を渡すことが重要。省略すると default フェイスの
-グローバル指定と `default-frame-alist' が \"unspecified-bg\" で上書きされ、
-以降に作られる GUI フレームが Unknown color で生成に失敗する。"
-  (set-face-background 'default "unspecified-bg" frame)
-  (set-face-background 'line-number "unspecified-bg" frame)
-  (set-face-background 'line-number-current-line "unspecified-bg" frame)
-  ;; ターミナルのマウスイベントを受け取る
-  (xterm-mouse-mode 1))
+(setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
+;;(global-display-line-numbers-mode t)  ;;グローバル
+(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
 
-(defun mk-setup-frame-appearance (frame)
-  "FRAME の表示種別に応じた外観設定を適用する。"
-  (if (display-graphic-p frame)
-      (mk--setup-gui-frame frame)
-    (mk--setup-tty-frame frame)))
+;; paren-mode：対応する括弧を強調して表示する
+(use-package paren
+  :custom
+  (show-paren-delay 0) ; 表示までの秒数。初期値は0.125
+  (show-paren-style 'expression) ; expressionは括弧内も強調表示
+  :config
+  ;; :custom-face は face-defface-spec に入りテーマに負けるため user テーマに設定する
+  (custom-set-faces
+   '(show-paren-match ((t (:inherit nil :background unspecified :underline "darkgreen")))))
+  (show-paren-mode t))
+(setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
+(set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
+(setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
 
-(defun mk--setup-initial-frame-appearance ()
-  "起動時の初期フレームへ外観設定を適用する。"
-  (mk-setup-frame-appearance (selected-frame)))
+;; ターミナル以外はツールバー、スクロールバーを非表示
+(when window-system
+  ;; tool-barを非表示
+  (tool-bar-mode 0)
+  ;; scroll-barを非表示
+  (scroll-bar-mode 0))
 
-(add-hook 'after-make-frame-functions #'mk-setup-frame-appearance)
-;; 初期フレームには after-make-frame-functions が走らないため別途適用する。
-;; ロード時ではなく window-setup-hook を使うのは、起動処理の終盤で走る
-;; `frame-notice-user-settings' がフレームのフェイスを再初期化し、
-;; それより前に設定した内容が失われるため。
-(add-hook 'window-setup-hook #'mk--setup-initial-frame-appearance)
-
-;; メニューバーを非表示
-(menu-bar-mode 0)
-
-;; スクロールバーを非表示
-(scroll-bar-mode -1)
-
-;; ツールバーを非表示
-(tool-bar-mode 1)
-
-;; ピンチジェスチャーによるフォントサイズ変更を無効化
-(global-set-key (kbd "<pinch>") 'ignore)
-
-;; splash.svg の :scale default が Retina 環境でフレーム高を超え
-;; use-fancy-splash-screens-p が nil を返す問題を修正する。
-;; SVG が描画可能な場合は常にロゴを表示するよう advice でバイパスする。
-;; advice 本体が実行時に display-graphic-p を見るため登録は無条件でよい。
-(advice-add 'use-fancy-splash-screens-p :override
-            (lambda ()
-              (and (display-graphic-p)
-                   (ignore-errors
-                     (create-image (fancy-splash-image-file))))))
-
-;; カーソル変更
-;; 縦棒(|) 'bar
-(setq-default cursor-type t)
+;; CocoaEmacs以外はメニューバーを非表示
+(unless (eq window-system 'ns)
+  ;; menu-barを非表示
+  (menu-bar-mode 0))
 
 (provide 'mk-view)
+;;; mk-view.el ends here
