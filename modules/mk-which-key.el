@@ -1,7 +1,4 @@
-;; -*- lexical-binding: t; -*-
-;;; ============================================================
-;;; which-key
-;;; ============================================================
+;;; mk-which-key.el --- -*- lexical-binding: t -*-
 (use-package which-key
   :config
   (setq which-key-idle-delay 0.8)
@@ -13,3 +10,4 @@
   (which-key-mode))
 
 (provide 'mk-which-key)
+;;; mk-which-key.el ends here

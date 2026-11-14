@@ -1,4 +1,4 @@
-;;; --- -*- lexical-binding: t -*-
+;;; mk-git.el --- -*- lexical-binding: t -*-
 
 (use-package magit
   :ensure t
@@ -13,6 +13,8 @@
   (setq git-gutter:added-sign    "+")
   (setq git-gutter:deleted-sign  "-")
   (setq git-gutter:modified-sign "~")
+  (global-git-gutter-mode t)
   )
 
 (provide 'mk-git)
+;;; mk-git.el ends here

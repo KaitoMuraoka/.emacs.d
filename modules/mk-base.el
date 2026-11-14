@@ -1,4 +1,5 @@
 ;;; mk-base.el --- -*- lexical-binding: t -*-
+(setq ring-bell-function 'ignore);; エラー音を無効化
 (setq make-backup-files nil) ;; バックアップファイルを作成しない
 (setq auto-save-default nil) ;; オートセーブファイルを作成しない
 (setq-default tab-width 4) ;; TAB の表示幅。初期値は8
