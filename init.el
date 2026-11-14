@@ -15,6 +15,7 @@
 (require 'mk-vterm)
 (require 'mk-ghostel)
 (require 'mk-org)
+(require 'mk-denote)
 (require 'mk-nerd-icons)
 (require 'mk-treemacs)
 (require 'mk-language-mode)
