@@ -1,11 +1,11 @@
 ;;; mk-package.el --- -*- lexical-binding: t -*-
 
-(require 'package) ; package.elを有効化
-;; パッケージリポジトリにMELPAを追加
-(add-to-list
- 'package-archives
- '("melpa" . "https://melpa.org/packages/"))
-(package-initialize) ; インストール済みのElispを読み込む
+;; パッケージリポジトリに MELPA を追加
+(use-package package
+  :custom
+  (package-archives '(("gnu"    . "https://elpa.gnu.org/packages/")
+                      ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                      ("melpa"  . "https://melpa.org/packages/"))))
 
 (provide 'mk-package)
 ;;; mk-package.el ends here
