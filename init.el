@@ -11,5 +11,6 @@
 (require 'mk-git)
 (require 'mk-which-key)
 (require 'mk-completion)
+(require 'mk-eglot)
 (require 'mk-vterm)
 (require 'mk-ghostel)
