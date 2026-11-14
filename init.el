@@ -3,8 +3,6 @@
 
 ;; カスタムファイルを別ファイルにする
 (setq custom-file (locate-user-emacs-file "custom.el"))
-;; TODO: 今は custom.el の package-selected-packages をコミットしてパッケージ一覧を共有している。
-;; 将来は各パッケージを use-package の :ensure t で宣言し、custom.el は .gitignore に入れる。
 
 ;; (カスタムファイルが存在しない場合は作成する
 (unless (file-exists-p custom-file)
@@ -12,10 +10,10 @@
 
 ;; カスタムファイルを読み込む
 (load custom-file)
+(require 'package-manager)
 (require 'mk-auto-complete)
 (require 'backup)
 (require 'emacs-frame)
 (require 'indentation)
 (require 'keybind)
 (require 'os)
-(require 'package-manager)
