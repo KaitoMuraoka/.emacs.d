@@ -8,6 +8,14 @@
              (mapc #'disable-theme custom-enabled-themes)
              (load-theme (if (eq appearance 'dark) 'nano-dark 'nano-light) t))))
 
+(use-package fontaine
+  :ensure t
+  :config
+  (setq fontaine-presets
+        '((regular :default-family "Iosevka" :default-height 120)
+          (writing :default-family "Iosevka" :default-height 160)))
+  (fontaine-set-preset 'regular))
+
 ;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
 (defun count-lines-and-chars ()
   (if mark-active
@@ -35,7 +43,6 @@
 (setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
 (set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
 (setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
-(set-face-attribute 'default nil :family "HackGen Console" :height 120) ;; フォント（HackGen は日本語グリフ内包のため fontset 設定不要）
 
 ;; ターミナル以外はツールバー、スクロールバーを非表示
 (when window-system
