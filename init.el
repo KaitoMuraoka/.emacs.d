@@ -17,3 +17,4 @@
 (require 'mk-org)
 (require 'mk-nerd-icons)
 (require 'mk-treemacs)
+(require 'mk-language-mode)
