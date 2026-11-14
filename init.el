@@ -18,3 +18,4 @@
 (require 'mk-nerd-icons)
 (require 'mk-treemacs)
 (require 'mk-language-mode)
+(require 'mk-centaur-tabs)
