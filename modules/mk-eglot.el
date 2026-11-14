@@ -16,7 +16,7 @@
 
 ;; flymake: Emacs Lisp はバイトコンパイル結果で診断する（elisp 用 LSP は無いため）
 (use-package elisp-mode
-  :hook (emacs-lisp-mode . flymake-mode)
+  :hook (emacs-lisp-mode . (lambda () (when buffer-file-name (flymake-mode))))  ;; *scratch* などファイルの無いバッファは常に未信頼扱いで警告が出るため除外する
   :custom
   ;; 診断用の子プロセスにも modules と elpa のパッケージを見せる
   (elisp-flymake-byte-compile-load-path load-path))
