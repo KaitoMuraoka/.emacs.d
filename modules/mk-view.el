@@ -28,6 +28,11 @@
               (cons '(:eval (count-lines-and-chars))
                     (default-value 'mode-line-format)))
 
+;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
+(use-package emacs
+  :config
+  (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
+
 (setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
 ;;(global-display-line-numbers-mode t)  ;;グローバル
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
