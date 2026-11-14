@@ -15,3 +15,5 @@
 (require 'mk-vterm)
 (require 'mk-ghostel)
 (require 'mk-org)
+(require 'mk-nerd-icons)
+(require 'mk-treemacs)
