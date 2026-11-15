@@ -12,7 +12,7 @@
   :ensure t
   :config
   (setq fontaine-presets
-        '((regular :default-family "Iosevka" :default-height 120)
+        '((regular :default-family "Iosevka" :default-height 160)
           (writing :default-family "Iosevka" :default-height 160)))
   (fontaine-set-preset 'regular))
 
