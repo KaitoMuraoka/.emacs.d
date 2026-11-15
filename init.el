@@ -23,3 +23,4 @@
 (require 'mk-engine-mode)
 (require 'mk-super-save)
 (require 'mk-olivetti)
+(require 'mk-org-scratch)
