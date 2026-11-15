@@ -3,6 +3,7 @@
 ;;; engine-mode
 ;;; ============================================================
 (use-package engine-mode
+  :ensure t
   :config
   (setq browse-url-chrome-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");; Google Chrome に明示的に設定
   (defengine google

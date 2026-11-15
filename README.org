@@ -1,0 +1,32 @@
+* .emacs.d
+
+** 全体設定
+~use-package~ ベースでEmacsを設定。
+設定は ~modules~ 配下に ~mk-<名前>.el~ として機能ごとに分け、~init.el~ から ~require~ をしている。
+
+
+** 見た目
+nano-theme を導入し、OSの外観に合わせて、nano-light / nano-dark を切り替える。
+fontaine によるフォントプリセット、行間・カッコ強調、teemacs + nerd-icons, centaur-tabs の設定。
+GUIの起動画面において、常に Emacs ロゴを表示し、olivetti で中央寄せにする
+
+
+** 開発環境としてのEmacs
+- 補完: vertico / corfu（`mk-completion`）
+- LSP: eglot で Ruby/Rails（ruby-lsp）、Emacs Lisp は flymake（`*scratch*` では無効）
+- git: magit / git-gutter
+- ターミナル: vterm / ghostel
+- super-save、各言語モード（`mk-language-mode`）
+- engine-mode で Google / GitHub / YouTube を検索
+
+** 執筆環境としてのEmacs
+このEmacsは日々の日報、考え事、ブログなどの執筆環境としての環境もある。
+
+- org-mode の設定を ~mk-org~ に分離
+- olivetti + typo + markdown-mode による執筆環境
+- denote で `~/org/` を Vault としたノート環境（`C-c n` プレフィックス）: ノート作成・リンク・バックリンク（右サイドウィンドウ）・タグ絞り込み・テンプレート（journal / meeting / book）
+- denote-org の動的ブロック、denote-journal によるデイリーノート（`~/org/journal`）、consult での全文検索
+- org-ql + org-super-agenda で TODO 一覧・カンバン・本の一覧ビュー（DB を作らず毎回ファイルを走査）
+- denote-explore によるグラフビュー（Graphviz が必要）
+- org-modern / org-appear で表示を整える
+- org-capture テンプレート（Denote ノート / org-protocol による Web クリップ）、ox-publish による HTML 出力
