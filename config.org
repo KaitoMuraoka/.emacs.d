@@ -1,0 +1,775 @@
+#+title: Emacs 設定
+#+startup: overview
+
+~init.el~ から ~org-babel-load-file~ で読み込む。
+emacs-lisp のコードブロックが ~config.el~ に tangle され、それが読み込まれる。
+~config.el~ は ~config.org~ が更新されたときだけ作り直される生成物なので、編集しない。
+
+* 前提
+最初のブロックの先頭行が ~config.el~ の先頭行になるため、ここに lexical-binding のクッキーを置く。
+
+#+begin_src emacs-lisp
+;;; config.el --- config.org から生成 -*- lexical-binding: t -*-
+;; customize の書き込みを init.el に混ぜないよう、使い捨ての一時ファイルに逃がす
+(setq custom-file (make-temp-file "emacs-custom-" nil ".el"))
+#+end_src
+
+* パッケージ
+#+begin_src emacs-lisp
+;; パッケージリポジトリに MELPA を追加
+(use-package package
+  :custom
+  (package-archives '(("gnu"    . "https://elpa.gnu.org/packages/")
+                      ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                      ("melpa"  . "https://melpa.org/packages/"))))
+#+end_src
+
+* 基本設定
+#+begin_src emacs-lisp
+  (setq ring-bell-function 'ignore);; エラー音を無効化
+  (setq make-backup-files nil) ;; バックアップファイルを作成しない
+  (setq auto-save-default nil) ;; オートセーブファイルを作成しない
+  (setq-default tab-width 4) ;; TAB の表示幅。初期値は8
+  (global-auto-revert-mode t) ;; 更新されたファイルを自動的に読み込み直す
+#+end_src
+
+Macだけに読み込ませる内容を書く
+#+begin_src emacs-lisp
+  (when (eq system-type 'darwin)
+    ;; MacのEmacsでファイル名を正しく扱うための設定
+    (require 'ucs-normalize)
+    (setq file-name-coding-system 'utf-8-hfs)
+    (setq locale-coding-system 'utf-8-hfs)
+    ;; Xcode 26 の ld は MacOSX27 SDK の tbd を読めず native-comp が失敗するため、MacOSX26 SDK を優先させる
+    (let ((sdk-lib "/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib"))
+      (when (file-directory-p sdk-lib)
+        (setq native-comp-driver-options (list "-Wl,-w" (concat "-L" sdk-lib))))))
+#+end_src
+
+* IME
+以下の設定で、ミニバッファやプレフィックス(C-x, C-c, M-xなど)でIME を英数(ABC)に設定する
+#+begin_src emacs-lisp
+(if (fboundp 'mac-auto-ascii-mode)
+    ;; emacs-mac は標準機能で、プレフィックスキーやミニバッファ入力時に ABC を選ぶ
+    (mac-auto-ascii-mode 1)
+  ;; C-\ で IME を切り替え、プレフィックスキーやミニバッファ入力中は一時的に ABC にする
+  (use-package mac-ime
+    :ensure t
+    :config
+    (setq default-input-method "mac-ime")
+    (setq mac-ime-ime-off-input-source "com.apple.keylayout.ABC")
+    (mac-ime-enable)))
+#+end_src
+
+* キーバインド
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-m") 'newline-and-indent);; C-mにnewline-and-indentを割り当てる。
+(global-set-key (kbd "C-h") (kbd "<DEL>"));; C-h を<DEL>(バックスペース)に置き換える
+(global-set-key (kbd "C-x ?") 'help-command);; 別のキーバインドにヘルプを割り当てる
+(global-set-key (kbd "C-t") 'other-window);; "C-t" でウィンドウを切り替える。初期値はtranspose-chars
+(global-set-key (kbd "C-;") 'set-mark-command) ;; C-;でマークセット
+#+end_src
+
+* 見た目
+#+begin_src emacs-lisp
+(column-number-mode t) ;; カラム番号を追加
+;; theme
+(use-package nano-theme
+  :ensure t
+  :hook (ns-system-appearance-change-functions
+         . (lambda (appearance)
+             (mapc #'disable-theme custom-enabled-themes)
+             (load-theme (if (eq appearance 'dark) 'nano-dark 'nano-light) t))))
+
+(use-package fontaine
+  :ensure t
+  :config
+  (setq fontaine-presets
+        '((regular :default-family "Iosevka" :default-height 160)
+          (writing :default-family "Iosevka" :default-height 160)))
+  (fontaine-set-preset 'regular))
+
+;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
+(defun count-lines-and-chars ()
+  (if mark-active
+      (format "(%dlines,%dchars) "
+              (count-lines (region-beginning) (region-end))
+              (- (region-end) (region-beginning)))
+    ""))
+
+(setq-default mode-line-format
+              (cons '(:eval (count-lines-and-chars))
+                    (default-value 'mode-line-format)))
+
+;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
+(use-package emacs
+  :config
+  (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
+
+(setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
+;;(global-display-line-numbers-mode t)  ;;グローバル
+(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
+
+;; paren-mode：対応する括弧を強調して表示する
+(use-package paren
+  :custom
+  (show-paren-delay 0) ; 表示までの秒数。初期値は0.125
+  (show-paren-style 'expression) ; expressionは括弧内も強調表示
+  :config
+  ;; :custom-face は face-defface-spec に入りテーマに負けるため user テーマに設定する
+  (custom-set-faces
+   '(show-paren-match ((t (:inherit nil :background unspecified :underline "darkgreen")))))
+  (show-paren-mode t))
+(setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
+(set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
+(setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
+
+;; ターミナル以外はツールバー、スクロールバーを非表示
+(when window-system
+  ;; tool-barを非表示
+  (tool-bar-mode 0)
+  ;; scroll-barを非表示
+  (scroll-bar-mode 0))
+
+;; CocoaEmacs以外はメニューバーを非表示
+(unless (eq window-system 'ns)
+  ;; menu-barを非表示
+  (menu-bar-mode 0))
+#+end_src
+
+* Git
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :bind ("C-c g" . magit-status)
+  )
+
+(use-package git-gutter
+  :ensure t
+  :config
+  (setq git-gutter:update-interval 2) ;2秒ごとに差分を更新
+  ;; 記号のカスタマイズ（デフォルトでも動くが視認性を上げる）
+  (setq git-gutter:added-sign    "+")
+  (setq git-gutter:deleted-sign  "-")
+  (setq git-gutter:modified-sign "~")
+  (global-git-gutter-mode t)
+  )
+#+end_src
+
+* which-key
+#+begin_src emacs-lisp
+(use-package which-key
+  :config
+  (setq which-key-idle-delay 0.8)
+
+  ;; 'bottom は廃止。side-window を使い、表示位置を bottom に指定する
+  (setq which-key-popup-type 'side-window)
+  (setq which-key-side-window-location 'bottom) ; 'top 'left 'right も選べる
+
+  (which-key-mode))
+#+end_src
+
+* 補完
+** ミニバッファ補完
+#+begin_src emacs-lisp
+;; vertico: ミニバッファの候補を縦に並べて表示する
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
+
+;; orderless: スペース区切りの各語を順不同でマッチさせる
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  ;; ファイル名は ~/.e/in → ~/.emacs.d/init.el のような前方一致展開を使う
+  (completion-category-overrides '((file (styles partial-completion)))))
+
+;; partial-completion で先頭にもワイルドカードを補う
+(use-package minibuffer
+  :custom
+  (completion-pcm-leading-wildcard t))
+
+;; marginalia: 候補の横に説明（docstring・ファイル情報など）を表示する
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
+
+;; savehist: ミニバッファの入力履歴を再起動後も残す
+(use-package savehist
+  :init
+  (savehist-mode))
+#+end_src
+
+** 検索・移動コマンド
+#+begin_src emacs-lisp
+;; consult: バッファ切り替え・行検索・grep などを候補選択付きで行う
+(use-package consult
+  :ensure t
+  :bind (("C-x b" . consult-buffer)
+         ("M-s l" . consult-line)
+         ("M-s r" . consult-ripgrep)
+         ("M-g i" . consult-imenu)))
+#+end_src
+
+** 候補へのアクション
+#+begin_src emacs-lisp
+;; embark: カーソル位置や選択中の候補に対する操作メニューを開く
+(use-package embark
+  :ensure t
+  :bind ("C-." . embark-act))
+
+;; embark-consult: embark の一覧画面で consult のプレビューを効かせる
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+** バッファ内補完
+#+begin_src emacs-lisp
+;; corfu: 入力中に補完候補をポップアップ表示する
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-auto t)  ; 入力に応じて自動で候補を出す
+  (corfu-cycle t) ; 末尾の次は先頭に戻る
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)) ; 選択中の候補のドキュメントを横に表示する
+
+;; cape: バッファ内の単語・ファイルパスを補完候補の取得元に加える
+(use-package cape
+  :ensure t
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file))
+#+end_src
+
+* LSP・診断
+#+begin_src emacs-lisp
+;; eglot: 組み込みの LSP クライアント
+(use-package eglot
+  :hook ((ruby-mode ruby-ts-mode) . eglot-ensure)
+  :config
+  ;; solargraph も入っているため、毎回の選択を避けて ruby-lsp に固定する
+  ;; Dock から起動した Emacs の PATH には rbenv の shims が無いため、絶対パスで指定する
+  (add-to-list 'eglot-server-programs
+               `((ruby-mode ruby-ts-mode) ,(expand-file-name "~/.rbenv/shims/ruby-lsp"))))
+
+;; 自分の設定ファイルを信頼済みにする（未信頼だと flymake のバイトコンパイル診断が無効になる）
+(use-package files
+  :custom
+  (trusted-content (list (abbreviate-file-name user-emacs-directory))))
+
+;; flymake: Emacs Lisp はバイトコンパイル結果で診断する（elisp 用 LSP は無いため）
+(use-package elisp-mode
+  :hook (emacs-lisp-mode . (lambda () (when buffer-file-name (flymake-mode))))  ;; *scratch* などファイルの無いバッファは常に未信頼扱いで警告が出るため除外する
+  :custom
+  ;; 診断用の子プロセスにも elpa のパッケージを見せる
+  (elisp-flymake-byte-compile-load-path load-path))
+#+end_src
+
+* ターミナル
+#+begin_src emacs-lisp
+(use-package vterm
+  :ensure t
+  :custom
+  (vterm-max-scrollback 10000)        ; スクロールバック行数
+  (vterm-kill-buffer-on-exit t)       ; シェル終了時にバッファも消す
+  (vterm-shell "/bin/zsh")            ; 起動するシェル
+  (vterm-buffer-name-string "vterm: %s") ; タイトルをバッファ名に反映
+  :config
+  ;; Emacs 側に渡したいキーを追加する
+  (add-to-list 'vterm-keymap-exceptions "M-o")
+  :bind
+  (:map vterm-mode-map
+        ("C-y" . vterm-yank)))
+
+(use-package ghostel
+  :ensure t
+  :bind
+  ("C-x g h" . ghostel))
+#+end_src
+
+* Org
+#+begin_src emacs-lisp
+(use-package org
+  :custom
+  (org-startup-with-link-previews t) ; 画像をインラインで表示
+  (org-babel-load-languages '((emacs-lisp . t)
+                              (shell . t)
+                              (ruby . t)
+                              (C . t)))
+  :bind
+  ("C-c l" . org-store-link)
+  ("C-c a" . org-agenda)
+  ("C-c c" . org-capture))
+#+end_src
+
+* Denote（Obsidian 相当のノート環境）
+方針: DB・インデックスは作らない。検索や集計は毎回 .org ファイルを走査する。
+リンクは ID ベースの denote: に統一する。
+キーは C-c n をプレフィックスにまとめる。
+
+** Vault・ノート作成・リンク・バックリンク・タグ・名前変更
+#+begin_src emacs-lisp
+(use-package denote
+  :ensure t
+  ;; 自作コマンドと capture テンプレートが denote の関数を使うため起動時に読み込む
+  :demand t
+  :custom
+  ;; Vault は ~/org。サブディレクトリ（journal など）も再帰的に対象になる
+  (denote-directory (expand-file-name "~/org/"))
+  (denote-known-keywords '("idea" "book" "meeting" "project"))
+  ;; バックリンクは右のサイドウィンドウに出す（Obsidian のバックリンクパネル）
+  (denote-backlinks-display-buffer-action
+   '((display-buffer-reuse-window display-buffer-in-side-window)
+     (side . right)
+     (slot . 0)
+     (window-width . 0.3)
+     (dedicated . t)
+     (preserve-size . (t . t))))
+  ;; denote-template で選ぶテンプレート（TYPE などのプロパティは org-ql で集計できる）
+  (denote-templates
+   '(;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
+     (journal . "* 今日やること\n\n* ログ\n\n* 振り返り\n")
+     (meeting . "* 参加者\n\n* 議題\n\n* 決定事項\n\n* TODO\n")
+     (book . "* 概要\n:PROPERTIES:\n:TYPE: book\n:AUTHOR:\n:STATUS: 未読\n:RATING:\n:END:\n\n* メモ\n")))
+  ;; capture の本文に呼び出し元の file: リンク（%l）を入れない
+  (denote-org-capture-specifiers "%i\n%?")
+  :hook
+  (dired-mode . denote-dired-mode)
+  :bind
+  (("C-c n n" . denote)
+   ("C-c n o" . denote-open-or-create)
+   ("C-c n l" . denote-link-or-create)
+   ("C-c n b" . denote-backlinks)
+   ("C-c n g" . denote-grep)
+   ("C-c n t" . mk/denote-filter-by-keyword)
+   ("C-c n T" . denote-template)
+   ("C-c n r" . denote-rename-file)
+   ("C-c n R" . denote-rename-file-using-front-matter)))
+
+(defun mk/denote-filter-by-keyword (keyword)
+  "KEYWORD（ファイル名の __tag）を持つノートを Dired で一覧する。"
+  (interactive (list (completing-read "タグ: " (denote-keywords))))
+  (denote-sort-dired (concat "_" (regexp-quote keyword) "[_.]") nil nil nil))
+#+end_src
+
+** ノート内のバックリンク・リンク・ファイル一覧（動的ブロック）
+#+begin_src emacs-lisp
+(use-package denote-org
+  :ensure t
+  :bind
+  (("C-c n d" . denote-org-dblock-insert-backlinks)
+   ("C-c n D" . denote-org-dblock-insert-links)))
+#+end_src
+
+** デイリーノート（~/org/journal に作る）
+#+begin_src emacs-lisp
+(use-package denote-journal
+  :ensure t
+  :init
+  ;; ~/org-work/.dir-locals.el で silo ごとに切り替えるため、確認なしで適用できるようにする
+  (put 'denote-journal-directory 'safe-local-variable #'stringp)
+  :custom
+  (denote-journal-directory (expand-file-name "journal" denote-directory))
+  (denote-journal-title-format 'day-date-month-year)
+  :bind
+  ("C-c n j" . denote-journal-new-or-existing-entry))
+#+end_src
+
+** 全文検索（ripgrep が必要）
+#+begin_src emacs-lisp
+(use-package consult
+  :bind
+  ("C-c n s" . mk/denote-ripgrep))
+
+(defun mk/denote-ripgrep ()
+  "ノートディレクトリ内を consult-ripgrep で全文検索する。"
+  (interactive)
+  (consult-ripgrep denote-directory))
+#+end_src
+
+** Properties / Bases / カンバン
+実行時にファイルを走査するだけで DB は作らない。
+
+#+begin_src emacs-lisp
+(use-package org-super-agenda :ensure t)
+
+(use-package org-ql
+  :ensure t
+  :custom
+  (org-ql-views
+   '(("Denote: TODO 一覧"
+      :buffers-files mk/denote-org-files
+      :query (todo)
+      :sort (todo priority date)
+      :title "TODO 一覧")
+     ("Denote: カンバン"
+      :buffers-files mk/denote-org-files
+      :query (todo)
+      :super-groups ((:auto-todo t))
+      :title "カンバン")
+     ("Denote: 本（TYPE=book）"
+      :buffers-files mk/denote-org-files
+      :query (property "TYPE" "book")
+      :super-groups ((:auto-property "STATUS"))
+      :title "本の一覧")))
+  :bind
+  (("C-c n q" . org-ql-view)
+   ("C-c n k" . mk/denote-kanban)))
+
+(defun mk/denote-org-files ()
+  "Denote ディレクトリ配下の .org ファイル一覧を返す。"
+  (denote-directory-files "\\.org\\'"))
+
+(defun mk/denote-kanban ()
+  "TODO キーワードごとに列分けしたカンバン表示を開く。"
+  (interactive)
+  (org-ql-view "Denote: カンバン"))
+#+end_src
+
+** グラフビュー
+実行時に走査して Graphviz で SVG を出力する。graphviz が必要。
+
+#+begin_src emacs-lisp
+(use-package denote-explore
+  :ensure t
+  :custom
+  (denote-explore-network-format 'graphviz)
+  :bind
+  ("C-c n G" . denote-explore-network))
+#+end_src
+
+** Live Preview 風の表示
+#+begin_src emacs-lisp
+(use-package org-modern
+  :ensure t
+  :custom
+  ;; 見出しは * の数で階層がわかるよう、記号への置き換えも先頭の * の非表示もしない
+  (org-modern-star nil)
+  (org-modern-hide-stars nil)
+  ;; TODO / WIP / DONE はラベル化せず、org-todo-keyword-faces の表示を使う
+  (org-modern-todo nil)
+  :hook (org-mode . org-modern-mode))
+
+(use-package org-appear
+  :ensure t
+  :custom
+  (org-appear-autolinks t)
+  :hook (org-mode . org-appear-mode))
+
+(use-package org
+  :hook (org-mode . visual-line-mode))
+#+end_src
+
+** Quick Capture / Web クリップ（org-protocol）
+#+begin_src emacs-lisp
+(require 'org-protocol)
+(with-eval-after-load 'org-capture
+  (add-to-list 'org-capture-templates
+               '("n" "Denote ノート" plain
+                 (file denote-last-path)
+                 #'denote-org-capture
+                 :no-save t
+                 :kill-buffer t
+                 :jump-to-captured t))
+  (add-to-list 'org-capture-templates
+               '("w" "Web クリップ（Denote ノート）" plain
+                 (file denote-last-path)
+                 (function
+                  (lambda ()
+                    (let ((denote-org-capture-specifiers
+                           "* 出典\n%:link\n\n* 引用\n#+begin_quote\n%i\n#+end_quote\n\n* メモ\n%?"))
+                      (denote-org-capture))))
+                 :no-save t
+                 :kill-buffer t
+                 :jump-to-captured t)))
+#+end_src
+
+** Publish
+denote: リンクは denote-link-ol-export が相対 .html リンクに変換する。
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'ox-publish
+  (add-to-list 'org-publish-project-alist
+               `("denote"
+                 :base-directory ,(expand-file-name "~/org/")
+                 :recursive t
+                 :exclude "public_html/"
+                 :publishing-directory ,(expand-file-name "~/org/public_html/")
+                 :publishing-function org-html-publish-to-html
+                 :with-toc nil)))
+#+end_src
+
+* アイコン
+#+begin_src emacs-lisp
+(use-package nerd-icons
+  :ensure t)
+#+end_src
+
+* Treemacs
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-buffer-name-function            #'treemacs-default-buffer-name
+          treemacs-buffer-name-prefix              " *Treemacs-Buffer-"
+          treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   'simple
+          treemacs-file-event-delay                2000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-find-workspace-method           'find-for-file-or-pick-first
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
+          treemacs-hide-dot-git-directory          t
+          treemacs-hide-dot-jj-directory           t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-files-by-mouse-dragging    t
+          treemacs-move-forward-on-expand          nil
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-project-follow-into-home        nil
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (when treemacs-python-executable
+      (treemacs-git-commit-diff-mode t))
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t d"   . treemacs-select-directory)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-evil
+  :after (treemacs evil)
+  :ensure t)
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-nerd-icons
+  :after (treemacs nerd-icons)
+  :ensure t
+  :config (treemacs-load-theme "nerd-icons"))
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+
+(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
+  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
+  :ensure t
+  :config (treemacs-set-scope-type 'Perspectives))
+
+(use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
+  :after (treemacs)
+  :ensure t
+  :config (treemacs-set-scope-type 'Tabs))
+#+end_src
+
+* 言語モード
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :hook (markdown-mode . visual-line-mode))
+
+(use-package web-mode
+  :mode (("\\.html?\\'" . web-mode)
+         ("\\.css\\'"   . web-mode)
+         ("\\.jsx?\\'"  . web-mode)
+         ("\\.tsx?\\'"  . web-mode)
+         ("\\.json\\'"  . web-mode))
+  :config
+  (setq web-mode-markup-indent-offset 2) ; HTML
+  (setq web-mode-css-indent-offset 2)    ; CSS
+  (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
+  (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
+#+end_src
+
+* centaur-tabs（無効）
+有効にするときは ~:tangle no~ を外す。
+
+#+begin_src emacs-lisp :tangle no
+(use-package centaur-tabs
+  :ensure t
+  :demand
+  :custom
+  (centaur-tabs-enable-key-bindings t) ; C-c t プレフィックスのキーバインドを有効化
+  (centaur-tabs-set-bar 'under)
+  (centaur-tabs-set-modified-marker t)
+  (centaur-tabs-set-icons t)
+  (centaur-tabs-icon-type 'nerd-icons)
+  :custom-face
+  ;; 色を直書きせず nano-theme の face を継承し、OS の Dark/Light 切替に追従させる
+  (centaur-tabs-default             ((t (:inherit header-line))))
+  (centaur-tabs-selected            ((t (:inherit default))))
+  (centaur-tabs-selected-modified   ((t (:inherit default))))
+  (centaur-tabs-unselected          ((t (:inherit (nano-faded nano-subtle)))))
+  (centaur-tabs-unselected-modified ((t (:inherit (nano-faded nano-subtle)))))
+  (centaur-tabs-active-bar-face     ((t (:inherit nano-salient-i))))
+  :config
+  (centaur-tabs-mode t)
+  :bind
+  (:map centaur-tabs-mode-map
+        ("C-<tab>"     . centaur-tabs-forward)
+        ("C-S-<tab>"   . centaur-tabs-backward)
+        ("C-<backtab>" . centaur-tabs-backward)))
+#+end_src
+
+* engine-mode
+#+begin_src emacs-lisp
+(use-package engine-mode
+  :ensure t
+  :config
+  (setq browse-url-chrome-program "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");; Google Chrome に明示的に設定
+  (defengine google
+    "https://www.google.com/search?q=%s"
+    :keybinding "g")
+  (defengine github
+    "https://github.com/search?q=%s"
+    :keybinding "h")
+  (defengine youtube
+    "https://www.youtube.com/results?search_query=%s"
+    :keybinding "y")
+  (engine-mode t))
+#+end_src
+
+* super-save
+#+begin_src emacs-lisp
+(use-package super-save
+  :ensure t
+  :demand
+  :config
+  (super-save-mode 1))
+#+end_src
+
+* 執筆環境（olivetti）
+org-mode / Markdown のみに適用する。
+
+#+begin_src emacs-lisp
+(use-package olivetti
+  :ensure t
+  :custom
+  (olivetti-body-width 120)
+  (olivetti-style 'fancy))
+(use-package typo :ensure t)
+(use-package markdown-mode :ensure t)
+
+(defun my/writing-setup ()
+  "執筆用バッファだけに適用する設定。"
+  (visual-line-mode 1)
+  (olivetti-mode 1)
+  (typo-mode 1)
+  (setq-local mode-line-format nil)
+  (local-set-key (kbd "C-d") #'dictionary-lookup-definition))
+
+(add-hook 'org-mode-hook #'my/writing-setup)
+(add-hook 'markdown-mode-hook #'my/writing-setup)
+
+(defun my/splash-center (&rest _)
+  "起動画面と About 画面を olivetti で中央に寄せる。"
+  (dolist (name '("*GNU Emacs*" "*About GNU Emacs*"))
+    (when-let* ((buf (get-buffer name)))
+      (with-current-buffer buf
+        (setq-local olivetti-body-width 80)
+        (olivetti-mode 1)))))
+(advice-add 'fancy-startup-screen :after #'my/splash-center)
+(advice-add 'fancy-about-screen :after #'my/splash-center)
+#+end_src
+
+* org-scratch
+#+begin_src emacs-lisp
+(defun org-scratch ()
+  "org-mode 用scratch バッファ"
+  (interactive)
+  (let ((buf (get-buffer-create "*org-scratch*")))
+	(with-current-buffer buf
+	  (unless (derived-mode-p 'org-mode)
+		(org-mode)))
+	(pop-to-buffer-same-window buf))
+	)
+#+end_src
+
+* multiple-cursors
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+  :ensure t
+  :bind
+  ("C-S-c C-S-c" . 'mc/edit-lines)
+  ("C->" . 'mc/mark-next-lines)
+  ("C-<" . 'mc/mark-previous-like-this)
+  ("C-c C-<" . 'mc/mark-all-like-this)
+  )
+#+end_src
