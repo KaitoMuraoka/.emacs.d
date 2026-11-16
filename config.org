@@ -300,6 +300,9 @@ Macだけに読み込ませる内容を書く
 (use-package org
   :custom
   (org-startup-with-link-previews t) ; 画像をインラインで表示
+  ;; タスクの状態: 未着手 → 対応中 → 完了
+  (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
+  (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
   (org-babel-load-languages '((emacs-lisp . t)
                               (shell . t)
                               (ruby . t)
