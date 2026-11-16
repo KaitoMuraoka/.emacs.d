@@ -3,9 +3,9 @@
 
 ;; customize の書き込みを init.el に混ぜないよう、使い捨ての一時ファイルに逃がす
 (setq custom-file (make-temp-file "emacs-custom-" nil ".el"))
-(require 'mk-ime)
 (require 'mk-package)
 (require 'mk-base)
+(require 'mk-ime)
 (require 'mk-keybind)
 (require 'mk-view)
 (require 'mk-git)
