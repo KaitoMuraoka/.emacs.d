@@ -24,3 +24,4 @@
 (require 'mk-super-save)
 (require 'mk-olivetti)
 (require 'mk-org-scratch)
+(require 'mk-multiple-cursors)
