@@ -303,6 +303,7 @@ Macだけに読み込ませる内容を書く
   ;; タスクの状態: 未着手 → 対応中 → 完了
   (org-todo-keywords '((sequence "TODO" "WIP" "|" "DONE")))
   (org-todo-keyword-faces '(("WIP" . (:foreground "orange" :weight bold))))
+  (org-agenda-files '("~/org/" "~/org-work/"))
   (org-babel-load-languages '((emacs-lisp . t)
                               (shell . t)
                               (ruby . t)
