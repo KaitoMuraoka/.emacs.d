@@ -492,7 +492,15 @@ Macだけに読み込ませる内容を書く
                       (denote-org-capture))))
                  :no-save t
                  :kill-buffer t
-                 :jump-to-captured t)))
+                 :jump-to-captured t))
+  (add-to-list 'org-capture-templates
+               '("t" "タスク" entry
+                 (file+headline "~/org/inbox.org" "Tasks")
+                 "* TODO %?\n %u"))
+  (add-to-list 'org-capture-templates
+               '("T" "仕事のタスク" entry
+                 (file "~/org-work/inbox.org")
+                 "* TODO %?\n %u")))
 #+end_src
 
 ** Publish
