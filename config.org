@@ -762,6 +762,8 @@ org-mode / Markdown のみに適用する。
 #+end_src
 
 * org-scratch
+scratch-buffer のような感じで、org-mode の編集をすることができる。
+ちょっとしたメモやプロンプトの作成などで使用。
 #+begin_src emacs-lisp
 (defun org-scratch ()
   "org-mode 用scratch バッファ"
