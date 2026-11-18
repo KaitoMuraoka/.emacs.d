@@ -91,3 +91,6 @@ org-clock-save.el
 kkcrc
 
 /mac-ime/
+
+# config.org から tangle される生成物
+/config.el
