@@ -33,6 +33,17 @@ emacs-lisp のコードブロックが ~config.el~ に tangle され、それが
   (global-auto-revert-mode t) ;; 更新されたファイルを自動的に読み込み直す
 #+end_src
 
+GUI で起動したときだけサーバーを立ち上げ、emacsclient や org-protocol から接続できるようにする。
+ターミナルからGUIEmacsにファイルを開かせたい場合は、~emacsclient -n~ で起動する
+#+begin_src emacs-lisp
+(use-package server
+  :if (display-graphic-p)
+  :config
+  ;; 2 つ目の GUI Emacs を起動したときに、既存のサーバーを奪わないようにする
+  (unless (server-running-p)
+    (server-start)))
+#+end_src
+
 Macだけに読み込ませる内容を書く
 #+begin_src emacs-lisp
   (when (eq system-type 'darwin)
@@ -670,7 +681,6 @@ denote: リンクは denote-link-ol-export が相対 .html リンクに変換す
   (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
   (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
 #+end_src
-
 * centaur-tabs（無効）
 有効にするときは ~:tangle no~ を外す。
 
