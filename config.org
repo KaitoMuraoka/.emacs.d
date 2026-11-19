@@ -107,8 +107,8 @@ Macだけに読み込ませる内容を書く
   (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
 
 (setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
-;;(global-display-line-numbers-mode t)  ;;グローバル
-(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
+(global-display-line-numbers-mode t)  ;;グローバル
+;;(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
 
 ;; paren-mode：対応する括弧を強調して表示する
 (use-package paren
