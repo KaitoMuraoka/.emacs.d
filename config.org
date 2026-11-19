@@ -730,7 +730,7 @@ denote: リンクは denote-link-ol-export が相対 .html リンクに変換す
 * 執筆環境（olivetti）
 org-mode / Markdown のみに適用する。
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package olivetti
   :ensure t
   :custom
