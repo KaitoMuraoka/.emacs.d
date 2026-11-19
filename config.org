@@ -74,12 +74,11 @@ Macだけに読み込ませる内容を書く
 #+begin_src emacs-lisp
 (column-number-mode t) ;; カラム番号を追加
 ;; theme
-(use-package nano-theme
-  :ensure t
-  :hook (ns-system-appearance-change-functions
-         . (lambda (appearance)
-             (mapc #'disable-theme custom-enabled-themes)
-             (load-theme (if (eq appearance 'dark) 'nano-dark 'nano-light) t))))
+(load-theme 'newcomers-presets t)
+(add-hook 'ns-system-appearance-change-functions
+          (lambda (appearance)
+            (disable-theme (if (eq appearance 'dark) 'modus-operandi 'modus-vivendi))
+            (load-theme (if (eq appearance 'dark) 'modus-vivendi 'modus-operandi) t)))
 
 (use-package fontaine
   :ensure t
@@ -684,13 +683,13 @@ denote: リンクは denote-link-ol-export が相対 .html リンクに変換す
   (centaur-tabs-set-icons t)
   (centaur-tabs-icon-type 'nerd-icons)
   :custom-face
-  ;; 色を直書きせず nano-theme の face を継承し、OS の Dark/Light 切替に追従させる
+  ;; 色を直書きせず組み込みの face を継承し、テーマの配色に追従させる
   (centaur-tabs-default             ((t (:inherit header-line))))
   (centaur-tabs-selected            ((t (:inherit default))))
   (centaur-tabs-selected-modified   ((t (:inherit default))))
-  (centaur-tabs-unselected          ((t (:inherit (nano-faded nano-subtle)))))
-  (centaur-tabs-unselected-modified ((t (:inherit (nano-faded nano-subtle)))))
-  (centaur-tabs-active-bar-face     ((t (:inherit nano-salient-i))))
+  (centaur-tabs-unselected          ((t (:inherit (shadow header-line)))))
+  (centaur-tabs-unselected-modified ((t (:inherit (shadow header-line)))))
+  (centaur-tabs-active-bar-face     ((t (:inherit cursor))))
   :config
   (centaur-tabs-mode t)
   :bind
