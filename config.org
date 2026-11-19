@@ -83,70 +83,73 @@ Macだけに読み込ませる内容を書く
 
 * 見た目
 #+begin_src emacs-lisp
-(column-number-mode t) ;; カラム番号を追加
-;; theme
-(load-theme 'newcomers-presets t)
-(add-hook 'ns-system-appearance-change-functions
-          (lambda (appearance)
-            (disable-theme (if (eq appearance 'dark) 'modus-operandi 'modus-vivendi))
-            (load-theme (if (eq appearance 'dark) 'modus-vivendi 'modus-operandi) t)))
+  (column-number-mode t) ;; カラム番号を追加
+  ;; theme
+  (load-theme 'newcomers-presets t)
+  (add-hook 'ns-system-appearance-change-functions
+            (lambda (appearance)
+              (disable-theme (if (eq appearance 'dark) 'modus-operandi 'modus-vivendi))
+              (load-theme (if (eq appearance 'dark) 'modus-vivendi 'modus-operandi) t)))
 
-(use-package fontaine
-  :ensure t
-  :config
-  (setq fontaine-presets
-        '((regular :default-family "Iosevka" :default-height 160)
-          (writing :default-family "Iosevka" :default-height 160)))
-  (fontaine-set-preset 'regular)
-  (dolist (script '(han kana cjk-misc))
-    (set-fontset-font t script (font-spec :family "LINE Seed JP"))))
+  (use-package fontaine
+    :ensure t
+    :config
+    (setq fontaine-presets
+          '((regular :default-family "Iosevka" :default-height 160)
+            (writing :default-family "Iosevka" :default-height 160)))
+    (fontaine-set-preset 'regular)
+    (dolist (script '(han kana cjk-misc))
+      (set-fontset-font t script (font-spec :family "LINE Seed JP"))))
 
-;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
-(defun count-lines-and-chars ()
-  (if mark-active
-      (format "(%dlines,%dchars) "
-              (count-lines (region-beginning) (region-end))
-              (- (region-end) (region-beginning)))
-    ""))
+  ;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
+  (defun count-lines-and-chars ()
+    (if mark-active
+        (format "(%dlines,%dchars) "
+                (count-lines (region-beginning) (region-end))
+                (- (region-end) (region-beginning)))
+      ""))
 
-(setq-default mode-line-format
-              (cons '(:eval (count-lines-and-chars))
-                    (default-value 'mode-line-format)))
+  (setq-default mode-line-format
+                (cons '(:eval (count-lines-and-chars))
+                      (default-value 'mode-line-format)))
 
-;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
-(use-package emacs
-  :config
-  (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
+  ;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
+  (use-package emacs
+    :config
+    (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
 
-(setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
-(global-display-line-numbers-mode t)  ;;グローバル
-;;(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
+  (setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
+  (global-display-line-numbers-mode t)  ;;グローバル
+  ;; スクロールで桁が増えたときに本文がずれないよう、行番号の幅を先に確保する
+  (setq-default display-line-numbers-width 4
+                display-line-numbers-width-start t)
+  ;;(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
 
-;; paren-mode：対応する括弧を強調して表示する
-(use-package paren
-  :custom
-  (show-paren-delay 0) ; 表示までの秒数。初期値は0.125
-  (show-paren-style 'expression) ; expressionは括弧内も強調表示
-  :config
-  ;; :custom-face は face-defface-spec に入りテーマに負けるため user テーマに設定する
-  (custom-set-faces
-   '(show-paren-match ((t (:inherit nil :background unspecified :underline "darkgreen")))))
-  (show-paren-mode t))
-(setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
-(set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
-(setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
+  ;; paren-mode：対応する括弧を強調して表示する
+  (use-package paren
+    :custom
+    (show-paren-delay 0) ; 表示までの秒数。初期値は0.125
+    (show-paren-style 'expression) ; expressionは括弧内も強調表示
+    :config
+    ;; :custom-face は face-defface-spec に入りテーマに負けるため user テーマに設定する
+    (custom-set-faces
+     '(show-paren-match ((t (:inherit nil :background unspecified :underline "darkgreen")))))
+    (show-paren-mode t))
+  (setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
+  (set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
+  (setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
 
-;; ターミナル以外はツールバー、スクロールバーを非表示
-(when window-system
-  ;; tool-barを非表示
-  (tool-bar-mode 0)
-  ;; scroll-barを非表示
-  (scroll-bar-mode 0))
+  ;; ターミナル以外はツールバー、スクロールバーを非表示
+  (when window-system
+    ;; tool-barを非表示
+    (tool-bar-mode 0)
+    ;; scroll-barを非表示
+    (scroll-bar-mode 0))
 
-;; CocoaEmacs以外はメニューバーを非表示
-(unless (eq window-system 'ns)
-  ;; menu-barを非表示
-  (menu-bar-mode 0))
+  ;; CocoaEmacs以外はメニューバーを非表示
+  (unless (eq window-system 'ns)
+    ;; menu-barを非表示
+    (menu-bar-mode 0))
 #+end_src
 
 * Git
