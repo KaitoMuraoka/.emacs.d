@@ -86,7 +86,9 @@ Macだけに読み込ませる内容を書く
   (setq fontaine-presets
         '((regular :default-family "Iosevka" :default-height 160)
           (writing :default-family "Iosevka" :default-height 160)))
-  (fontaine-set-preset 'regular))
+  (fontaine-set-preset 'regular)
+  (dolist (script '(han kana cjk-misc))
+    (set-fontset-font t script (font-spec :family "LINE Seed JP"))))
 
 ;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
 (defun count-lines-and-chars ()
