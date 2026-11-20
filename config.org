@@ -336,47 +336,48 @@ Macだけに読み込ませる内容を書く
 
 ** Vault・ノート作成・リンク・バックリンク・タグ・名前変更
 #+begin_src emacs-lisp
-(use-package denote
-  :ensure t
-  ;; 自作コマンドと capture テンプレートが denote の関数を使うため起動時に読み込む
-  :demand t
-  :custom
-  ;; Vault は ~/org。サブディレクトリ（journal など）も再帰的に対象になる
-  (denote-directory (expand-file-name "~/org/"))
-  (denote-known-keywords '("idea" "book" "meeting" "project"))
-  ;; バックリンクは右のサイドウィンドウに出す（Obsidian のバックリンクパネル）
-  (denote-backlinks-display-buffer-action
-   '((display-buffer-reuse-window display-buffer-in-side-window)
-     (side . right)
-     (slot . 0)
-     (window-width . 0.3)
-     (dedicated . t)
-     (preserve-size . (t . t))))
-  ;; denote-template で選ぶテンプレート（TYPE などのプロパティは org-ql で集計できる）
-  (denote-templates
-   '(;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
-     (journal . "* 今日やること\n\n* ログ\n\n* 振り返り\n")
-     (meeting . "* 参加者\n\n* 議題\n\n* 決定事項\n\n* TODO\n")
-     (book . "* 概要\n:PROPERTIES:\n:TYPE: book\n:AUTHOR:\n:STATUS: 未読\n:RATING:\n:END:\n\n* メモ\n")))
-  ;; capture の本文に呼び出し元の file: リンク（%l）を入れない
-  (denote-org-capture-specifiers "%i\n%?")
-  :hook
-  (dired-mode . denote-dired-mode)
-  :bind
-  (("C-c n n" . denote)
-   ("C-c n o" . denote-open-or-create)
-   ("C-c n l" . denote-link-or-create)
-   ("C-c n b" . denote-backlinks)
-   ("C-c n g" . denote-grep)
-   ("C-c n t" . mk/denote-filter-by-keyword)
-   ("C-c n T" . denote-template)
-   ("C-c n r" . denote-rename-file)
-   ("C-c n R" . denote-rename-file-using-front-matter)))
+  (use-package denote
+    :ensure t
+    ;; 自作コマンドと capture テンプレートが denote の関数を使うため起動時に読み込む
+    :demand t
+    :custom
+    ;; Vault は ~/org。サブディレクトリ（journal など）も再帰的に対象になる
+    (denote-directory (expand-file-name "~/org/"))
+    (denote-known-keywords '("idea" "book" "meeting" "project"))
+    ;; バックリンクは右のサイドウィンドウに出す（Obsidian のバックリンクパネル）
+    (denote-backlinks-display-buffer-action
+     '((display-buffer-reuse-window display-buffer-in-side-window)
+       (side . right)
+       (slot . 0)
+       (window-width . 0.3)
+       (dedicated . t)
+       (preserve-size . (t . t))))
+    ;; denote-template で選ぶテンプレート（TYPE などのプロパティは org-ql で集計できる）
+    (denote-templates
+     '(;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
+       (journal . "* 今日やること\n\n* ログ\n\n* 振り返り\n")
+       (meeting . "* 参加者\n\n* 議題\n\n* 決定事項\n\n* TODO\n")
+       (book . "* 概要\n:PROPERTIES:\n:TYPE: book\n:AUTHOR:\n:STATUS: 未読\n:RATING:\n:END:\n\n* メモ\n")))
+    ;; capture の本文に呼び出し元の file: リンク（%l）を入れない
+    (denote-org-capture-specifiers "%i\n%?")
+    :hook
+    (dired-mode . denote-dired-mode)
+    :bind
+    (("C-c n n" . denote)
+     ("C-c n o" . denote-open-or-create)
+     ("C-c n l" . denote-link-or-create)
+     ("C-c n b" . denote-backlinks)
+     ("C-c n g" . denote-grep)
+     ("C-c n t" . mk/denote-filter-by-keyword)
+     ("C-c n T" . denote-template)
+     ("C-c n r" . denote-rename-file)
+     ("C-c n R" . denote-rename-file-using-front-matter)
+     ("C-c n L" . denote-org-extras-link-to-heading)))
 
-(defun mk/denote-filter-by-keyword (keyword)
-  "KEYWORD（ファイル名の __tag）を持つノートを Dired で一覧する。"
-  (interactive (list (completing-read "タグ: " (denote-keywords))))
-  (denote-sort-dired (concat "_" (regexp-quote keyword) "[_.]") nil nil nil))
+  (defun mk/denote-filter-by-keyword (keyword)
+    "KEYWORD（ファイル名の __tag）を持つノートを Dired で一覧する。"
+    (interactive (list (completing-read "タグ: " (denote-keywords))))
+    (denote-sort-dired (concat "_" (regexp-quote keyword) "[_.]") nil nil nil))
 #+end_src
 
 ** ノート内のバックリンク・リンク・ファイル一覧（動的ブロック）
