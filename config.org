@@ -306,6 +306,8 @@ Macだけに読み込ませる内容を書く
 
 (use-package ghostel
   :ensure t
+  :custom
+  (ghostel-glyph-scale-floor 1.0)
   :bind
   ("C-x g h" . ghostel))
 #+end_src
