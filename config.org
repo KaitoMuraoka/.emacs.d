@@ -251,6 +251,7 @@ Macだけに読み込ませる内容を書く
   :ensure t
   :custom
   (corfu-auto t)  ; 入力に応じて自動で候補を出す
+  (corfu-auto-prefix 0) ; `foo.` の直後など0文字でも候補を出す
   (corfu-cycle t) ; 末尾の次は先頭に戻る
   :init
   (global-corfu-mode)
