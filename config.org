@@ -268,12 +268,15 @@ Macだけに読み込ませる内容を書く
 #+begin_src emacs-lisp
 ;; eglot: 組み込みの LSP クライアント
 (use-package eglot
-  :hook ((ruby-mode ruby-ts-mode) . eglot-ensure)
+  :hook ((ruby-mode ruby-ts-mode swift-mode) . eglot-ensure)
   :config
   ;; solargraph も入っているため、毎回の選択を避けて ruby-lsp に固定する
   ;; Dock から起動した Emacs の PATH には rbenv の shims が無いため、絶対パスで指定する
   (add-to-list 'eglot-server-programs
-               `((ruby-mode ruby-ts-mode) ,(expand-file-name "~/.rbenv/shims/ruby-lsp"))))
+               `((ruby-mode ruby-ts-mode) ,(expand-file-name "~/.rbenv/shims/ruby-lsp")))
+  ;; swiftly 経由で起動し、プロジェクトの .swift-version のツールチェーンを使わせる
+  (add-to-list 'eglot-server-programs
+               `(swift-mode ,(expand-file-name "~/.swiftly/bin/sourcekit-lsp"))))
 
 ;; 自分の設定ファイルを信頼済みにする（未信頼だと flymake のバイトコンパイル診断が無効になる）
 (use-package files
@@ -674,6 +677,9 @@ denote: リンクは denote-link-ol-export が相対 .html リンクに変換す
 #+begin_src emacs-lisp
 (use-package markdown-mode
   :hook (markdown-mode . visual-line-mode))
+
+(use-package swift-mode
+  :ensure t)
 
 (use-package web-mode
   :mode (("\\.html?\\'" . web-mode)
