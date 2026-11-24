@@ -458,13 +458,11 @@ Macだけに読み込ませる内容を書く
 #+end_src
 
 ** グラフビュー
-実行時に走査して Graphviz で SVG を出力する。graphviz が必要。
+実行時に走査して D3.js の HTML を出力する。ブラウザでノードを動かせる。
 
 #+begin_src emacs-lisp
 (use-package denote-explore
   :ensure t
-  :custom
-  (denote-explore-network-format 'graphviz)
   :bind
   ("C-c n G" . denote-explore-network))
 #+end_src

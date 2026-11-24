@@ -28,6 +28,6 @@ GUIの起動画面において、常に Emacs ロゴを表示し、olivetti で�
 - denote で `~/org/` を Vault としたノート環境（`C-c n` プレフィックス）: ノート作成・リンク・バックリンク（右サイドウィンドウ）・タグ絞り込み・テンプレート（journal / meeting / book）
 - denote-org の動的ブロック、denote-journal によるデイリーノート（`~/org/journal`）、consult での全文検索
 - org-ql + org-super-agenda で TODO 一覧・カンバン・本の一覧ビュー（DB を作らず毎回ファイルを走査）
-- denote-explore によるグラフビュー（Graphviz が必要）
+- denote-explore によるグラフビュー（D3.js の HTML をブラウザで表示）
 - org-modern / org-appear で表示を整える
 - org-capture テンプレート（Denote ノート / org-protocol による Web クリップ）、ox-publish による HTML 出力
