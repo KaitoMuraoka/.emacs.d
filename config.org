@@ -116,7 +116,10 @@ Macだけに読み込ませる内容を書く
   ;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
   (use-package emacs
     :config
-    (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
+    (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p)
+    ;; Dock から起動すると PATH に Homebrew が無く、dot（Graphviz）や rg が見つからない
+    (add-to-list 'exec-path "/opt/homebrew/bin")
+    (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH"))))
 
   (setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
   (global-display-line-numbers-mode t)  ;;グローバル
