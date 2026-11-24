@@ -33,6 +33,17 @@ emacs-lisp のコードブロックが ~config.el~ に tangle され、それが
   (global-auto-revert-mode t) ;; 更新されたファイルを自動的に読み込み直す
 #+end_src
 
+GUI で起動したときだけサーバーを立ち上げ、emacsclient や org-protocol から接続できるようにする。
+ターミナルからGUIEmacsにファイルを開かせたい場合は、~emacsclient -n~ で起動する
+#+begin_src emacs-lisp
+(use-package server
+  :if (display-graphic-p)
+  :config
+  ;; 2 つ目の GUI Emacs を起動したときに、既存のサーバーを奪わないようにする
+  (unless (server-running-p)
+    (server-start)))
+#+end_src
+
 Macだけに読み込ませる内容を書く
 #+begin_src emacs-lisp
   (when (eq system-type 'darwin)
@@ -72,69 +83,73 @@ Macだけに読み込ませる内容を書く
 
 * 見た目
 #+begin_src emacs-lisp
-(column-number-mode t) ;; カラム番号を追加
-;; theme
-(use-package nano-theme
-  :ensure t
-  :hook (ns-system-appearance-change-functions
-         . (lambda (appearance)
-             (mapc #'disable-theme custom-enabled-themes)
-             (load-theme (if (eq appearance 'dark) 'nano-dark 'nano-light) t))))
+  (column-number-mode t) ;; カラム番号を追加
+  ;; theme
+  (load-theme 'newcomers-presets t)
+  (add-hook 'ns-system-appearance-change-functions
+            (lambda (appearance)
+              (disable-theme (if (eq appearance 'dark) 'modus-operandi 'modus-vivendi))
+              (load-theme (if (eq appearance 'dark) 'modus-vivendi 'modus-operandi) t)))
 
-(use-package fontaine
-  :ensure t
-  :config
-  (setq fontaine-presets
-        '((regular :default-family "Iosevka" :default-height 160)
-          (writing :default-family "Iosevka" :default-height 160)))
-  (fontaine-set-preset 'regular))
+  (use-package fontaine
+    :ensure t
+    :config
+    (setq fontaine-presets
+          '((regular :default-family "Iosevka" :default-height 160)
+            (writing :default-family "Iosevka" :default-height 160)))
+    (fontaine-set-preset 'regular)
+    (dolist (script '(han kana cjk-misc))
+      (set-fontset-font t script (font-spec :family "LINE Seed JP"))))
 
-;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
-(defun count-lines-and-chars ()
-  (if mark-active
-      (format "(%dlines,%dchars) "
-              (count-lines (region-beginning) (region-end))
-              (- (region-end) (region-beginning)))
-    ""))
+  ;; リージョン内の行数と文字数をモードラインに表示する（範囲指定時のみ）
+  (defun count-lines-and-chars ()
+    (if mark-active
+        (format "(%dlines,%dchars) "
+                (count-lines (region-beginning) (region-end))
+                (- (region-end) (region-beginning)))
+      ""))
 
-(setq-default mode-line-format
-              (cons '(:eval (count-lines-and-chars))
-                    (default-value 'mode-line-format)))
+  (setq-default mode-line-format
+                (cons '(:eval (count-lines-and-chars))
+                      (default-value 'mode-line-format)))
 
-;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
-(use-package emacs
-  :config
-  (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
+  ;; フレームの高さが足りないとロゴなしの起動画面になるため、GUI では常にロゴ付きを使う
+  (use-package emacs
+    :config
+    (advice-add 'use-fancy-splash-screens-p :override #'display-graphic-p))
 
-(setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
-(global-display-line-numbers-mode t)  ;;グローバル
-;;(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
+  (setq frame-title-format "%f") ;; タイトルバーにフルパスを表示する
+  (global-display-line-numbers-mode t)  ;;グローバル
+  ;; スクロールで桁が増えたときに本文がずれないよう、行番号の幅を先に確保する
+  (setq-default display-line-numbers-width 4
+                display-line-numbers-width-start t)
+  ;;(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;;プログラミングモードのみ
 
-;; paren-mode：対応する括弧を強調して表示する
-(use-package paren
-  :custom
-  (show-paren-delay 0) ; 表示までの秒数。初期値は0.125
-  (show-paren-style 'expression) ; expressionは括弧内も強調表示
-  :config
-  ;; :custom-face は face-defface-spec に入りテーマに負けるため user テーマに設定する
-  (custom-set-faces
-   '(show-paren-match ((t (:inherit nil :background unspecified :underline "darkgreen")))))
-  (show-paren-mode t))
-(setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
-(set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
-(setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
+  ;; paren-mode：対応する括弧を強調して表示する
+  (use-package paren
+    :custom
+    (show-paren-delay 0) ; 表示までの秒数。初期値は0.125
+    (show-paren-style 'expression) ; expressionは括弧内も強調表示
+    :config
+    ;; :custom-face は face-defface-spec に入りテーマに負けるため user テーマに設定する
+    (custom-set-faces
+     '(show-paren-match ((t (:inherit nil :background unspecified :underline "darkgreen")))))
+    (show-paren-mode t))
+  (setq-default cursor-type 'bar) ;; カーソル変更 縦棒(|) 'bar
+  (set-default-coding-systems 'utf-8) ;; 文字コードの既定を UTF-8 にする
+  (setq-default line-spacing '(2 . 3));; (上 . 下) で振り分けて文字を行の中央に置く（Emacs 31 以降）
 
-;; ターミナル以外はツールバー、スクロールバーを非表示
-(when window-system
-  ;; tool-barを非表示
-  (tool-bar-mode 0)
-  ;; scroll-barを非表示
-  (scroll-bar-mode 0))
+  ;; ターミナル以外はツールバー、スクロールバーを非表示
+  (when window-system
+    ;; tool-barを非表示
+    (tool-bar-mode 0)
+    ;; scroll-barを非表示
+    (scroll-bar-mode 0))
 
-;; CocoaEmacs以外はメニューバーを非表示
-(unless (eq window-system 'ns)
-  ;; menu-barを非表示
-  (menu-bar-mode 0))
+  ;; CocoaEmacs以外はメニューバーを非表示
+  (unless (eq window-system 'ns)
+    ;; menu-barを非表示
+    (menu-bar-mode 0))
 #+end_src
 
 * Git
@@ -321,47 +336,48 @@ Macだけに読み込ませる内容を書く
 
 ** Vault・ノート作成・リンク・バックリンク・タグ・名前変更
 #+begin_src emacs-lisp
-(use-package denote
-  :ensure t
-  ;; 自作コマンドと capture テンプレートが denote の関数を使うため起動時に読み込む
-  :demand t
-  :custom
-  ;; Vault は ~/org。サブディレクトリ（journal など）も再帰的に対象になる
-  (denote-directory (expand-file-name "~/org/"))
-  (denote-known-keywords '("idea" "book" "meeting" "project"))
-  ;; バックリンクは右のサイドウィンドウに出す（Obsidian のバックリンクパネル）
-  (denote-backlinks-display-buffer-action
-   '((display-buffer-reuse-window display-buffer-in-side-window)
-     (side . right)
-     (slot . 0)
-     (window-width . 0.3)
-     (dedicated . t)
-     (preserve-size . (t . t))))
-  ;; denote-template で選ぶテンプレート（TYPE などのプロパティは org-ql で集計できる）
-  (denote-templates
-   '(;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
-     (journal . "* 今日やること\n\n* ログ\n\n* 振り返り\n")
-     (meeting . "* 参加者\n\n* 議題\n\n* 決定事項\n\n* TODO\n")
-     (book . "* 概要\n:PROPERTIES:\n:TYPE: book\n:AUTHOR:\n:STATUS: 未読\n:RATING:\n:END:\n\n* メモ\n")))
-  ;; capture の本文に呼び出し元の file: リンク（%l）を入れない
-  (denote-org-capture-specifiers "%i\n%?")
-  :hook
-  (dired-mode . denote-dired-mode)
-  :bind
-  (("C-c n n" . denote)
-   ("C-c n o" . denote-open-or-create)
-   ("C-c n l" . denote-link-or-create)
-   ("C-c n b" . denote-backlinks)
-   ("C-c n g" . denote-grep)
-   ("C-c n t" . mk/denote-filter-by-keyword)
-   ("C-c n T" . denote-template)
-   ("C-c n r" . denote-rename-file)
-   ("C-c n R" . denote-rename-file-using-front-matter)))
+  (use-package denote
+    :ensure t
+    ;; 自作コマンドと capture テンプレートが denote の関数を使うため起動時に読み込む
+    :demand t
+    :custom
+    ;; Vault は ~/org。サブディレクトリ（journal など）も再帰的に対象になる
+    (denote-directory (expand-file-name "~/org/"))
+    (denote-known-keywords '("idea" "book" "meeting" "project"))
+    ;; バックリンクは右のサイドウィンドウに出す（Obsidian のバックリンクパネル）
+    (denote-backlinks-display-buffer-action
+     '((display-buffer-reuse-window display-buffer-in-side-window)
+       (side . right)
+       (slot . 0)
+       (window-width . 0.3)
+       (dedicated . t)
+       (preserve-size . (t . t))))
+    ;; denote-template で選ぶテンプレート（TYPE などのプロパティは org-ql で集計できる）
+    (denote-templates
+     '(;; denote-journal は journal キーがあれば選択プロンプトを出さずに使う
+       (journal . "* 今日やること\n\n* ログ\n\n* 振り返り\n")
+       (meeting . "* 参加者\n\n* 議題\n\n* 決定事項\n\n* TODO\n")
+       (book . "* 概要\n:PROPERTIES:\n:TYPE: book\n:AUTHOR:\n:STATUS: 未読\n:RATING:\n:END:\n\n* メモ\n")))
+    ;; capture の本文に呼び出し元の file: リンク（%l）を入れない
+    (denote-org-capture-specifiers "%i\n%?")
+    :hook
+    (dired-mode . denote-dired-mode)
+    :bind
+    (("C-c n n" . denote)
+     ("C-c n o" . denote-open-or-create)
+     ("C-c n l" . denote-link-or-create)
+     ("C-c n b" . denote-backlinks)
+     ("C-c n g" . denote-grep)
+     ("C-c n t" . mk/denote-filter-by-keyword)
+     ("C-c n T" . denote-template)
+     ("C-c n r" . denote-rename-file)
+     ("C-c n R" . denote-rename-file-using-front-matter)
+     ("C-c n L" . denote-org-extras-link-to-heading)))
 
-(defun mk/denote-filter-by-keyword (keyword)
-  "KEYWORD（ファイル名の __tag）を持つノートを Dired で一覧する。"
-  (interactive (list (completing-read "タグ: " (denote-keywords))))
-  (denote-sort-dired (concat "_" (regexp-quote keyword) "[_.]") nil nil nil))
+  (defun mk/denote-filter-by-keyword (keyword)
+    "KEYWORD（ファイル名の __tag）を持つノートを Dired で一覧する。"
+    (interactive (list (completing-read "タグ: " (denote-keywords))))
+    (denote-sort-dired (concat "_" (regexp-quote keyword) "[_.]") nil nil nil))
 #+end_src
 
 ** ノート内のバックリンク・リンク・ファイル一覧（動的ブロック）
@@ -669,7 +685,6 @@ denote: リンクは denote-link-ol-export が相対 .html リンクに変換す
   (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
   (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
 #+end_src
-
 * centaur-tabs（無効）
 有効にするときは ~:tangle no~ を外す。
 
@@ -684,13 +699,13 @@ denote: リンクは denote-link-ol-export が相対 .html リンクに変換す
   (centaur-tabs-set-icons t)
   (centaur-tabs-icon-type 'nerd-icons)
   :custom-face
-  ;; 色を直書きせず nano-theme の face を継承し、OS の Dark/Light 切替に追従させる
+  ;; 色を直書きせず組み込みの face を継承し、テーマの配色に追従させる
   (centaur-tabs-default             ((t (:inherit header-line))))
   (centaur-tabs-selected            ((t (:inherit default))))
   (centaur-tabs-selected-modified   ((t (:inherit default))))
-  (centaur-tabs-unselected          ((t (:inherit (nano-faded nano-subtle)))))
-  (centaur-tabs-unselected-modified ((t (:inherit (nano-faded nano-subtle)))))
-  (centaur-tabs-active-bar-face     ((t (:inherit nano-salient-i))))
+  (centaur-tabs-unselected          ((t (:inherit (shadow header-line)))))
+  (centaur-tabs-unselected-modified ((t (:inherit (shadow header-line)))))
+  (centaur-tabs-active-bar-face     ((t (:inherit cursor))))
   :config
   (centaur-tabs-mode t)
   :bind

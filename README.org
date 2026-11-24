@@ -7,7 +7,8 @@
 
 
 ** 見た目
-nano-theme を導入し、OSの外観に合わせて、nano-light / nano-dark を切り替える。
+Emacs 31 組み込みの newcomers-presets テーマを有効にする。
+配色は OS の外観に合わせて、modus-operandi / modus-vivendi を切り替える。
 fontaine によるフォントプリセット、行間・カッコ強調、teemacs + nerd-icons, centaur-tabs の設定。
 GUIの起動画面において、常に Emacs ロゴを表示し、olivetti で中央寄せにする
 
